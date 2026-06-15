@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Emojicle">
+  <meta name="theme-color" content="#FF6B6B">
+  <title>Emojicle</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Emojicle</h1>
+    <p class="tagline">Make your emoji!</p>
+  </header>
+
+  <main>
+    <div class="canvas-area">
+      <div class="canvas-wrap">
+        <svg id="emoji-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your custom emoji">
+          <g id="layer-face"></g>
+          <g id="layer-extras"></g>
+          <g id="layer-eyebrows"></g>
+          <g id="layer-eyes"></g>
+          <g id="layer-nose"></g>
+          <g id="layer-mouth"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="controls" id="controls"></div>
+
+    <div class="actions">
+      <button id="btn-random" class="btn-action btn-random" aria-label="Randomise emoji">
+        <span class="btn-icon">&#x1F3B2;</span>
+        <span>Random</span>
+      </button>
+      <button id="btn-save" class="btn-action btn-save" aria-label="Save emoji as PNG">
+        <span class="btn-icon">&#x1F4BE;</span>
+        <span>Save</span>
+      </button>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background rounded square -->
+  <rect width="200" height="200" rx="44" fill="#FF6B6B"/>
+  <!-- Face -->
+  <circle cx="100" cy="105" r="72" fill="#FFD93D" stroke="#E8B800" stroke-width="3"/>
+  <!-- Eyes -->
+  <circle cx="76" cy="92" r="13" fill="white"/>
+  <circle cx="79" cy="94" r="8" fill="#2D2D2D"/>
+  <circle cx="82" cy="90" r="3" fill="white"/>
+  <circle cx="124" cy="92" r="13" fill="white"/>
+  <circle cx="127" cy="94" r="8" fill="#2D2D2D"/>
+  <circle cx="130" cy="90" r="3" fill="white"/>
+  <!-- Smile -->
+  <path d="M72,125 Q100,150 128,125" stroke="#2D2D2D" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+</svg>
