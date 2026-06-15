@@ -1,10 +1,11 @@
-const CACHE = 'emojicle-v1';
+const CACHE = 'emojicle-v2';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
+  './vendor/bulma.min.css',
 ];
 
 self.addEventListener('install', e => {

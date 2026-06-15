@@ -6,19 +6,20 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Emojicle">
-  <meta name="theme-color" content="#FF6B6B">
+  <meta name="theme-color" content="#FF5A5F">
   <title>Emojicle</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="vendor/bulma.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Emojicle</h1>
-    <p class="tagline">Make your emoji!</p>
+  <header class="app-header">
+    <h1 class="app-title">Emojicle</h1>
+    <p class="app-tagline">Make your emoji!</p>
   </header>
 
-  <main>
-    <div class="canvas-area">
+  <main class="app-main">
+    <section class="canvas-card">
       <div class="canvas-wrap">
         <svg id="emoji-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your custom emoji">
           <g id="layer-face"></g>
@@ -29,19 +30,25 @@
           <g id="layer-mouth"></g>
         </svg>
       </div>
-    </div>
+    </section>
 
-    <div class="controls" id="controls"></div>
+    <section class="controls-card">
+      <div class="controls" id="controls"></div>
+    </section>
 
-    <div class="actions">
-      <button id="btn-random" class="btn-action btn-random" aria-label="Randomise emoji">
-        <span class="btn-icon">&#x1F3B2;</span>
-        <span>Random</span>
-      </button>
-      <button id="btn-save" class="btn-action btn-save" aria-label="Save emoji as PNG">
-        <span class="btn-icon">&#x1F4BE;</span>
-        <span>Save</span>
-      </button>
+    <div class="actions columns is-mobile is-gapless">
+      <div class="column">
+        <button id="btn-random" class="button is-rounded btn-action btn-random" aria-label="Randomise emoji">
+          <span class="btn-icon" aria-hidden="true">&#x1F3B2;</span>
+          <span>Random</span>
+        </button>
+      </div>
+      <div class="column">
+        <button id="btn-save" class="button is-rounded btn-action btn-save" aria-label="Save emoji as PNG">
+          <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+          <span>Save</span>
+        </button>
+      </div>
     </div>
   </main>
 

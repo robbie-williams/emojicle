@@ -16,37 +16,37 @@ const PARTS = {
   // ── FACES ────────────────────────────────────────────────────────────────
   face: [
     { name: 'Sunshine',
-      svg: `<circle cx="100" cy="120" r="82" fill="#FFD93D" stroke="#E8B800" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#FFD93D" stroke="#E8B800" stroke-width="3"/>` },
     { name: 'Tangerine',
-      svg: `<circle cx="100" cy="120" r="82" fill="#FF8C42" stroke="#D96000" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#FF8C42" stroke="#D96000" stroke-width="3"/>` },
     { name: 'Peachy',
-      svg: `<circle cx="100" cy="120" r="82" fill="#FFBF99" stroke="#D4845A" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#FFBF99" stroke="#D4845A" stroke-width="3"/>` },
     { name: 'Mocha',
-      svg: `<circle cx="100" cy="120" r="82" fill="#C68642" stroke="#8B5A1A" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#C68642" stroke="#8B5A1A" stroke-width="3"/>` },
     { name: 'Bubblegum',
-      svg: `<circle cx="100" cy="120" r="82" fill="#FF85A1" stroke="#D44070" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#FF85A1" stroke="#D44070" stroke-width="3"/>` },
     { name: 'Lavender',
-      svg: `<circle cx="100" cy="120" r="82" fill="#B794F4" stroke="#7C4DDB" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#B794F4" stroke="#7C4DDB" stroke-width="3"/>` },
     { name: 'Mint',
-      svg: `<circle cx="100" cy="120" r="82" fill="#6EE7B7" stroke="#20A870" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#6EE7B7" stroke="#20A870" stroke-width="3"/>` },
     { name: 'Sky Blue',
-      svg: `<circle cx="100" cy="120" r="82" fill="#7EC8E3" stroke="#2E90C5" stroke-width="2.5"/>` },
+      svg: `<circle cx="100" cy="120" r="82" fill="#7EC8E3" stroke="#2E90C5" stroke-width="3"/>` },
     { name: 'Lemon Square',
-      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#FFE566" stroke="#D4B000" stroke-width="2.5"/>` },
+      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#FFE566" stroke="#D4B000" stroke-width="3"/>` },
     { name: 'Coral Square',
-      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#FF7B72" stroke="#D03020" stroke-width="2.5"/>` },
+      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#FF7B72" stroke="#D03020" stroke-width="3"/>` },
     { name: 'Lime Square',
-      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#A8E63C" stroke="#5A9A00" stroke-width="2.5"/>` },
+      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#A8E63C" stroke="#5A9A00" stroke-width="3"/>` },
     { name: 'Berry Square',
-      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#F472B6" stroke="#B0106A" stroke-width="2.5"/>` },
+      svg: `<rect x="16" y="36" width="168" height="168" rx="46" fill="#F472B6" stroke="#B0106A" stroke-width="3"/>` },
     { name: 'Chubby Sun',
-      svg: `<ellipse cx="100" cy="120" rx="94" ry="76" fill="#FFD93D" stroke="#E8B800" stroke-width="2.5"/>` },
+      svg: `<ellipse cx="100" cy="120" rx="94" ry="76" fill="#FFD93D" stroke="#E8B800" stroke-width="3"/>` },
     { name: 'Chubby Pink',
-      svg: `<ellipse cx="100" cy="120" rx="94" ry="76" fill="#FF85A1" stroke="#D44070" stroke-width="2.5"/>` },
+      svg: `<ellipse cx="100" cy="120" rx="94" ry="76" fill="#FF85A1" stroke="#D44070" stroke-width="3"/>` },
     { name: 'Tall Peach',
-      svg: `<ellipse cx="100" cy="120" rx="68" ry="88" fill="#FFBF99" stroke="#D4845A" stroke-width="2.5"/>` },
+      svg: `<ellipse cx="100" cy="120" rx="68" ry="88" fill="#FFBF99" stroke="#D4845A" stroke-width="3"/>` },
     { name: 'Tall Blue',
-      svg: `<ellipse cx="100" cy="120" rx="68" ry="88" fill="#7EC8E3" stroke="#2E90C5" stroke-width="2.5"/>` },
+      svg: `<ellipse cx="100" cy="120" rx="68" ry="88" fill="#7EC8E3" stroke="#2E90C5" stroke-width="3"/>` },
   ],
 
   // ── EYES ─────────────────────────────────────────────────────────────────
@@ -54,25 +54,25 @@ const PARTS = {
     { name: 'Classic',
       svg: `
         <circle cx="72" cy="106" r="14" fill="white"/>
-        <circle cx="75" cy="108" r="9" fill="#2D2D2D"/>
+        <circle cx="75" cy="108" r="9" fill="#2B2B2B"/>
         <circle cx="78" cy="104" r="3.5" fill="white"/>
         <circle cx="128" cy="106" r="14" fill="white"/>
-        <circle cx="131" cy="108" r="9" fill="#2D2D2D"/>
+        <circle cx="131" cy="108" r="9" fill="#2B2B2B"/>
         <circle cx="134" cy="104" r="3.5" fill="white"/>` },
     { name: 'Big Sparkle',
       svg: `
         <circle cx="72" cy="106" r="17" fill="white"/>
-        <circle cx="74" cy="108" r="11" fill="#2D2D2D"/>
+        <circle cx="74" cy="108" r="11" fill="#2B2B2B"/>
         <circle cx="78" cy="102" r="5" fill="white"/>
         <circle cx="68" cy="109" r="2" fill="white"/>
         <circle cx="128" cy="106" r="17" fill="white"/>
-        <circle cx="130" cy="108" r="11" fill="#2D2D2D"/>
+        <circle cx="130" cy="108" r="11" fill="#2B2B2B"/>
         <circle cx="134" cy="102" r="5" fill="white"/>
         <circle cx="124" cy="109" r="2" fill="white"/>` },
     { name: 'Cute Dots',
       svg: `
-        <circle cx="72" cy="106" r="8" fill="#2D2D2D"/>
-        <circle cx="128" cy="106" r="8" fill="#2D2D2D"/>
+        <circle cx="72" cy="106" r="8" fill="#2B2B2B"/>
+        <circle cx="128" cy="106" r="8" fill="#2B2B2B"/>
         <circle cx="75" cy="103" r="3" fill="white"/>
         <circle cx="131" cy="103" r="3" fill="white"/>` },
     { name: 'Heart Eyes',
@@ -85,51 +85,51 @@ const PARTS = {
         <polygon points="128,95 130,102 137,102 131.5,107 133.5,114 128,109 122.5,114 124.5,107 119,102 126,102" fill="#FFD700"/>` },
     { name: 'Sleepy',
       svg: `
-        <path d="M58,108 Q72,100 86,108" stroke="#2D2D2D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <path d="M60,112 Q72,117 84,112" stroke="#2D2D2D" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>
-        <path d="M114,108 Q128,100 142,108" stroke="#2D2D2D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <path d="M116,112 Q128,117 140,112" stroke="#2D2D2D" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>` },
+        <path d="M58,108 Q72,100 86,108" stroke="#2B2B2B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M60,112 Q72,117 84,112" stroke="#2B2B2B" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>
+        <path d="M114,108 Q128,100 142,108" stroke="#2B2B2B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M116,112 Q128,117 140,112" stroke="#2B2B2B" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>` },
     { name: 'Wink',
       svg: `
-        <path d="M58,106 Q72,99 86,106" stroke="#2D2D2D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M58,106 Q72,99 86,106" stroke="#2B2B2B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
         <circle cx="128" cy="106" r="14" fill="white"/>
-        <circle cx="131" cy="108" r="9" fill="#2D2D2D"/>
+        <circle cx="131" cy="108" r="9" fill="#2B2B2B"/>
         <circle cx="134" cy="104" r="3.5" fill="white"/>` },
     { name: 'X Eyes',
       svg: `
-        <line x1="61" y1="96" x2="83" y2="118" stroke="#2D2D2D" stroke-width="4" stroke-linecap="round"/>
-        <line x1="83" y1="96" x2="61" y2="118" stroke="#2D2D2D" stroke-width="4" stroke-linecap="round"/>
-        <line x1="117" y1="96" x2="139" y2="118" stroke="#2D2D2D" stroke-width="4" stroke-linecap="round"/>
-        <line x1="139" y1="96" x2="117" y2="118" stroke="#2D2D2D" stroke-width="4" stroke-linecap="round"/>` },
+        <line x1="61" y1="96" x2="83" y2="118" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round"/>
+        <line x1="83" y1="96" x2="61" y2="118" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round"/>
+        <line x1="117" y1="96" x2="139" y2="118" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round"/>
+        <line x1="139" y1="96" x2="117" y2="118" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round"/>` },
     { name: 'Wide Open',
       svg: `
         <circle cx="72" cy="106" r="18" fill="white"/>
-        <circle cx="72" cy="106" r="11" fill="#2D2D2D"/>
+        <circle cx="72" cy="106" r="11" fill="#2B2B2B"/>
         <circle cx="76" cy="101" r="5" fill="white"/>
         <circle cx="128" cy="106" r="18" fill="white"/>
-        <circle cx="128" cy="106" r="11" fill="#2D2D2D"/>
+        <circle cx="128" cy="106" r="11" fill="#2B2B2B"/>
         <circle cx="132" cy="101" r="5" fill="white"/>` },
     { name: 'Squiggly',
       svg: `
-        <path d="M58,106 C62,99 68,114 72,107 C76,100 82,114 86,107" stroke="#2D2D2D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <path d="M114,106 C118,99 124,114 128,107 C132,100 138,114 142,107" stroke="#2D2D2D" stroke-width="3.5" fill="none" stroke-linecap="round"/>` },
+        <path d="M58,106 C62,99 68,114 72,107 C76,100 82,114 86,107" stroke="#2B2B2B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M114,106 C118,99 124,114 128,107 C132,100 138,114 142,107" stroke="#2B2B2B" stroke-width="3.5" fill="none" stroke-linecap="round"/>` },
     { name: 'Teary',
       svg: `
         <circle cx="72" cy="106" r="14" fill="white"/>
-        <circle cx="75" cy="108" r="9" fill="#2D2D2D"/>
+        <circle cx="75" cy="108" r="9" fill="#2B2B2B"/>
         <circle cx="78" cy="104" r="3.5" fill="white"/>
         <path d="M72,120 Q68,132 62,140 Q68,142 72,140 Q78,138 76,130Z" fill="#7BBCFF" opacity="0.85"/>
         <circle cx="128" cy="106" r="14" fill="white"/>
-        <circle cx="131" cy="108" r="9" fill="#2D2D2D"/>
+        <circle cx="131" cy="108" r="9" fill="#2B2B2B"/>
         <circle cx="134" cy="104" r="3.5" fill="white"/>
         <path d="M128,120 Q124,132 118,140 Q124,142 128,140 Q134,138 132,130Z" fill="#7BBCFF" opacity="0.85"/>` },
     { name: 'Rolling',
       svg: `
         <circle cx="72" cy="106" r="14" fill="white"/>
-        <circle cx="72" cy="99" r="9" fill="#2D2D2D"/>
+        <circle cx="72" cy="99" r="9" fill="#2B2B2B"/>
         <circle cx="75" cy="96" r="3.5" fill="white"/>
         <circle cx="128" cy="106" r="14" fill="white"/>
-        <circle cx="128" cy="99" r="9" fill="#2D2D2D"/>
+        <circle cx="128" cy="99" r="9" fill="#2B2B2B"/>
         <circle cx="131" cy="96" r="3.5" fill="white"/>` },
   ],
 
@@ -139,32 +139,32 @@ const PARTS = {
       svg: `` },
     { name: 'Arched',
       svg: `
-        <path d="M57,84 Q72,74 87,82" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M113,82 Q128,74 143,84" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>` },
+        <path d="M57,84 Q72,74 87,82" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M113,82 Q128,74 143,84" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>` },
     { name: 'Thick',
       svg: `
-        <path d="M57,84 Q72,76 87,84" stroke="#3D2B1F" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M113,84 Q128,76 143,84" stroke="#3D2B1F" stroke-width="6" fill="none" stroke-linecap="round"/>` },
+        <path d="M57,84 Q72,76 87,84" stroke="#2B2B2B" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M113,84 Q128,76 143,84" stroke="#2B2B2B" stroke-width="6" fill="none" stroke-linecap="round"/>` },
     { name: 'Raised',
       svg: `
-        <path d="M57,77 Q72,68 87,75" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M113,75 Q128,68 143,77" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>` },
+        <path d="M57,77 Q72,68 87,75" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M113,75 Q128,68 143,77" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>` },
     { name: 'Angry',
       svg: `
-        <path d="M57,77 Q72,86 87,82" stroke="#3D2B1F" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M113,82 Q128,86 143,77" stroke="#3D2B1F" stroke-width="4.5" fill="none" stroke-linecap="round"/>` },
+        <path d="M57,77 Q72,86 87,82" stroke="#2B2B2B" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M113,82 Q128,86 143,77" stroke="#2B2B2B" stroke-width="4.5" fill="none" stroke-linecap="round"/>` },
     { name: 'Worried',
       svg: `
-        <path d="M57,82 Q64,74 72,80 Q80,86 87,79" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M113,79 Q120,86 128,80 Q136,74 143,82" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>` },
+        <path d="M57,82 Q64,74 72,80 Q80,86 87,79" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M113,79 Q120,86 128,80 Q136,74 143,82" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>` },
     { name: 'Bushy',
       svg: `
-        <path d="M55,84 Q72,74 89,84" stroke="#3D2B1F" stroke-width="9" fill="none" stroke-linecap="round"/>
-        <path d="M111,84 Q128,74 145,84" stroke="#3D2B1F" stroke-width="9" fill="none" stroke-linecap="round"/>` },
+        <path d="M55,84 Q72,74 89,84" stroke="#2B2B2B" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <path d="M111,84 Q128,74 145,84" stroke="#2B2B2B" stroke-width="9" fill="none" stroke-linecap="round"/>` },
     { name: 'Playful Tilt',
       svg: `
-        <path d="M60,86 Q72,78 84,82" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M116,82 Q128,78 140,86" stroke="#3D2B1F" stroke-width="3" fill="none" stroke-linecap="round"/>` },
+        <path d="M60,86 Q72,78 84,82" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M116,82 Q128,78 140,86" stroke="#2B2B2B" stroke-width="3" fill="none" stroke-linecap="round"/>` },
   ],
 
   // ── NOSE ─────────────────────────────────────────────────────────────────
@@ -172,13 +172,13 @@ const PARTS = {
     { name: 'None',
       svg: `` },
     { name: 'Button',
-      svg: `<circle cx="100" cy="118" r="4.5" fill="#3D2B1F" opacity="0.45"/>` },
+      svg: `<circle cx="100" cy="118" r="4.5" fill="#2B2B2B" opacity="0.45"/>` },
     { name: 'Two Dots',
       svg: `
-        <circle cx="93" cy="118" r="4" fill="#3D2B1F" opacity="0.4"/>
-        <circle cx="107" cy="118" r="4" fill="#3D2B1F" opacity="0.4"/>` },
+        <circle cx="93" cy="118" r="4" fill="#2B2B2B" opacity="0.4"/>
+        <circle cx="107" cy="118" r="4" fill="#2B2B2B" opacity="0.4"/>` },
     { name: 'Triangle',
-      svg: `<polygon points="100,108 110,124 90,124" fill="#3D2B1F" opacity="0.3"/>` },
+      svg: `<polygon points="100,108 110,124 90,124" fill="#2B2B2B" opacity="0.3"/>` },
     { name: 'Pig Snout',
       svg: `
         <ellipse cx="100" cy="120" rx="15" ry="11" fill="#FFAAAA" stroke="#CC7777" stroke-width="1.5"/>
@@ -187,9 +187,9 @@ const PARTS = {
     { name: 'Cat Nose',
       svg: `
         <path d="M96,112 L104,112 L100,118Z" fill="#FF8FA3"/>
-        <line x1="100" y1="118" x2="100" y2="126" stroke="#3D2B1F" stroke-width="1.5"/>
-        <path d="M100,126 Q90,122 84,126" stroke="#3D2B1F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <path d="M100,126 Q110,122 116,126" stroke="#3D2B1F" stroke-width="1.5" fill="none" stroke-linecap="round"/>` },
+        <line x1="100" y1="118" x2="100" y2="126" stroke="#2B2B2B" stroke-width="1.5"/>
+        <path d="M100,126 Q90,122 84,126" stroke="#2B2B2B" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M100,126 Q110,122 116,126" stroke="#2B2B2B" stroke-width="1.5" fill="none" stroke-linecap="round"/>` },
     { name: 'Freckles',
       svg: `
         <circle cx="74" cy="114" r="3.5" fill="#C47B5A" opacity="0.5"/>
@@ -207,30 +207,30 @@ const PARTS = {
   // ── MOUTH ────────────────────────────────────────────────────────────────
   mouth: [
     { name: 'Big Smile',
-      svg: `<path d="M72,145 Q100,170 128,145" stroke="#2D2D2D" stroke-width="4" fill="none" stroke-linecap="round"/>` },
+      svg: `<path d="M72,145 Q100,170 128,145" stroke="#2B2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>` },
     { name: 'Open Grin',
       svg: `
-        <path d="M72,145 Q100,172 128,145Z" fill="#2D2D2D"/>
+        <path d="M72,145 Q100,172 128,145Z" fill="#2B2B2B"/>
         <path d="M74,145 Q100,168 126,145Z" fill="white"/>
         <path d="M74,145 Q100,156 126,145Z" fill="#E03030"/>` },
     { name: 'Sad',
-      svg: `<path d="M72,158 Q100,140 128,158" stroke="#2D2D2D" stroke-width="4" fill="none" stroke-linecap="round"/>` },
+      svg: `<path d="M72,158 Q100,140 128,158" stroke="#2B2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>` },
     { name: 'Surprised O',
       svg: `
-        <ellipse cx="100" cy="152" rx="15" ry="20" fill="#2D2D2D"/>
+        <ellipse cx="100" cy="152" rx="15" ry="20" fill="#2B2B2B"/>
         <ellipse cx="100" cy="152" rx="10" ry="15" fill="#CC2020"/>` },
     { name: 'Smirk',
-      svg: `<path d="M82,148 Q96,156 116,145" stroke="#2D2D2D" stroke-width="4" fill="none" stroke-linecap="round"/>` },
+      svg: `<path d="M82,148 Q96,156 116,145" stroke="#2B2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>` },
     { name: 'Tongue Out',
       svg: `
-        <path d="M78,144 Q100,162 122,144Z" fill="#2D2D2D"/>
+        <path d="M78,144 Q100,162 122,144Z" fill="#2B2B2B"/>
         <path d="M80,144 Q100,158 120,144Z" fill="white"/>
         <ellipse cx="100" cy="162" rx="12" ry="10" fill="#FF6B6B"/>
         <line x1="100" y1="152" x2="100" y2="162" stroke="#E03030" stroke-width="1"/>` },
     { name: 'Neutral',
-      svg: `<line x1="78" y1="150" x2="122" y2="150" stroke="#2D2D2D" stroke-width="4" stroke-linecap="round"/>` },
+      svg: `<line x1="78" y1="150" x2="122" y2="150" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round"/>` },
     { name: 'Wavy',
-      svg: `<path d="M72,148 C82,140 92,158 100,150 C108,142 118,158 128,150" stroke="#2D2D2D" stroke-width="4" fill="none" stroke-linecap="round"/>` },
+      svg: `<path d="M72,148 C82,140 92,158 100,150 C108,142 118,158 128,150" stroke="#2B2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>` },
     { name: 'Kiss',
       svg: `
         <path d="M87,146 Q100,158 113,146Z" fill="#FF6688"/>
@@ -238,7 +238,7 @@ const PARTS = {
         <path d="M93,144 Q100,140 107,144" stroke="#CC3355" stroke-width="1" fill="none"/>` },
     { name: 'Big Laugh',
       svg: `
-        <path d="M68,143 Q100,176 132,143Z" fill="#2D2D2D"/>
+        <path d="M68,143 Q100,176 132,143Z" fill="#2B2B2B"/>
         <path d="M71,143 Q100,172 129,143Z" fill="white"/>
         <path d="M71,143 Q100,157 129,143Z" fill="#E03030"/>
         <line x1="82" y1="143" x2="82" y2="151" stroke="#AAAAAA" stroke-width="1.5"/>
