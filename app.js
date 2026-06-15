@@ -400,69 +400,46 @@ function randomise() {
   pulse('btn-random');
 }
 
-// ── Save as PNG ───────────────────────────────────────────────────────────────
+// ── Dance ─────────────────────────────────────────────────────────────────────
+// Extensible move registry — add new dances here. Each move injects arm SVG into
+// #layer-arms and applies a CSS class to #dance-group that drives the keyframes
+// (defined in style.css). The Dance button picks a random available move.
 
-function savePNG() {
-  const svg = document.getElementById('emoji-svg');
-  const size = 512;
+const ARMS_SVG = `
+  <g class="arm arm-left">
+    <path d="M34,150 Q22,172 14,190" fill="none" stroke="#2B2B2B" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="14" cy="190" r="9" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="2.5"/>
+  </g>
+  <g class="arm arm-right">
+    <path d="M166,150 Q178,172 186,190" fill="none" stroke="#2B2B2B" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="186" cy="190" r="9" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="2.5"/>
+  </g>`;
 
-  const clone = svg.cloneNode(true);
-  clone.setAttribute('width', String(size));
-  clone.setAttribute('height', String(size));
-  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+const DANCES = {
+  tango: { name: 'Tango', emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango', arms: ARMS_SVG },
+  // add more moves here later…
+};
 
-  // White background rect inside clone
-  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  bg.setAttribute('width', '200');
-  bg.setAttribute('height', '220');
-  bg.setAttribute('fill', 'white');
-  clone.insertBefore(bg, clone.firstChild);
+let dancing = false;
 
-  const svgStr = new XMLSerializer().serializeToString(clone);
-  const encoded = btoa(unescape(encodeURIComponent(svgStr)));
-  const dataURI = 'data:image/svg+xml;base64,' + encoded;
+function dance(key) {
+  if (dancing) return;
+  const keys = Object.keys(DANCES);
+  const move = DANCES[key] || DANCES[keys[Math.floor(Math.random() * keys.length)]];
 
-  const img = new Image();
-  img.onload = function () {
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, size, size);
+  dancing = true;
+  const group = document.getElementById('dance-group');
+  const arms = document.getElementById('layer-arms');
+  arms.innerHTML = move.arms;
+  group.classList.add('dancing', move.cssClass);
+  pulse('btn-dance');
+  showToast(move.emoji + ' ' + move.name + '!');
 
-    const png = canvas.toDataURL('image/png');
-
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(
-          '<!DOCTYPE html><html><head><title>Save your Emojicle</title>' +
-          '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-          '<style>body{margin:0;display:flex;flex-direction:column;align-items:center;' +
-          'justify-content:center;min-height:100vh;background:#FFF5E6;font-family:sans-serif;padding:20px}' +
-          'img{max-width:280px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.2)}' +
-          'p{margin-top:16px;font-size:1rem;color:#555;text-align:center}</style></head>' +
-          '<body><img src="' + png + '"><p>Hold down on the image to save it!</p></body></html>'
-        );
-      } else {
-        showToast('Allow pop-ups to save!');
-      }
-    } else {
-      const a = document.createElement('a');
-      a.download = 'my-emojicle.png';
-      a.href = png;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast('Saved!');
-    }
-  };
-  img.onerror = function () {
-    showToast('Could not save — try another browser.');
-  };
-  img.src = dataURI;
-
-  pulse('btn-save');
+  setTimeout(() => {
+    group.classList.remove('dancing', move.cssClass);
+    arms.innerHTML = '';
+    dancing = false;
+  }, move.duration);
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -537,7 +514,7 @@ function registerSW() {
 function init() {
   buildControls();
   document.getElementById('btn-random').addEventListener('click', randomise);
-  document.getElementById('btn-save').addEventListener('click', savePNG);
+  document.getElementById('btn-dance').addEventListener('click', () => dance());
   randomise();
   registerSW();
 }

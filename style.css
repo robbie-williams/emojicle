@@ -16,8 +16,8 @@
   --clr-partname:  #3A2A1C;
   --clr-random:    #8E6FF7;   /* purple */
   --clr-random-dk: #6F4FD6;
-  --clr-save:      #2BB673;   /* green */
-  --clr-save-dk:   #1E945C;
+  --clr-dance:     #FF4FA3;   /* pink */
+  --clr-dance-dk:  #D81B7C;
 
   --radius-card: 22px;
   --radius-btn:  18px;
@@ -202,8 +202,8 @@ body {
 
 .btn-random.button        { background: var(--clr-random); border-bottom-color: var(--clr-random-dk); }
 .btn-random.button:hover  { background: var(--clr-random); color: #fff; }
-.btn-save.button          { background: var(--clr-save);   border-bottom-color: var(--clr-save-dk); }
-.btn-save.button:hover    { background: var(--clr-save);   color: #fff; }
+.btn-dance.button         { background: var(--clr-dance);  border-bottom-color: var(--clr-dance-dk); }
+.btn-dance.button:hover   { background: var(--clr-dance);  color: #fff; }
 
 .btn-icon { font-size: 1.25rem; line-height: 1; }
 
@@ -230,6 +230,58 @@ body {
 .toast.show {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
+}
+
+/* ── Dance ────────────────────────────────────────────────────────────────── */
+
+/* let arms and the body lean spill past the 0 0 200 220 viewBox */
+#emoji-svg { overflow: visible; }
+
+/* pivot the whole body near the "feet" for a believable sway */
+#dance-group { transform-box: view-box; transform-origin: 50% 96%; }
+
+/* arms pivot at the shoulders: left (34,150)=17%,68%  right (166,150)=83%,68% */
+.arm { transform-box: view-box; }
+.arm-left  { transform-origin: 17% 68%; }
+.arm-right { transform-origin: 83% 68%; }
+
+/* arms "grow" out from the body when a dance starts */
+#layer-arms { transform-box: view-box; transform-origin: 50% 68%; }
+.dancing #layer-arms { animation: arms-grow 0.35s ease-out; }
+@keyframes arms-grow {
+  from { transform: scale(0.1); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Tango: side-to-side sway with alternately swinging arms */
+.dance-tango { animation: tango-body 1.25s ease-in-out infinite; }
+@keyframes tango-body {
+  0%, 100% { transform: rotate(0deg)  translateY(0); }
+  25%      { transform: rotate(-9deg) translateY(-3px); }
+  50%      { transform: rotate(0deg)  translateY(0); }
+  75%      { transform: rotate(9deg)  translateY(-3px); }
+}
+.dance-tango .arm-left  { animation: tango-arm-l 1.25s ease-in-out infinite; }
+.dance-tango .arm-right { animation: tango-arm-r 1.25s ease-in-out infinite; }
+@keyframes tango-arm-l {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-60deg); }  /* fling up on the left lean */
+  50%      { transform: rotate(0deg); }
+  75%      { transform: rotate(20deg); }
+}
+@keyframes tango-arm-r {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-20deg); }
+  50%      { transform: rotate(0deg); }
+  75%      { transform: rotate(60deg); }   /* fling up on the right lean */
+}
+
+/* respect users who prefer no motion */
+@media (prefers-reduced-motion: reduce) {
+  .dance-tango,
+  .dance-tango .arm-left,
+  .dance-tango .arm-right,
+  .dancing #layer-arms { animation: none; }
 }
 
 /* ── Landscape (short screens): canvas + controls side by side ────────────── */
