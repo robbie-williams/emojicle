@@ -21,15 +21,15 @@
   <main class="app-main">
     <section class="canvas-card">
       <div class="canvas-wrap">
-        <svg id="emoji-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your custom emoji">
+        <svg id="emoji-svg" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your custom emoji">
           <g id="dance-group">
             <g id="layer-arms"></g>
             <g id="layer-face"></g>
-            <g id="layer-extras"></g>
             <g id="layer-eyebrows"></g>
             <g id="layer-eyes"></g>
             <g id="layer-nose"></g>
             <g id="layer-mouth"></g>
+            <g id="layer-extras"></g>
           </g>
         </svg>
       </div>
@@ -55,8 +55,24 @@
     </div>
   </main>
 
+  <footer class="app-credit">
+    Emoji art by <a href="https://openmoji.org" target="_blank" rel="noopener">OpenMoji</a>
+    &middot; licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+  </footer>
+
+  <div id="picker" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel">
+      <div class="picker-head">
+        <h2 id="picker-title" class="picker-title"></h2>
+        <button id="picker-close" class="picker-close" aria-label="Close picker">&times;</button>
+      </div>
+      <div id="picker-grid" class="picker-grid"></div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
+  <script src="parts-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

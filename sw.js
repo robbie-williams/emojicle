@@ -1,9 +1,10 @@
-const CACHE = 'emojicle-v3';
+const CACHE = 'emojicle-v4';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './parts-data.js',
   './manifest.json',
   './vendor/bulma.min.css',
 ];

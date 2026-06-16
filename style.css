@@ -140,8 +140,19 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 4px;
+  /* now a tappable button that opens the grid picker */
+  border: none;
+  background: #FBF2E8;
+  border-radius: 10px;
+  padding: 7px 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-transform: capitalize;
+  transition: background 0.12s ease, transform 0.08s ease;
 }
+
+.part-name:hover  { background: #F4E6D4; }
+.part-name:active { transform: scale(0.97); }
 
 /* Nav arrows — chunky flat with a tactile bottom lip */
 .btn-nav {
@@ -234,19 +245,19 @@ body {
 
 /* ── Dance ────────────────────────────────────────────────────────────────── */
 
-/* let arms and the body lean spill past the 0 0 200 220 viewBox */
+/* let arms and the body lean spill past the 0 0 72 72 viewBox */
 #emoji-svg { overflow: visible; }
 
 /* pivot the whole body near the "feet" for a believable sway */
-#dance-group { transform-box: view-box; transform-origin: 50% 96%; }
+#dance-group { transform-box: view-box; transform-origin: 50% 82%; }
 
-/* arms pivot at the shoulders: left (34,150)=17%,68%  right (166,150)=83%,68% */
+/* arms pivot at the shoulders: left (14,40)=19%,56%  right (58,40)=81%,56% */
 .arm { transform-box: view-box; }
-.arm-left  { transform-origin: 17% 68%; }
-.arm-right { transform-origin: 83% 68%; }
+.arm-left  { transform-origin: 19% 56%; }
+.arm-right { transform-origin: 81% 56%; }
 
 /* arms "grow" out from the body when a dance starts */
-#layer-arms { transform-box: view-box; transform-origin: 50% 68%; }
+#layer-arms { transform-box: view-box; transform-origin: 50% 56%; }
 .dancing #layer-arms { animation: arms-grow 0.35s ease-out; }
 @keyframes arms-grow {
   from { transform: scale(0.1); opacity: 0; }
@@ -257,9 +268,9 @@ body {
 .dance-tango { animation: tango-body 1.25s ease-in-out infinite; }
 @keyframes tango-body {
   0%, 100% { transform: rotate(0deg)  translateY(0); }
-  25%      { transform: rotate(-9deg) translateY(-3px); }
+  25%      { transform: rotate(-9deg) translateY(-1.5px); }
   50%      { transform: rotate(0deg)  translateY(0); }
-  75%      { transform: rotate(9deg)  translateY(-3px); }
+  75%      { transform: rotate(9deg)  translateY(-1.5px); }
 }
 .dance-tango .arm-left  { animation: tango-arm-l 1.25s ease-in-out infinite; }
 .dance-tango .arm-right { animation: tango-arm-r 1.25s ease-in-out infinite; }
@@ -304,4 +315,120 @@ body {
 @media (min-width: 420px) {
   .canvas-wrap { width: 290px; }
   .part-name   { font-size: 0.9rem; }
+}
+
+/* ── Attribution footer ───────────────────────────────────────────────────── */
+
+.app-credit {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.66rem;
+  color: var(--clr-label);
+  padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+  opacity: 0.85;
+}
+.app-credit a { color: var(--clr-random-dk); font-weight: 700; }
+
+/* ── Tap picker (grid of all options for a layer) ─────────────────────────── */
+
+.picker {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  background: rgba(43, 43, 43, 0.55);
+  align-items: flex-end;
+  justify-content: center;
+}
+.picker.show { display: flex; }
+
+.picker-panel {
+  background: var(--clr-bg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 82dvh;
+  max-height: 82vh;
+  border-radius: 22px 22px 0 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+  animation: picker-up 0.22s ease-out;
+}
+@keyframes picker-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  flex-shrink: 0;
+}
+.picker-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--clr-partname);
+  letter-spacing: -0.3px;
+}
+.picker-close {
+  border: none;
+  background: #FBF2E8;
+  color: var(--clr-partname);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.picker-close:active { transform: scale(0.94); }
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 10px;
+  padding: 4px 16px calc(18px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.swatch {
+  border: 2px solid var(--clr-card-edge);
+  background: var(--clr-card);
+  border-radius: 16px;
+  padding: 6px 4px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+.swatch:active { transform: scale(0.95); }
+.swatch.is-selected {
+  border-color: var(--clr-brand);
+  box-shadow: 0 0 0 2px var(--clr-brand);
+}
+.swatch-svg {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  overflow: visible;
+}
+.swatch-name {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--clr-label);
+  text-align: center;
+  text-transform: capitalize;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picker-panel { animation: none; }
 }
