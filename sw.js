@@ -1,4 +1,4 @@
-const CACHE = 'emojicle-cf383510';
+const CACHE = 'emojicle-a55fccc7';
 const ASSETS = [
   './',
   './index.html',
