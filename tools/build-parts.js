@@ -3,21 +3,32 @@
 /*
  * build-parts.js — compile the face-components/ SVG pack into a single
  * parts-data.js that the app loads at runtime (offline-friendly, no per-part
- * fetches). Run from the repo root:  node tools/build-parts.js
+ * fetches). Run from the repo root:  node tools/build-parts.js   (or: npm run build)
  *
- * Source: face-components/ (heuristic decomposition of the OpenMoji face set).
- * Art licence: OpenMoji — CC BY-SA 4.0 (https://openmoji.org).
+ * The pack is discovered by SCANNING face-components/svg/. Every file named
+ *   <token>_<type>.svg
+ * is picked up automatically — drop a correctly-named file in and rebuild, no
+ * manifest edits required. <type> is the trailing segment (face/eyes/mouth/
+ * nose/brows/ears/arms/extras); <token> is usually the OpenMoji hexcode, but
+ * may carry a suffix (e.g. 1F4A9-hat) for custom variants.
+ *
+ * components.json is used only to look up nice display names; it is optional.
+ *
+ * Source/licence: OpenMoji — CC BY-SA 4.0 (https://openmoji.org).
  */
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const PACK = path.join(ROOT, 'face-components');
+const SVG_DIR = path.join(PACK, 'svg');
 const MANIFEST = path.join(PACK, 'components.json');
 const OUT = path.join(ROOT, 'parts-data.js');
+const SW = path.join(ROOT, 'sw.js');
 
-// pack type  ->  app layer  (null = handled separately / dropped)
+// pack type  ->  app layer  (anything else is ignored)
 const TYPE_TO_LAYER = {
   face: 'face',
   eyes: 'eyes',
@@ -32,34 +43,69 @@ const TYPE_TO_LAYER = {
 // layers that should offer a "None" (blank) option at the front
 const OPTIONAL = new Set(['eyebrows', 'nose', 'extras']);
 
-// Extract the inner markup of an OpenMoji part SVG and tidy it for inlining:
-// drop the <svg> wrapper and the <?xml?>/comments, strip id="" attributes
-// (avoids duplicate-id soup once hundreds are in the DOM), collapse whitespace.
-function innerSvg(raw) {
-  let s = raw;
-  s = s.replace(/<\?xml[\s\S]*?\?>/g, '');
-  s = s.replace(/<!--[\s\S]*?-->/g, '');
-  s = s.replace(/<svg\b[^>]*>/i, '');
-  s = s.replace(/<\/svg>/i, '');
-  s = s.replace(/\sid="[^"]*"/g, '');
-  s = s.replace(/\s+/g, ' ').trim();
-  return s;
+// hexcode -> human name, from components.json if present (purely cosmetic)
+function loadNames() {
+  const byHex = {};
+  const byId = {};
+  if (!fs.existsSync(MANIFEST)) return { byHex, byId };
+  const m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+  for (const c of m.components || []) {
+    if (c.hexcode) byHex[c.hexcode.toUpperCase()] = c.source_emoji;
+    if (c.id) byId[c.id] = c.source_emoji;
+  }
+  return { byHex, byId };
 }
 
-const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+const humanize = s => s.replace(/[-_]+/g, ' ').trim().toLowerCase();
 
+// Derive a display name for a <token>_<type> file. Prefer an exact manifest id,
+// then the leading hexcode's emoji name plus any descriptive suffix, then a
+// plain humanised token.
+function displayName(token, type, names) {
+  const id = `${token}_${type}`;
+  if (names.byId[id]) return names.byId[id];
+
+  const segs = token.split('-');
+  const hex = segs[0].toUpperCase();
+  const base = names.byHex[hex];
+  const suffix = segs.slice(1).join(' ');
+  if (base) return suffix ? `${base} ${humanize(suffix)}` : base;
+  return humanize(token);
+}
+
+// Extract the inner markup of a part SVG and tidy it for inlining: drop the
+// <svg> wrapper / xml decl / comments, strip id="" attributes (avoids duplicate
+// ids once hundreds are in the DOM), collapse whitespace. transform/fill/stroke
+// are preserved.
+function innerSvg(raw) {
+  return raw
+    .replace(/<\?xml[\s\S]*?\?>/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<svg\b[^>]*>/i, '')
+    .replace(/<\/svg>/i, '')
+    .replace(/\sid="[^"]*"/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const names = loadNames();
 const layers = { face: [], eyes: [], eyebrows: [], nose: [], mouth: [], extras: [] };
 const arms = [];
 let skipped = 0;
 
-for (const c of manifest.components) {
-  const layer = TYPE_TO_LAYER[c.type];
+const files = fs.readdirSync(SVG_DIR).filter(f => f.endsWith('.svg')).sort();
+
+for (const file of files) {
+  const m = file.match(/^(.+)_([A-Za-z]+)\.svg$/);
+  if (!m) { skipped++; continue; }
+  const [, token, type] = m;
+  const layer = TYPE_TO_LAYER[type.toLowerCase()];
   if (!layer) { skipped++; continue; }
 
-  const svg = innerSvg(fs.readFileSync(path.join(PACK, c.file), 'utf8'));
-  if (!svg) { skipped++; continue; }            // empty after tidy — skip
+  const svg = innerSvg(fs.readFileSync(path.join(SVG_DIR, file), 'utf8'));
+  if (!svg) { skipped++; continue; }
 
-  const entry = { name: c.source_emoji, svg };
+  const entry = { name: displayName(token, type.toLowerCase(), names), svg };
   if (layer === 'arms') arms.push(entry);
   else layers[layer].push(entry);
 }
@@ -69,22 +115,34 @@ for (const l of Object.keys(layers)) {
   if (OPTIONAL.has(l)) layers[l].unshift({ name: 'None', svg: '' });
 }
 
+const total = Object.values(layers).reduce((n, a) => n + a.length, 0) + arms.length;
+
 const banner =
 `'use strict';
 /* AUTO-GENERATED by tools/build-parts.js — do not edit by hand.
  * Emoji art: OpenMoji (https://openmoji.org), licensed CC BY-SA 4.0.
- * ${manifest.component_count} components from ${manifest.emoji_count} faces, viewBox 0 0 72 72.
+ * ${total} components, viewBox 0 0 72 72. Rebuild with: npm run build
  */
 `;
 
 const body =
-`const PARTS = ${JSON.stringify(layers, null, 0)};
-const PACK_ARMS = ${JSON.stringify(arms, null, 0)};
+`const PARTS = ${JSON.stringify(layers)};
+const PACK_ARMS = ${JSON.stringify(arms)};
 `;
 
-fs.writeFileSync(OUT, banner + body + '\n');
+const out = banner + body + '\n';
+fs.writeFileSync(OUT, out);
+
+// Auto-bump the service-worker cache so returning users pick up new art. The
+// cache name is derived from a hash of the generated data — changes iff the
+// pack changes.
+const hash = crypto.createHash('md5').update(out).digest('hex').slice(0, 8);
+let sw = fs.readFileSync(SW, 'utf8');
+const cacheName = `emojicle-${hash}`;
+sw = sw.replace(/const CACHE = '[^']*';/, `const CACHE = '${cacheName}';`);
+fs.writeFileSync(SW, sw);
 
 const counts = Object.entries(layers).map(([k, v]) => `${k}:${v.length}`).join('  ');
-console.log(`Wrote ${path.relative(ROOT, OUT)}`);
+console.log(`Wrote ${path.relative(ROOT, OUT)}  (${(out.length / 1024).toFixed(0)} KB)`);
 console.log(`  ${counts}  arms:${arms.length}  (skipped ${skipped})`);
-console.log(`  ${(fs.statSync(OUT).size / 1024).toFixed(0)} KB`);
+console.log(`  sw.js cache -> ${cacheName}`);
