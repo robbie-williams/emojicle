@@ -116,9 +116,9 @@ body {
 
 .layer-row {
   display: grid;
-  grid-template-columns: 56px 46px 1fr 46px;
+  grid-template-columns: 60px 1fr;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   padding: 5px 2px;
   border-radius: 12px;
 }
@@ -132,52 +132,38 @@ body {
   white-space: nowrap;
 }
 
+/* the only per-layer control now: a full-width button that opens the picker */
 .part-name {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--clr-partname);
-  text-align: center;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  /* now a tappable button that opens the grid picker */
   border: none;
   background: #FBF2E8;
-  border-radius: 10px;
-  padding: 7px 6px;
+  border-bottom: 3px solid #EAD9C4;
+  border-radius: 12px;
+  padding: 11px 14px;
   cursor: pointer;
   touch-action: manipulation;
   text-transform: capitalize;
-  transition: background 0.12s ease, transform 0.08s ease;
+  transition: background 0.12s ease, transform 0.08s ease, border-width 0.08s ease;
+}
+
+/* ▾ chevron hints that it opens a list of options */
+.part-name::after {
+  content: '\25BE';
+  font-size: 0.8rem;
+  color: var(--clr-label);
+  flex-shrink: 0;
 }
 
 .part-name:hover  { background: #F4E6D4; }
-.part-name:active { transform: scale(0.97); }
-
-/* Nav arrows — chunky flat with a tactile bottom lip */
-.btn-nav {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  border: none;
-  border-bottom: 4px solid var(--clr-brand-dk);
-  background: var(--clr-brand);
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  touch-action: manipulation;
-  transition: transform 0.08s ease, border-width 0.08s ease;
-}
-
-.btn-nav:active {
-  transform: translateY(3px);
-  border-bottom-width: 1px;
-}
+.part-name:active { transform: translateY(2px); border-bottom-width: 1px; }
 
 /* ── Action buttons (Bulma .button overridden) ────────────────────────────── */
 

@@ -39,14 +39,6 @@ function renderAll() {
   LAYERS.forEach(renderLayer);
 }
 
-// ── Navigation ────────────────────────────────────────────────────────────────
-
-function navigate(layer, dir) {
-  const len = PARTS[layer].length;
-  state[layer] = ((state[layer] + dir) % len + len) % len;
-  renderLayer(layer);
-}
-
 // ── Randomise ─────────────────────────────────────────────────────────────────
 
 function randomise() {
@@ -179,29 +171,14 @@ function buildControls() {
     label.className = 'layer-label';
     label.textContent = LAYER_LABELS[layer];
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'btn-nav';
-    prevBtn.setAttribute('aria-label', 'Previous ' + LAYER_LABELS[layer]);
-    prevBtn.innerHTML = '&#8592;';
-
     const nameBtn = document.createElement('button');
     nameBtn.className = 'part-name';
     nameBtn.id = 'name-' + layer;
     nameBtn.setAttribute('aria-label', 'Browse all ' + LAYER_LABELS[layer]);
-
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'btn-nav';
-    nextBtn.setAttribute('aria-label', 'Next ' + LAYER_LABELS[layer]);
-    nextBtn.innerHTML = '&#8594;';
-
-    prevBtn.addEventListener('click', () => navigate(layer, -1));
-    nextBtn.addEventListener('click', () => navigate(layer, 1));
     nameBtn.addEventListener('click', () => openPicker(layer));
 
     row.appendChild(label);
-    row.appendChild(prevBtn);
     row.appendChild(nameBtn);
-    row.appendChild(nextBtn);
     container.appendChild(row);
   });
 }
