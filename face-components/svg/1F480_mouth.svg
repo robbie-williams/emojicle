@@ -1,0 +1,10 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="line">
+    
+    <line x1="27.8645" x2="27.8645" y1="55.002" y2="59.782" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line>
+    <line x1="33.5785" x2="33.5785" y1="56.067" y2="60.848" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line>
+    <line x1="44.2125" x2="44.2125" y1="55.002" y2="59.782" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line>
+    <line x1="39.0275" x2="39.0275" y1="56.067" y2="60.848" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line>
+    <polyline fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="33.0365,52.209 35.9685,46.36 39.4735,52.209"></polyline>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color">
+    <path fill="#fff" d="m42.86 46.04c-0.339 0.2917-4.957 7.343-9.91 6.064-4.463-1.152-5.49-8.887-5.736-9.413 5.215 1.116 10.43 2.233 15.65 3.349z"></path>
+    <path fill="#ea5a47" d="m41.71 46.13c-1.293 5.936-4.618 10.25-7.426 9.64s-4.037-5.92-2.744-11.86z"></path>
+  </g>
+  <g id="line">
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="m40.46 49.13c0.01-0.01 0.01-0.02 0.01-0.02 1.4-1.62 2.02-3.37 2.18-3.512l-15.65-3.349c0.2275 0.472-0.5225 6.682 4.108 8.862"></path>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="m41.5 45.68c-1.293 5.936-4.618 10.25-7.426 9.64s-4.037-5.92-2.744-11.86"></path>
+  </g>
+</svg>

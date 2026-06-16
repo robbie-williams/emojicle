@@ -1,0 +1,7 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  
+  <g id="line">
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m41.31,18.02c1.185,2.421,3,5,9,4"></path>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m30.96,18.02c-1.185,2.421-3,5-9,4"></path>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color">
+    <ellipse cx="36.5193" cy="30.3411" rx="1.7742" ry="2.1254" fill="#3f3f3f"></ellipse>
+    <path fill="#d0cfce" d="m40.1212,56.6767c.7152-.0627,3.5205-2.5204,5.4482-2.3674,3.4799.2761,9.0034,3.463,11.4306,1.6907,3.2152-2.3476,1.2678-3.0961,1.9646-4.5942.9623-2.069-3.4028-6.2239-6.017-12.0822-1.1268-2.5251-1.2295-4.7069-.738-6.384,1.2826-2.5697,2.3564-3.62,3.4174-6.1225.8441-1.991-8.174-.2897-8.3927-.3765-.8853-.7861-1.9246-3.9216-3.4483-7.7112"></path>
+    <ellipse cx="33.1007" cy="23.2122" rx="1.7074" ry="3.1872" fill="#3f3f3f"></ellipse>
+  </g>
+  <g id="line">
+    <ellipse cx="36.4993" cy="30.3411" rx="1.7742" ry="2.1254" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></ellipse>
+    <ellipse cx="33.0806" cy="23.2122" rx="1.7074" ry="3.1872" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></ellipse>
+  </g>
+</svg>

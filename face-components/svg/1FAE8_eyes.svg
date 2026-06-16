@@ -1,0 +1,9 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  
+  <g id="line">
+    <ellipse cx="26.4846" cy="36.0521" rx="2.3082" ry="4.1548" transform="translate(-14.9657 19.2278) rotate(-31.6066)" stroke-width="0"></ellipse>
+    
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m40.5143,21.6618s2.9765,1.1883,3.7112,4.6672"></path>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m20.683,36.2431s.1761,3.2001,3.2384,5.0068"></path>
+  </g>
+</svg>

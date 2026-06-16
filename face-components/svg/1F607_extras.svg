@@ -1,0 +1,11 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="line">
+    
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M47.7657,16.233a23.0273,23.0273,0,0,0-23.3693-.096"></path>
+    
+    <ellipse cx="36" cy="14.8" rx="25" ry="5.25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="2"></ellipse>
+  </g>
+  <g id="color-foreground">
+    <ellipse cx="36" cy="14.8" rx="25" ry="5.25" fill="none" stroke="#61b2e4" stroke-miterlimit="10" stroke-width="2.1"></ellipse>
+  </g>
+</svg>

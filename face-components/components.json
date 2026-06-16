@@ -1,0 +1,4549 @@
+{
+  "description": "Heuristic semantic part decomposition of OpenMoji face emojis (face-* subgroups) for Emojicle.",
+  "source": "OpenMoji color SVGs; parts derived by geometry/heuristics — review-grade, not authoritative.",
+  "types": [
+    "face",
+    "eyes",
+    "mouth",
+    "nose",
+    "brows",
+    "ears",
+    "arms",
+    "extras"
+  ],
+  "emoji_count": 119,
+  "component_count": 453,
+  "generated": "2026-06-16",
+  "components": [
+    {
+      "id": "1F479_face",
+      "type": "face",
+      "name": "ogre — face",
+      "hexcode": "1F479",
+      "source_emoji": "ogre",
+      "emoji": "👹",
+      "subgroup": "face-costume",
+      "file": "svg/1F479_face.svg"
+    },
+    {
+      "id": "1F479_eyes",
+      "type": "eyes",
+      "name": "ogre — eyes",
+      "hexcode": "1F479",
+      "source_emoji": "ogre",
+      "emoji": "👹",
+      "subgroup": "face-costume",
+      "file": "svg/1F479_eyes.svg"
+    },
+    {
+      "id": "1F479_mouth",
+      "type": "mouth",
+      "name": "ogre — mouth",
+      "hexcode": "1F479",
+      "source_emoji": "ogre",
+      "emoji": "👹",
+      "subgroup": "face-costume",
+      "file": "svg/1F479_mouth.svg"
+    },
+    {
+      "id": "1F479_brows",
+      "type": "brows",
+      "name": "ogre — brows",
+      "hexcode": "1F479",
+      "source_emoji": "ogre",
+      "emoji": "👹",
+      "subgroup": "face-costume",
+      "file": "svg/1F479_brows.svg"
+    },
+    {
+      "id": "1F479_extras",
+      "type": "extras",
+      "name": "ogre — extras",
+      "hexcode": "1F479",
+      "source_emoji": "ogre",
+      "emoji": "👹",
+      "subgroup": "face-costume",
+      "file": "svg/1F479_extras.svg"
+    },
+    {
+      "id": "1F47A_face",
+      "type": "face",
+      "name": "goblin — face",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_face.svg"
+    },
+    {
+      "id": "1F47A_eyes",
+      "type": "eyes",
+      "name": "goblin — eyes",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_eyes.svg"
+    },
+    {
+      "id": "1F47A_mouth",
+      "type": "mouth",
+      "name": "goblin — mouth",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_mouth.svg"
+    },
+    {
+      "id": "1F47A_arms",
+      "type": "arms",
+      "name": "goblin — arms",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_arms.svg"
+    },
+    {
+      "id": "1F47A_extras",
+      "type": "extras",
+      "name": "goblin — extras",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_extras.svg"
+    },
+    {
+      "id": "1F47B_face",
+      "type": "face",
+      "name": "ghost — face",
+      "hexcode": "1F47B",
+      "source_emoji": "ghost",
+      "emoji": "👻",
+      "subgroup": "face-costume",
+      "file": "svg/1F47B_face.svg"
+    },
+    {
+      "id": "1F47B_eyes",
+      "type": "eyes",
+      "name": "ghost — eyes",
+      "hexcode": "1F47B",
+      "source_emoji": "ghost",
+      "emoji": "👻",
+      "subgroup": "face-costume",
+      "file": "svg/1F47B_eyes.svg"
+    },
+    {
+      "id": "1F47B_extras",
+      "type": "extras",
+      "name": "ghost — extras",
+      "hexcode": "1F47B",
+      "source_emoji": "ghost",
+      "emoji": "👻",
+      "subgroup": "face-costume",
+      "file": "svg/1F47B_extras.svg"
+    },
+    {
+      "id": "1F47D_face",
+      "type": "face",
+      "name": "alien — face",
+      "hexcode": "1F47D",
+      "source_emoji": "alien",
+      "emoji": "👽️",
+      "subgroup": "face-costume",
+      "file": "svg/1F47D_face.svg"
+    },
+    {
+      "id": "1F47D_eyes",
+      "type": "eyes",
+      "name": "alien — eyes",
+      "hexcode": "1F47D",
+      "source_emoji": "alien",
+      "emoji": "👽️",
+      "subgroup": "face-costume",
+      "file": "svg/1F47D_eyes.svg"
+    },
+    {
+      "id": "1F47D_mouth",
+      "type": "mouth",
+      "name": "alien — mouth",
+      "hexcode": "1F47D",
+      "source_emoji": "alien",
+      "emoji": "👽️",
+      "subgroup": "face-costume",
+      "file": "svg/1F47D_mouth.svg"
+    },
+    {
+      "id": "1F47D_extras",
+      "type": "extras",
+      "name": "alien — extras",
+      "hexcode": "1F47D",
+      "source_emoji": "alien",
+      "emoji": "👽️",
+      "subgroup": "face-costume",
+      "file": "svg/1F47D_extras.svg"
+    },
+    {
+      "id": "1F47E_eyes",
+      "type": "eyes",
+      "name": "alien monster — eyes",
+      "hexcode": "1F47E",
+      "source_emoji": "alien monster",
+      "emoji": "👾",
+      "subgroup": "face-costume",
+      "file": "svg/1F47E_eyes.svg"
+    },
+    {
+      "id": "1F47E_mouth",
+      "type": "mouth",
+      "name": "alien monster — mouth",
+      "hexcode": "1F47E",
+      "source_emoji": "alien monster",
+      "emoji": "👾",
+      "subgroup": "face-costume",
+      "file": "svg/1F47E_mouth.svg"
+    },
+    {
+      "id": "1F47E_brows",
+      "type": "brows",
+      "name": "alien monster — brows",
+      "hexcode": "1F47E",
+      "source_emoji": "alien monster",
+      "emoji": "👾",
+      "subgroup": "face-costume",
+      "file": "svg/1F47E_brows.svg"
+    },
+    {
+      "id": "1F47E_extras",
+      "type": "extras",
+      "name": "alien monster — extras",
+      "hexcode": "1F47E",
+      "source_emoji": "alien monster",
+      "emoji": "👾",
+      "subgroup": "face-costume",
+      "file": "svg/1F47E_extras.svg"
+    },
+    {
+      "id": "1F47F_face",
+      "type": "face",
+      "name": "angry face with horns — face",
+      "hexcode": "1F47F",
+      "source_emoji": "angry face with horns",
+      "emoji": "👿",
+      "subgroup": "face-negative",
+      "file": "svg/1F47F_face.svg"
+    },
+    {
+      "id": "1F47F_eyes",
+      "type": "eyes",
+      "name": "angry face with horns — eyes",
+      "hexcode": "1F47F",
+      "source_emoji": "angry face with horns",
+      "emoji": "👿",
+      "subgroup": "face-negative",
+      "file": "svg/1F47F_eyes.svg"
+    },
+    {
+      "id": "1F47F_mouth",
+      "type": "mouth",
+      "name": "angry face with horns — mouth",
+      "hexcode": "1F47F",
+      "source_emoji": "angry face with horns",
+      "emoji": "👿",
+      "subgroup": "face-negative",
+      "file": "svg/1F47F_mouth.svg"
+    },
+    {
+      "id": "1F47F_brows",
+      "type": "brows",
+      "name": "angry face with horns — brows",
+      "hexcode": "1F47F",
+      "source_emoji": "angry face with horns",
+      "emoji": "👿",
+      "subgroup": "face-negative",
+      "file": "svg/1F47F_brows.svg"
+    },
+    {
+      "id": "1F47F_extras",
+      "type": "extras",
+      "name": "angry face with horns — extras",
+      "hexcode": "1F47F",
+      "source_emoji": "angry face with horns",
+      "emoji": "👿",
+      "subgroup": "face-negative",
+      "file": "svg/1F47F_extras.svg"
+    },
+    {
+      "id": "1F480_face",
+      "type": "face",
+      "name": "skull — face",
+      "hexcode": "1F480",
+      "source_emoji": "skull",
+      "emoji": "💀",
+      "subgroup": "face-negative",
+      "file": "svg/1F480_face.svg"
+    },
+    {
+      "id": "1F480_eyes",
+      "type": "eyes",
+      "name": "skull — eyes",
+      "hexcode": "1F480",
+      "source_emoji": "skull",
+      "emoji": "💀",
+      "subgroup": "face-negative",
+      "file": "svg/1F480_eyes.svg"
+    },
+    {
+      "id": "1F480_mouth",
+      "type": "mouth",
+      "name": "skull — mouth",
+      "hexcode": "1F480",
+      "source_emoji": "skull",
+      "emoji": "💀",
+      "subgroup": "face-negative",
+      "file": "svg/1F480_mouth.svg"
+    },
+    {
+      "id": "1F480_extras",
+      "type": "extras",
+      "name": "skull — extras",
+      "hexcode": "1F480",
+      "source_emoji": "skull",
+      "emoji": "💀",
+      "subgroup": "face-negative",
+      "file": "svg/1F480_extras.svg"
+    },
+    {
+      "id": "1F4A9_face",
+      "type": "face",
+      "name": "pile of poo — face",
+      "hexcode": "1F4A9",
+      "source_emoji": "pile of poo",
+      "emoji": "💩",
+      "subgroup": "face-costume",
+      "file": "svg/1F4A9_face.svg"
+    },
+    {
+      "id": "1F4A9_eyes",
+      "type": "eyes",
+      "name": "pile of poo — eyes",
+      "hexcode": "1F4A9",
+      "source_emoji": "pile of poo",
+      "emoji": "💩",
+      "subgroup": "face-costume",
+      "file": "svg/1F4A9_eyes.svg"
+    },
+    {
+      "id": "1F4A9_extras",
+      "type": "extras",
+      "name": "pile of poo — extras",
+      "hexcode": "1F4A9",
+      "source_emoji": "pile of poo",
+      "emoji": "💩",
+      "subgroup": "face-costume",
+      "file": "svg/1F4A9_extras.svg"
+    },
+    {
+      "id": "1F600_face",
+      "type": "face",
+      "name": "grinning face — face",
+      "hexcode": "1F600",
+      "source_emoji": "grinning face",
+      "emoji": "😀",
+      "subgroup": "face-smiling",
+      "file": "svg/1F600_face.svg"
+    },
+    {
+      "id": "1F600_eyes",
+      "type": "eyes",
+      "name": "grinning face — eyes",
+      "hexcode": "1F600",
+      "source_emoji": "grinning face",
+      "emoji": "😀",
+      "subgroup": "face-smiling",
+      "file": "svg/1F600_eyes.svg"
+    },
+    {
+      "id": "1F600_mouth",
+      "type": "mouth",
+      "name": "grinning face — mouth",
+      "hexcode": "1F600",
+      "source_emoji": "grinning face",
+      "emoji": "😀",
+      "subgroup": "face-smiling",
+      "file": "svg/1F600_mouth.svg"
+    },
+    {
+      "id": "1F601_face",
+      "type": "face",
+      "name": "beaming face with smiling eyes — face",
+      "hexcode": "1F601",
+      "source_emoji": "beaming face with smiling eyes",
+      "emoji": "😁",
+      "subgroup": "face-smiling",
+      "file": "svg/1F601_face.svg"
+    },
+    {
+      "id": "1F601_eyes",
+      "type": "eyes",
+      "name": "beaming face with smiling eyes — eyes",
+      "hexcode": "1F601",
+      "source_emoji": "beaming face with smiling eyes",
+      "emoji": "😁",
+      "subgroup": "face-smiling",
+      "file": "svg/1F601_eyes.svg"
+    },
+    {
+      "id": "1F601_mouth",
+      "type": "mouth",
+      "name": "beaming face with smiling eyes — mouth",
+      "hexcode": "1F601",
+      "source_emoji": "beaming face with smiling eyes",
+      "emoji": "😁",
+      "subgroup": "face-smiling",
+      "file": "svg/1F601_mouth.svg"
+    },
+    {
+      "id": "1F602_face",
+      "type": "face",
+      "name": "face with tears of joy — face",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_face.svg"
+    },
+    {
+      "id": "1F602_eyes",
+      "type": "eyes",
+      "name": "face with tears of joy — eyes",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_eyes.svg"
+    },
+    {
+      "id": "1F602_mouth",
+      "type": "mouth",
+      "name": "face with tears of joy — mouth",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_mouth.svg"
+    },
+    {
+      "id": "1F602_brows",
+      "type": "brows",
+      "name": "face with tears of joy — brows",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_brows.svg"
+    },
+    {
+      "id": "1F602_arms",
+      "type": "arms",
+      "name": "face with tears of joy — arms",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_arms.svg"
+    },
+    {
+      "id": "1F602_extras",
+      "type": "extras",
+      "name": "face with tears of joy — extras",
+      "hexcode": "1F602",
+      "source_emoji": "face with tears of joy",
+      "emoji": "😂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F602_extras.svg"
+    },
+    {
+      "id": "1F603_face",
+      "type": "face",
+      "name": "grinning face with big eyes — face",
+      "hexcode": "1F603",
+      "source_emoji": "grinning face with big eyes",
+      "emoji": "😃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F603_face.svg"
+    },
+    {
+      "id": "1F603_eyes",
+      "type": "eyes",
+      "name": "grinning face with big eyes — eyes",
+      "hexcode": "1F603",
+      "source_emoji": "grinning face with big eyes",
+      "emoji": "😃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F603_eyes.svg"
+    },
+    {
+      "id": "1F603_mouth",
+      "type": "mouth",
+      "name": "grinning face with big eyes — mouth",
+      "hexcode": "1F603",
+      "source_emoji": "grinning face with big eyes",
+      "emoji": "😃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F603_mouth.svg"
+    },
+    {
+      "id": "1F604_face",
+      "type": "face",
+      "name": "grinning face with smiling eyes — face",
+      "hexcode": "1F604",
+      "source_emoji": "grinning face with smiling eyes",
+      "emoji": "😄",
+      "subgroup": "face-smiling",
+      "file": "svg/1F604_face.svg"
+    },
+    {
+      "id": "1F604_eyes",
+      "type": "eyes",
+      "name": "grinning face with smiling eyes — eyes",
+      "hexcode": "1F604",
+      "source_emoji": "grinning face with smiling eyes",
+      "emoji": "😄",
+      "subgroup": "face-smiling",
+      "file": "svg/1F604_eyes.svg"
+    },
+    {
+      "id": "1F604_mouth",
+      "type": "mouth",
+      "name": "grinning face with smiling eyes — mouth",
+      "hexcode": "1F604",
+      "source_emoji": "grinning face with smiling eyes",
+      "emoji": "😄",
+      "subgroup": "face-smiling",
+      "file": "svg/1F604_mouth.svg"
+    },
+    {
+      "id": "1F605_face",
+      "type": "face",
+      "name": "grinning face with sweat — face",
+      "hexcode": "1F605",
+      "source_emoji": "grinning face with sweat",
+      "emoji": "😅",
+      "subgroup": "face-smiling",
+      "file": "svg/1F605_face.svg"
+    },
+    {
+      "id": "1F605_eyes",
+      "type": "eyes",
+      "name": "grinning face with sweat — eyes",
+      "hexcode": "1F605",
+      "source_emoji": "grinning face with sweat",
+      "emoji": "😅",
+      "subgroup": "face-smiling",
+      "file": "svg/1F605_eyes.svg"
+    },
+    {
+      "id": "1F605_mouth",
+      "type": "mouth",
+      "name": "grinning face with sweat — mouth",
+      "hexcode": "1F605",
+      "source_emoji": "grinning face with sweat",
+      "emoji": "😅",
+      "subgroup": "face-smiling",
+      "file": "svg/1F605_mouth.svg"
+    },
+    {
+      "id": "1F605_extras",
+      "type": "extras",
+      "name": "grinning face with sweat — extras",
+      "hexcode": "1F605",
+      "source_emoji": "grinning face with sweat",
+      "emoji": "😅",
+      "subgroup": "face-smiling",
+      "file": "svg/1F605_extras.svg"
+    },
+    {
+      "id": "1F606_face",
+      "type": "face",
+      "name": "grinning squinting face — face",
+      "hexcode": "1F606",
+      "source_emoji": "grinning squinting face",
+      "emoji": "😆",
+      "subgroup": "face-smiling",
+      "file": "svg/1F606_face.svg"
+    },
+    {
+      "id": "1F606_eyes",
+      "type": "eyes",
+      "name": "grinning squinting face — eyes",
+      "hexcode": "1F606",
+      "source_emoji": "grinning squinting face",
+      "emoji": "😆",
+      "subgroup": "face-smiling",
+      "file": "svg/1F606_eyes.svg"
+    },
+    {
+      "id": "1F606_mouth",
+      "type": "mouth",
+      "name": "grinning squinting face — mouth",
+      "hexcode": "1F606",
+      "source_emoji": "grinning squinting face",
+      "emoji": "😆",
+      "subgroup": "face-smiling",
+      "file": "svg/1F606_mouth.svg"
+    },
+    {
+      "id": "1F607_face",
+      "type": "face",
+      "name": "smiling face with halo — face",
+      "hexcode": "1F607",
+      "source_emoji": "smiling face with halo",
+      "emoji": "😇",
+      "subgroup": "face-smiling",
+      "file": "svg/1F607_face.svg"
+    },
+    {
+      "id": "1F607_eyes",
+      "type": "eyes",
+      "name": "smiling face with halo — eyes",
+      "hexcode": "1F607",
+      "source_emoji": "smiling face with halo",
+      "emoji": "😇",
+      "subgroup": "face-smiling",
+      "file": "svg/1F607_eyes.svg"
+    },
+    {
+      "id": "1F607_mouth",
+      "type": "mouth",
+      "name": "smiling face with halo — mouth",
+      "hexcode": "1F607",
+      "source_emoji": "smiling face with halo",
+      "emoji": "😇",
+      "subgroup": "face-smiling",
+      "file": "svg/1F607_mouth.svg"
+    },
+    {
+      "id": "1F607_extras",
+      "type": "extras",
+      "name": "smiling face with halo — extras",
+      "hexcode": "1F607",
+      "source_emoji": "smiling face with halo",
+      "emoji": "😇",
+      "subgroup": "face-smiling",
+      "file": "svg/1F607_extras.svg"
+    },
+    {
+      "id": "1F608_face",
+      "type": "face",
+      "name": "smiling face with horns — face",
+      "hexcode": "1F608",
+      "source_emoji": "smiling face with horns",
+      "emoji": "😈",
+      "subgroup": "face-negative",
+      "file": "svg/1F608_face.svg"
+    },
+    {
+      "id": "1F608_eyes",
+      "type": "eyes",
+      "name": "smiling face with horns — eyes",
+      "hexcode": "1F608",
+      "source_emoji": "smiling face with horns",
+      "emoji": "😈",
+      "subgroup": "face-negative",
+      "file": "svg/1F608_eyes.svg"
+    },
+    {
+      "id": "1F608_mouth",
+      "type": "mouth",
+      "name": "smiling face with horns — mouth",
+      "hexcode": "1F608",
+      "source_emoji": "smiling face with horns",
+      "emoji": "😈",
+      "subgroup": "face-negative",
+      "file": "svg/1F608_mouth.svg"
+    },
+    {
+      "id": "1F608_brows",
+      "type": "brows",
+      "name": "smiling face with horns — brows",
+      "hexcode": "1F608",
+      "source_emoji": "smiling face with horns",
+      "emoji": "😈",
+      "subgroup": "face-negative",
+      "file": "svg/1F608_brows.svg"
+    },
+    {
+      "id": "1F608_extras",
+      "type": "extras",
+      "name": "smiling face with horns — extras",
+      "hexcode": "1F608",
+      "source_emoji": "smiling face with horns",
+      "emoji": "😈",
+      "subgroup": "face-negative",
+      "file": "svg/1F608_extras.svg"
+    },
+    {
+      "id": "1F609_face",
+      "type": "face",
+      "name": "winking face — face",
+      "hexcode": "1F609",
+      "source_emoji": "winking face",
+      "emoji": "😉",
+      "subgroup": "face-smiling",
+      "file": "svg/1F609_face.svg"
+    },
+    {
+      "id": "1F609_eyes",
+      "type": "eyes",
+      "name": "winking face — eyes",
+      "hexcode": "1F609",
+      "source_emoji": "winking face",
+      "emoji": "😉",
+      "subgroup": "face-smiling",
+      "file": "svg/1F609_eyes.svg"
+    },
+    {
+      "id": "1F609_mouth",
+      "type": "mouth",
+      "name": "winking face — mouth",
+      "hexcode": "1F609",
+      "source_emoji": "winking face",
+      "emoji": "😉",
+      "subgroup": "face-smiling",
+      "file": "svg/1F609_mouth.svg"
+    },
+    {
+      "id": "1F60A_face",
+      "type": "face",
+      "name": "smiling face with smiling eyes — face",
+      "hexcode": "1F60A",
+      "source_emoji": "smiling face with smiling eyes",
+      "emoji": "😊",
+      "subgroup": "face-smiling",
+      "file": "svg/1F60A_face.svg"
+    },
+    {
+      "id": "1F60A_eyes",
+      "type": "eyes",
+      "name": "smiling face with smiling eyes — eyes",
+      "hexcode": "1F60A",
+      "source_emoji": "smiling face with smiling eyes",
+      "emoji": "😊",
+      "subgroup": "face-smiling",
+      "file": "svg/1F60A_eyes.svg"
+    },
+    {
+      "id": "1F60A_mouth",
+      "type": "mouth",
+      "name": "smiling face with smiling eyes — mouth",
+      "hexcode": "1F60A",
+      "source_emoji": "smiling face with smiling eyes",
+      "emoji": "😊",
+      "subgroup": "face-smiling",
+      "file": "svg/1F60A_mouth.svg"
+    },
+    {
+      "id": "1F60B_face",
+      "type": "face",
+      "name": "face savoring food — face",
+      "hexcode": "1F60B",
+      "source_emoji": "face savoring food",
+      "emoji": "😋",
+      "subgroup": "face-tongue",
+      "file": "svg/1F60B_face.svg"
+    },
+    {
+      "id": "1F60B_eyes",
+      "type": "eyes",
+      "name": "face savoring food — eyes",
+      "hexcode": "1F60B",
+      "source_emoji": "face savoring food",
+      "emoji": "😋",
+      "subgroup": "face-tongue",
+      "file": "svg/1F60B_eyes.svg"
+    },
+    {
+      "id": "1F60B_mouth",
+      "type": "mouth",
+      "name": "face savoring food — mouth",
+      "hexcode": "1F60B",
+      "source_emoji": "face savoring food",
+      "emoji": "😋",
+      "subgroup": "face-tongue",
+      "file": "svg/1F60B_mouth.svg"
+    },
+    {
+      "id": "1F60C_face",
+      "type": "face",
+      "name": "relieved face — face",
+      "hexcode": "1F60C",
+      "source_emoji": "relieved face",
+      "emoji": "😌",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F60C_face.svg"
+    },
+    {
+      "id": "1F60C_eyes",
+      "type": "eyes",
+      "name": "relieved face — eyes",
+      "hexcode": "1F60C",
+      "source_emoji": "relieved face",
+      "emoji": "😌",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F60C_eyes.svg"
+    },
+    {
+      "id": "1F60C_mouth",
+      "type": "mouth",
+      "name": "relieved face — mouth",
+      "hexcode": "1F60C",
+      "source_emoji": "relieved face",
+      "emoji": "😌",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F60C_mouth.svg"
+    },
+    {
+      "id": "1F60D_face",
+      "type": "face",
+      "name": "smiling face with heart-eyes — face",
+      "hexcode": "1F60D",
+      "source_emoji": "smiling face with heart-eyes",
+      "emoji": "😍",
+      "subgroup": "face-affection",
+      "file": "svg/1F60D_face.svg"
+    },
+    {
+      "id": "1F60D_eyes",
+      "type": "eyes",
+      "name": "smiling face with heart-eyes — eyes",
+      "hexcode": "1F60D",
+      "source_emoji": "smiling face with heart-eyes",
+      "emoji": "😍",
+      "subgroup": "face-affection",
+      "file": "svg/1F60D_eyes.svg"
+    },
+    {
+      "id": "1F60D_mouth",
+      "type": "mouth",
+      "name": "smiling face with heart-eyes — mouth",
+      "hexcode": "1F60D",
+      "source_emoji": "smiling face with heart-eyes",
+      "emoji": "😍",
+      "subgroup": "face-affection",
+      "file": "svg/1F60D_mouth.svg"
+    },
+    {
+      "id": "1F60E_face",
+      "type": "face",
+      "name": "smiling face with sunglasses — face",
+      "hexcode": "1F60E",
+      "source_emoji": "smiling face with sunglasses",
+      "emoji": "😎",
+      "subgroup": "face-glasses",
+      "file": "svg/1F60E_face.svg"
+    },
+    {
+      "id": "1F60E_mouth",
+      "type": "mouth",
+      "name": "smiling face with sunglasses — mouth",
+      "hexcode": "1F60E",
+      "source_emoji": "smiling face with sunglasses",
+      "emoji": "😎",
+      "subgroup": "face-glasses",
+      "file": "svg/1F60E_mouth.svg"
+    },
+    {
+      "id": "1F60E_extras",
+      "type": "extras",
+      "name": "smiling face with sunglasses — extras",
+      "hexcode": "1F60E",
+      "source_emoji": "smiling face with sunglasses",
+      "emoji": "😎",
+      "subgroup": "face-glasses",
+      "file": "svg/1F60E_extras.svg"
+    },
+    {
+      "id": "1F60F_face",
+      "type": "face",
+      "name": "smirking face — face",
+      "hexcode": "1F60F",
+      "source_emoji": "smirking face",
+      "emoji": "😏",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F60F_face.svg"
+    },
+    {
+      "id": "1F60F_eyes",
+      "type": "eyes",
+      "name": "smirking face — eyes",
+      "hexcode": "1F60F",
+      "source_emoji": "smirking face",
+      "emoji": "😏",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F60F_eyes.svg"
+    },
+    {
+      "id": "1F60F_mouth",
+      "type": "mouth",
+      "name": "smirking face — mouth",
+      "hexcode": "1F60F",
+      "source_emoji": "smirking face",
+      "emoji": "😏",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F60F_mouth.svg"
+    },
+    {
+      "id": "1F60F_brows",
+      "type": "brows",
+      "name": "smirking face — brows",
+      "hexcode": "1F60F",
+      "source_emoji": "smirking face",
+      "emoji": "😏",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F60F_brows.svg"
+    },
+    {
+      "id": "1F610_face",
+      "type": "face",
+      "name": "neutral face — face",
+      "hexcode": "1F610",
+      "source_emoji": "neutral face",
+      "emoji": "😐️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F610_face.svg"
+    },
+    {
+      "id": "1F610_eyes",
+      "type": "eyes",
+      "name": "neutral face — eyes",
+      "hexcode": "1F610",
+      "source_emoji": "neutral face",
+      "emoji": "😐️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F610_eyes.svg"
+    },
+    {
+      "id": "1F610_mouth",
+      "type": "mouth",
+      "name": "neutral face — mouth",
+      "hexcode": "1F610",
+      "source_emoji": "neutral face",
+      "emoji": "😐️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F610_mouth.svg"
+    },
+    {
+      "id": "1F611_face",
+      "type": "face",
+      "name": "expressionless face — face",
+      "hexcode": "1F611",
+      "source_emoji": "expressionless face",
+      "emoji": "😑",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F611_face.svg"
+    },
+    {
+      "id": "1F611_eyes",
+      "type": "eyes",
+      "name": "expressionless face — eyes",
+      "hexcode": "1F611",
+      "source_emoji": "expressionless face",
+      "emoji": "😑",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F611_eyes.svg"
+    },
+    {
+      "id": "1F611_mouth",
+      "type": "mouth",
+      "name": "expressionless face — mouth",
+      "hexcode": "1F611",
+      "source_emoji": "expressionless face",
+      "emoji": "😑",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F611_mouth.svg"
+    },
+    {
+      "id": "1F612_face",
+      "type": "face",
+      "name": "unamused face — face",
+      "hexcode": "1F612",
+      "source_emoji": "unamused face",
+      "emoji": "😒",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F612_face.svg"
+    },
+    {
+      "id": "1F612_eyes",
+      "type": "eyes",
+      "name": "unamused face — eyes",
+      "hexcode": "1F612",
+      "source_emoji": "unamused face",
+      "emoji": "😒",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F612_eyes.svg"
+    },
+    {
+      "id": "1F612_mouth",
+      "type": "mouth",
+      "name": "unamused face — mouth",
+      "hexcode": "1F612",
+      "source_emoji": "unamused face",
+      "emoji": "😒",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F612_mouth.svg"
+    },
+    {
+      "id": "1F612_brows",
+      "type": "brows",
+      "name": "unamused face — brows",
+      "hexcode": "1F612",
+      "source_emoji": "unamused face",
+      "emoji": "😒",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F612_brows.svg"
+    },
+    {
+      "id": "1F613_face",
+      "type": "face",
+      "name": "downcast face with sweat — face",
+      "hexcode": "1F613",
+      "source_emoji": "downcast face with sweat",
+      "emoji": "😓",
+      "subgroup": "face-concerned",
+      "file": "svg/1F613_face.svg"
+    },
+    {
+      "id": "1F613_eyes",
+      "type": "eyes",
+      "name": "downcast face with sweat — eyes",
+      "hexcode": "1F613",
+      "source_emoji": "downcast face with sweat",
+      "emoji": "😓",
+      "subgroup": "face-concerned",
+      "file": "svg/1F613_eyes.svg"
+    },
+    {
+      "id": "1F613_mouth",
+      "type": "mouth",
+      "name": "downcast face with sweat — mouth",
+      "hexcode": "1F613",
+      "source_emoji": "downcast face with sweat",
+      "emoji": "😓",
+      "subgroup": "face-concerned",
+      "file": "svg/1F613_mouth.svg"
+    },
+    {
+      "id": "1F613_extras",
+      "type": "extras",
+      "name": "downcast face with sweat — extras",
+      "hexcode": "1F613",
+      "source_emoji": "downcast face with sweat",
+      "emoji": "😓",
+      "subgroup": "face-concerned",
+      "file": "svg/1F613_extras.svg"
+    },
+    {
+      "id": "1F614_face",
+      "type": "face",
+      "name": "pensive face — face",
+      "hexcode": "1F614",
+      "source_emoji": "pensive face",
+      "emoji": "😔",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F614_face.svg"
+    },
+    {
+      "id": "1F614_eyes",
+      "type": "eyes",
+      "name": "pensive face — eyes",
+      "hexcode": "1F614",
+      "source_emoji": "pensive face",
+      "emoji": "😔",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F614_eyes.svg"
+    },
+    {
+      "id": "1F614_mouth",
+      "type": "mouth",
+      "name": "pensive face — mouth",
+      "hexcode": "1F614",
+      "source_emoji": "pensive face",
+      "emoji": "😔",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F614_mouth.svg"
+    },
+    {
+      "id": "1F614_brows",
+      "type": "brows",
+      "name": "pensive face — brows",
+      "hexcode": "1F614",
+      "source_emoji": "pensive face",
+      "emoji": "😔",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F614_brows.svg"
+    },
+    {
+      "id": "1F615_face",
+      "type": "face",
+      "name": "confused face — face",
+      "hexcode": "1F615",
+      "source_emoji": "confused face",
+      "emoji": "😕",
+      "subgroup": "face-concerned",
+      "file": "svg/1F615_face.svg"
+    },
+    {
+      "id": "1F615_eyes",
+      "type": "eyes",
+      "name": "confused face — eyes",
+      "hexcode": "1F615",
+      "source_emoji": "confused face",
+      "emoji": "😕",
+      "subgroup": "face-concerned",
+      "file": "svg/1F615_eyes.svg"
+    },
+    {
+      "id": "1F615_mouth",
+      "type": "mouth",
+      "name": "confused face — mouth",
+      "hexcode": "1F615",
+      "source_emoji": "confused face",
+      "emoji": "😕",
+      "subgroup": "face-concerned",
+      "file": "svg/1F615_mouth.svg"
+    },
+    {
+      "id": "1F616_face",
+      "type": "face",
+      "name": "confounded face — face",
+      "hexcode": "1F616",
+      "source_emoji": "confounded face",
+      "emoji": "😖",
+      "subgroup": "face-concerned",
+      "file": "svg/1F616_face.svg"
+    },
+    {
+      "id": "1F616_eyes",
+      "type": "eyes",
+      "name": "confounded face — eyes",
+      "hexcode": "1F616",
+      "source_emoji": "confounded face",
+      "emoji": "😖",
+      "subgroup": "face-concerned",
+      "file": "svg/1F616_eyes.svg"
+    },
+    {
+      "id": "1F616_mouth",
+      "type": "mouth",
+      "name": "confounded face — mouth",
+      "hexcode": "1F616",
+      "source_emoji": "confounded face",
+      "emoji": "😖",
+      "subgroup": "face-concerned",
+      "file": "svg/1F616_mouth.svg"
+    },
+    {
+      "id": "1F617_face",
+      "type": "face",
+      "name": "kissing face — face",
+      "hexcode": "1F617",
+      "source_emoji": "kissing face",
+      "emoji": "😗",
+      "subgroup": "face-affection",
+      "file": "svg/1F617_face.svg"
+    },
+    {
+      "id": "1F617_eyes",
+      "type": "eyes",
+      "name": "kissing face — eyes",
+      "hexcode": "1F617",
+      "source_emoji": "kissing face",
+      "emoji": "😗",
+      "subgroup": "face-affection",
+      "file": "svg/1F617_eyes.svg"
+    },
+    {
+      "id": "1F617_mouth",
+      "type": "mouth",
+      "name": "kissing face — mouth",
+      "hexcode": "1F617",
+      "source_emoji": "kissing face",
+      "emoji": "😗",
+      "subgroup": "face-affection",
+      "file": "svg/1F617_mouth.svg"
+    },
+    {
+      "id": "1F618_face",
+      "type": "face",
+      "name": "face blowing a kiss — face",
+      "hexcode": "1F618",
+      "source_emoji": "face blowing a kiss",
+      "emoji": "😘",
+      "subgroup": "face-affection",
+      "file": "svg/1F618_face.svg"
+    },
+    {
+      "id": "1F618_eyes",
+      "type": "eyes",
+      "name": "face blowing a kiss — eyes",
+      "hexcode": "1F618",
+      "source_emoji": "face blowing a kiss",
+      "emoji": "😘",
+      "subgroup": "face-affection",
+      "file": "svg/1F618_eyes.svg"
+    },
+    {
+      "id": "1F618_mouth",
+      "type": "mouth",
+      "name": "face blowing a kiss — mouth",
+      "hexcode": "1F618",
+      "source_emoji": "face blowing a kiss",
+      "emoji": "😘",
+      "subgroup": "face-affection",
+      "file": "svg/1F618_mouth.svg"
+    },
+    {
+      "id": "1F618_extras",
+      "type": "extras",
+      "name": "face blowing a kiss — extras",
+      "hexcode": "1F618",
+      "source_emoji": "face blowing a kiss",
+      "emoji": "😘",
+      "subgroup": "face-affection",
+      "file": "svg/1F618_extras.svg"
+    },
+    {
+      "id": "1F619_face",
+      "type": "face",
+      "name": "kissing face with smiling eyes — face",
+      "hexcode": "1F619",
+      "source_emoji": "kissing face with smiling eyes",
+      "emoji": "😙",
+      "subgroup": "face-affection",
+      "file": "svg/1F619_face.svg"
+    },
+    {
+      "id": "1F619_eyes",
+      "type": "eyes",
+      "name": "kissing face with smiling eyes — eyes",
+      "hexcode": "1F619",
+      "source_emoji": "kissing face with smiling eyes",
+      "emoji": "😙",
+      "subgroup": "face-affection",
+      "file": "svg/1F619_eyes.svg"
+    },
+    {
+      "id": "1F619_mouth",
+      "type": "mouth",
+      "name": "kissing face with smiling eyes — mouth",
+      "hexcode": "1F619",
+      "source_emoji": "kissing face with smiling eyes",
+      "emoji": "😙",
+      "subgroup": "face-affection",
+      "file": "svg/1F619_mouth.svg"
+    },
+    {
+      "id": "1F61A_face",
+      "type": "face",
+      "name": "kissing face with closed eyes — face",
+      "hexcode": "1F61A",
+      "source_emoji": "kissing face with closed eyes",
+      "emoji": "😚",
+      "subgroup": "face-affection",
+      "file": "svg/1F61A_face.svg"
+    },
+    {
+      "id": "1F61A_eyes",
+      "type": "eyes",
+      "name": "kissing face with closed eyes — eyes",
+      "hexcode": "1F61A",
+      "source_emoji": "kissing face with closed eyes",
+      "emoji": "😚",
+      "subgroup": "face-affection",
+      "file": "svg/1F61A_eyes.svg"
+    },
+    {
+      "id": "1F61A_mouth",
+      "type": "mouth",
+      "name": "kissing face with closed eyes — mouth",
+      "hexcode": "1F61A",
+      "source_emoji": "kissing face with closed eyes",
+      "emoji": "😚",
+      "subgroup": "face-affection",
+      "file": "svg/1F61A_mouth.svg"
+    },
+    {
+      "id": "1F61A_brows",
+      "type": "brows",
+      "name": "kissing face with closed eyes — brows",
+      "hexcode": "1F61A",
+      "source_emoji": "kissing face with closed eyes",
+      "emoji": "😚",
+      "subgroup": "face-affection",
+      "file": "svg/1F61A_brows.svg"
+    },
+    {
+      "id": "1F61B_face",
+      "type": "face",
+      "name": "face with tongue — face",
+      "hexcode": "1F61B",
+      "source_emoji": "face with tongue",
+      "emoji": "😛",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61B_face.svg"
+    },
+    {
+      "id": "1F61B_eyes",
+      "type": "eyes",
+      "name": "face with tongue — eyes",
+      "hexcode": "1F61B",
+      "source_emoji": "face with tongue",
+      "emoji": "😛",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61B_eyes.svg"
+    },
+    {
+      "id": "1F61B_mouth",
+      "type": "mouth",
+      "name": "face with tongue — mouth",
+      "hexcode": "1F61B",
+      "source_emoji": "face with tongue",
+      "emoji": "😛",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61B_mouth.svg"
+    },
+    {
+      "id": "1F61C_face",
+      "type": "face",
+      "name": "winking face with tongue — face",
+      "hexcode": "1F61C",
+      "source_emoji": "winking face with tongue",
+      "emoji": "😜",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61C_face.svg"
+    },
+    {
+      "id": "1F61C_eyes",
+      "type": "eyes",
+      "name": "winking face with tongue — eyes",
+      "hexcode": "1F61C",
+      "source_emoji": "winking face with tongue",
+      "emoji": "😜",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61C_eyes.svg"
+    },
+    {
+      "id": "1F61C_mouth",
+      "type": "mouth",
+      "name": "winking face with tongue — mouth",
+      "hexcode": "1F61C",
+      "source_emoji": "winking face with tongue",
+      "emoji": "😜",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61C_mouth.svg"
+    },
+    {
+      "id": "1F61D_face",
+      "type": "face",
+      "name": "squinting face with tongue — face",
+      "hexcode": "1F61D",
+      "source_emoji": "squinting face with tongue",
+      "emoji": "😝",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61D_face.svg"
+    },
+    {
+      "id": "1F61D_eyes",
+      "type": "eyes",
+      "name": "squinting face with tongue — eyes",
+      "hexcode": "1F61D",
+      "source_emoji": "squinting face with tongue",
+      "emoji": "😝",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61D_eyes.svg"
+    },
+    {
+      "id": "1F61D_mouth",
+      "type": "mouth",
+      "name": "squinting face with tongue — mouth",
+      "hexcode": "1F61D",
+      "source_emoji": "squinting face with tongue",
+      "emoji": "😝",
+      "subgroup": "face-tongue",
+      "file": "svg/1F61D_mouth.svg"
+    },
+    {
+      "id": "1F61E_face",
+      "type": "face",
+      "name": "disappointed face — face",
+      "hexcode": "1F61E",
+      "source_emoji": "disappointed face",
+      "emoji": "😞",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61E_face.svg"
+    },
+    {
+      "id": "1F61E_eyes",
+      "type": "eyes",
+      "name": "disappointed face — eyes",
+      "hexcode": "1F61E",
+      "source_emoji": "disappointed face",
+      "emoji": "😞",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61E_eyes.svg"
+    },
+    {
+      "id": "1F61E_mouth",
+      "type": "mouth",
+      "name": "disappointed face — mouth",
+      "hexcode": "1F61E",
+      "source_emoji": "disappointed face",
+      "emoji": "😞",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61E_mouth.svg"
+    },
+    {
+      "id": "1F61F_face",
+      "type": "face",
+      "name": "worried face — face",
+      "hexcode": "1F61F",
+      "source_emoji": "worried face",
+      "emoji": "😟",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61F_face.svg"
+    },
+    {
+      "id": "1F61F_eyes",
+      "type": "eyes",
+      "name": "worried face — eyes",
+      "hexcode": "1F61F",
+      "source_emoji": "worried face",
+      "emoji": "😟",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61F_eyes.svg"
+    },
+    {
+      "id": "1F61F_mouth",
+      "type": "mouth",
+      "name": "worried face — mouth",
+      "hexcode": "1F61F",
+      "source_emoji": "worried face",
+      "emoji": "😟",
+      "subgroup": "face-concerned",
+      "file": "svg/1F61F_mouth.svg"
+    },
+    {
+      "id": "1F620_face",
+      "type": "face",
+      "name": "angry face — face",
+      "hexcode": "1F620",
+      "source_emoji": "angry face",
+      "emoji": "😠",
+      "subgroup": "face-negative",
+      "file": "svg/1F620_face.svg"
+    },
+    {
+      "id": "1F620_eyes",
+      "type": "eyes",
+      "name": "angry face — eyes",
+      "hexcode": "1F620",
+      "source_emoji": "angry face",
+      "emoji": "😠",
+      "subgroup": "face-negative",
+      "file": "svg/1F620_eyes.svg"
+    },
+    {
+      "id": "1F620_mouth",
+      "type": "mouth",
+      "name": "angry face — mouth",
+      "hexcode": "1F620",
+      "source_emoji": "angry face",
+      "emoji": "😠",
+      "subgroup": "face-negative",
+      "file": "svg/1F620_mouth.svg"
+    },
+    {
+      "id": "1F620_brows",
+      "type": "brows",
+      "name": "angry face — brows",
+      "hexcode": "1F620",
+      "source_emoji": "angry face",
+      "emoji": "😠",
+      "subgroup": "face-negative",
+      "file": "svg/1F620_brows.svg"
+    },
+    {
+      "id": "1F621_face",
+      "type": "face",
+      "name": "enraged face — face",
+      "hexcode": "1F621",
+      "source_emoji": "enraged face",
+      "emoji": "😡",
+      "subgroup": "face-negative",
+      "file": "svg/1F621_face.svg"
+    },
+    {
+      "id": "1F621_eyes",
+      "type": "eyes",
+      "name": "enraged face — eyes",
+      "hexcode": "1F621",
+      "source_emoji": "enraged face",
+      "emoji": "😡",
+      "subgroup": "face-negative",
+      "file": "svg/1F621_eyes.svg"
+    },
+    {
+      "id": "1F621_mouth",
+      "type": "mouth",
+      "name": "enraged face — mouth",
+      "hexcode": "1F621",
+      "source_emoji": "enraged face",
+      "emoji": "😡",
+      "subgroup": "face-negative",
+      "file": "svg/1F621_mouth.svg"
+    },
+    {
+      "id": "1F621_brows",
+      "type": "brows",
+      "name": "enraged face — brows",
+      "hexcode": "1F621",
+      "source_emoji": "enraged face",
+      "emoji": "😡",
+      "subgroup": "face-negative",
+      "file": "svg/1F621_brows.svg"
+    },
+    {
+      "id": "1F622_face",
+      "type": "face",
+      "name": "crying face — face",
+      "hexcode": "1F622",
+      "source_emoji": "crying face",
+      "emoji": "😢",
+      "subgroup": "face-concerned",
+      "file": "svg/1F622_face.svg"
+    },
+    {
+      "id": "1F622_eyes",
+      "type": "eyes",
+      "name": "crying face — eyes",
+      "hexcode": "1F622",
+      "source_emoji": "crying face",
+      "emoji": "😢",
+      "subgroup": "face-concerned",
+      "file": "svg/1F622_eyes.svg"
+    },
+    {
+      "id": "1F622_mouth",
+      "type": "mouth",
+      "name": "crying face — mouth",
+      "hexcode": "1F622",
+      "source_emoji": "crying face",
+      "emoji": "😢",
+      "subgroup": "face-concerned",
+      "file": "svg/1F622_mouth.svg"
+    },
+    {
+      "id": "1F623_face",
+      "type": "face",
+      "name": "persevering face — face",
+      "hexcode": "1F623",
+      "source_emoji": "persevering face",
+      "emoji": "😣",
+      "subgroup": "face-concerned",
+      "file": "svg/1F623_face.svg"
+    },
+    {
+      "id": "1F623_eyes",
+      "type": "eyes",
+      "name": "persevering face — eyes",
+      "hexcode": "1F623",
+      "source_emoji": "persevering face",
+      "emoji": "😣",
+      "subgroup": "face-concerned",
+      "file": "svg/1F623_eyes.svg"
+    },
+    {
+      "id": "1F623_mouth",
+      "type": "mouth",
+      "name": "persevering face — mouth",
+      "hexcode": "1F623",
+      "source_emoji": "persevering face",
+      "emoji": "😣",
+      "subgroup": "face-concerned",
+      "file": "svg/1F623_mouth.svg"
+    },
+    {
+      "id": "1F623_brows",
+      "type": "brows",
+      "name": "persevering face — brows",
+      "hexcode": "1F623",
+      "source_emoji": "persevering face",
+      "emoji": "😣",
+      "subgroup": "face-concerned",
+      "file": "svg/1F623_brows.svg"
+    },
+    {
+      "id": "1F624_face",
+      "type": "face",
+      "name": "face with steam from nose — face",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_face.svg"
+    },
+    {
+      "id": "1F624_eyes",
+      "type": "eyes",
+      "name": "face with steam from nose — eyes",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_eyes.svg"
+    },
+    {
+      "id": "1F624_mouth",
+      "type": "mouth",
+      "name": "face with steam from nose — mouth",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_mouth.svg"
+    },
+    {
+      "id": "1F624_brows",
+      "type": "brows",
+      "name": "face with steam from nose — brows",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_brows.svg"
+    },
+    {
+      "id": "1F624_arms",
+      "type": "arms",
+      "name": "face with steam from nose — arms",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_arms.svg"
+    },
+    {
+      "id": "1F624_extras",
+      "type": "extras",
+      "name": "face with steam from nose — extras",
+      "hexcode": "1F624",
+      "source_emoji": "face with steam from nose",
+      "emoji": "😤",
+      "subgroup": "face-negative",
+      "file": "svg/1F624_extras.svg"
+    },
+    {
+      "id": "1F625_face",
+      "type": "face",
+      "name": "sad but relieved face — face",
+      "hexcode": "1F625",
+      "source_emoji": "sad but relieved face",
+      "emoji": "😥",
+      "subgroup": "face-concerned",
+      "file": "svg/1F625_face.svg"
+    },
+    {
+      "id": "1F625_eyes",
+      "type": "eyes",
+      "name": "sad but relieved face — eyes",
+      "hexcode": "1F625",
+      "source_emoji": "sad but relieved face",
+      "emoji": "😥",
+      "subgroup": "face-concerned",
+      "file": "svg/1F625_eyes.svg"
+    },
+    {
+      "id": "1F625_mouth",
+      "type": "mouth",
+      "name": "sad but relieved face — mouth",
+      "hexcode": "1F625",
+      "source_emoji": "sad but relieved face",
+      "emoji": "😥",
+      "subgroup": "face-concerned",
+      "file": "svg/1F625_mouth.svg"
+    },
+    {
+      "id": "1F625_extras",
+      "type": "extras",
+      "name": "sad but relieved face — extras",
+      "hexcode": "1F625",
+      "source_emoji": "sad but relieved face",
+      "emoji": "😥",
+      "subgroup": "face-concerned",
+      "file": "svg/1F625_extras.svg"
+    },
+    {
+      "id": "1F626_face",
+      "type": "face",
+      "name": "frowning face with open mouth — face",
+      "hexcode": "1F626",
+      "source_emoji": "frowning face with open mouth",
+      "emoji": "😦",
+      "subgroup": "face-concerned",
+      "file": "svg/1F626_face.svg"
+    },
+    {
+      "id": "1F626_eyes",
+      "type": "eyes",
+      "name": "frowning face with open mouth — eyes",
+      "hexcode": "1F626",
+      "source_emoji": "frowning face with open mouth",
+      "emoji": "😦",
+      "subgroup": "face-concerned",
+      "file": "svg/1F626_eyes.svg"
+    },
+    {
+      "id": "1F626_mouth",
+      "type": "mouth",
+      "name": "frowning face with open mouth — mouth",
+      "hexcode": "1F626",
+      "source_emoji": "frowning face with open mouth",
+      "emoji": "😦",
+      "subgroup": "face-concerned",
+      "file": "svg/1F626_mouth.svg"
+    },
+    {
+      "id": "1F627_face",
+      "type": "face",
+      "name": "anguished face — face",
+      "hexcode": "1F627",
+      "source_emoji": "anguished face",
+      "emoji": "😧",
+      "subgroup": "face-concerned",
+      "file": "svg/1F627_face.svg"
+    },
+    {
+      "id": "1F627_eyes",
+      "type": "eyes",
+      "name": "anguished face — eyes",
+      "hexcode": "1F627",
+      "source_emoji": "anguished face",
+      "emoji": "😧",
+      "subgroup": "face-concerned",
+      "file": "svg/1F627_eyes.svg"
+    },
+    {
+      "id": "1F627_mouth",
+      "type": "mouth",
+      "name": "anguished face — mouth",
+      "hexcode": "1F627",
+      "source_emoji": "anguished face",
+      "emoji": "😧",
+      "subgroup": "face-concerned",
+      "file": "svg/1F627_mouth.svg"
+    },
+    {
+      "id": "1F628_face",
+      "type": "face",
+      "name": "fearful face — face",
+      "hexcode": "1F628",
+      "source_emoji": "fearful face",
+      "emoji": "😨",
+      "subgroup": "face-concerned",
+      "file": "svg/1F628_face.svg"
+    },
+    {
+      "id": "1F628_eyes",
+      "type": "eyes",
+      "name": "fearful face — eyes",
+      "hexcode": "1F628",
+      "source_emoji": "fearful face",
+      "emoji": "😨",
+      "subgroup": "face-concerned",
+      "file": "svg/1F628_eyes.svg"
+    },
+    {
+      "id": "1F628_mouth",
+      "type": "mouth",
+      "name": "fearful face — mouth",
+      "hexcode": "1F628",
+      "source_emoji": "fearful face",
+      "emoji": "😨",
+      "subgroup": "face-concerned",
+      "file": "svg/1F628_mouth.svg"
+    },
+    {
+      "id": "1F628_extras",
+      "type": "extras",
+      "name": "fearful face — extras",
+      "hexcode": "1F628",
+      "source_emoji": "fearful face",
+      "emoji": "😨",
+      "subgroup": "face-concerned",
+      "file": "svg/1F628_extras.svg"
+    },
+    {
+      "id": "1F629_face",
+      "type": "face",
+      "name": "weary face — face",
+      "hexcode": "1F629",
+      "source_emoji": "weary face",
+      "emoji": "😩",
+      "subgroup": "face-concerned",
+      "file": "svg/1F629_face.svg"
+    },
+    {
+      "id": "1F629_mouth",
+      "type": "mouth",
+      "name": "weary face — mouth",
+      "hexcode": "1F629",
+      "source_emoji": "weary face",
+      "emoji": "😩",
+      "subgroup": "face-concerned",
+      "file": "svg/1F629_mouth.svg"
+    },
+    {
+      "id": "1F629_brows",
+      "type": "brows",
+      "name": "weary face — brows",
+      "hexcode": "1F629",
+      "source_emoji": "weary face",
+      "emoji": "😩",
+      "subgroup": "face-concerned",
+      "file": "svg/1F629_brows.svg"
+    },
+    {
+      "id": "1F62A_face",
+      "type": "face",
+      "name": "sleepy face — face",
+      "hexcode": "1F62A",
+      "source_emoji": "sleepy face",
+      "emoji": "😪",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F62A_face.svg"
+    },
+    {
+      "id": "1F62A_eyes",
+      "type": "eyes",
+      "name": "sleepy face — eyes",
+      "hexcode": "1F62A",
+      "source_emoji": "sleepy face",
+      "emoji": "😪",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F62A_eyes.svg"
+    },
+    {
+      "id": "1F62A_mouth",
+      "type": "mouth",
+      "name": "sleepy face — mouth",
+      "hexcode": "1F62A",
+      "source_emoji": "sleepy face",
+      "emoji": "😪",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F62A_mouth.svg"
+    },
+    {
+      "id": "1F62A_extras",
+      "type": "extras",
+      "name": "sleepy face — extras",
+      "hexcode": "1F62A",
+      "source_emoji": "sleepy face",
+      "emoji": "😪",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F62A_extras.svg"
+    },
+    {
+      "id": "1F62B_face",
+      "type": "face",
+      "name": "tired face — face",
+      "hexcode": "1F62B",
+      "source_emoji": "tired face",
+      "emoji": "😫",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62B_face.svg"
+    },
+    {
+      "id": "1F62B_eyes",
+      "type": "eyes",
+      "name": "tired face — eyes",
+      "hexcode": "1F62B",
+      "source_emoji": "tired face",
+      "emoji": "😫",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62B_eyes.svg"
+    },
+    {
+      "id": "1F62B_mouth",
+      "type": "mouth",
+      "name": "tired face — mouth",
+      "hexcode": "1F62B",
+      "source_emoji": "tired face",
+      "emoji": "😫",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62B_mouth.svg"
+    },
+    {
+      "id": "1F62B_brows",
+      "type": "brows",
+      "name": "tired face — brows",
+      "hexcode": "1F62B",
+      "source_emoji": "tired face",
+      "emoji": "😫",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62B_brows.svg"
+    },
+    {
+      "id": "1F62C_face",
+      "type": "face",
+      "name": "grimacing face — face",
+      "hexcode": "1F62C",
+      "source_emoji": "grimacing face",
+      "emoji": "😬",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62C_face.svg"
+    },
+    {
+      "id": "1F62C_eyes",
+      "type": "eyes",
+      "name": "grimacing face — eyes",
+      "hexcode": "1F62C",
+      "source_emoji": "grimacing face",
+      "emoji": "😬",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62C_eyes.svg"
+    },
+    {
+      "id": "1F62C_mouth",
+      "type": "mouth",
+      "name": "grimacing face — mouth",
+      "hexcode": "1F62C",
+      "source_emoji": "grimacing face",
+      "emoji": "😬",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62C_mouth.svg"
+    },
+    {
+      "id": "1F62D_face",
+      "type": "face",
+      "name": "loudly crying face — face",
+      "hexcode": "1F62D",
+      "source_emoji": "loudly crying face",
+      "emoji": "😭",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62D_face.svg"
+    },
+    {
+      "id": "1F62D_eyes",
+      "type": "eyes",
+      "name": "loudly crying face — eyes",
+      "hexcode": "1F62D",
+      "source_emoji": "loudly crying face",
+      "emoji": "😭",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62D_eyes.svg"
+    },
+    {
+      "id": "1F62D_mouth",
+      "type": "mouth",
+      "name": "loudly crying face — mouth",
+      "hexcode": "1F62D",
+      "source_emoji": "loudly crying face",
+      "emoji": "😭",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62D_mouth.svg"
+    },
+    {
+      "id": "1F62D_nose",
+      "type": "nose",
+      "name": "loudly crying face — nose",
+      "hexcode": "1F62D",
+      "source_emoji": "loudly crying face",
+      "emoji": "😭",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62D_nose.svg"
+    },
+    {
+      "id": "1F62E_face",
+      "type": "face",
+      "name": "face with open mouth — face",
+      "hexcode": "1F62E",
+      "source_emoji": "face with open mouth",
+      "emoji": "😮",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62E_face.svg"
+    },
+    {
+      "id": "1F62E_eyes",
+      "type": "eyes",
+      "name": "face with open mouth — eyes",
+      "hexcode": "1F62E",
+      "source_emoji": "face with open mouth",
+      "emoji": "😮",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62E_eyes.svg"
+    },
+    {
+      "id": "1F62E_mouth",
+      "type": "mouth",
+      "name": "face with open mouth — mouth",
+      "hexcode": "1F62E",
+      "source_emoji": "face with open mouth",
+      "emoji": "😮",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62E_mouth.svg"
+    },
+    {
+      "id": "1F62E-200D-1F4A8_face",
+      "type": "face",
+      "name": "face exhaling — face",
+      "hexcode": "1F62E-200D-1F4A8",
+      "source_emoji": "face exhaling",
+      "emoji": "😮‍💨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62E-200D-1F4A8_face.svg"
+    },
+    {
+      "id": "1F62E-200D-1F4A8_mouth",
+      "type": "mouth",
+      "name": "face exhaling — mouth",
+      "hexcode": "1F62E-200D-1F4A8",
+      "source_emoji": "face exhaling",
+      "emoji": "😮‍💨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62E-200D-1F4A8_mouth.svg"
+    },
+    {
+      "id": "1F62E-200D-1F4A8_brows",
+      "type": "brows",
+      "name": "face exhaling — brows",
+      "hexcode": "1F62E-200D-1F4A8",
+      "source_emoji": "face exhaling",
+      "emoji": "😮‍💨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62E-200D-1F4A8_brows.svg"
+    },
+    {
+      "id": "1F62E-200D-1F4A8_arms",
+      "type": "arms",
+      "name": "face exhaling — arms",
+      "hexcode": "1F62E-200D-1F4A8",
+      "source_emoji": "face exhaling",
+      "emoji": "😮‍💨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62E-200D-1F4A8_arms.svg"
+    },
+    {
+      "id": "1F62E-200D-1F4A8_extras",
+      "type": "extras",
+      "name": "face exhaling — extras",
+      "hexcode": "1F62E-200D-1F4A8",
+      "source_emoji": "face exhaling",
+      "emoji": "😮‍💨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F62E-200D-1F4A8_extras.svg"
+    },
+    {
+      "id": "1F62F_face",
+      "type": "face",
+      "name": "hushed face — face",
+      "hexcode": "1F62F",
+      "source_emoji": "hushed face",
+      "emoji": "😯",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62F_face.svg"
+    },
+    {
+      "id": "1F62F_eyes",
+      "type": "eyes",
+      "name": "hushed face — eyes",
+      "hexcode": "1F62F",
+      "source_emoji": "hushed face",
+      "emoji": "😯",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62F_eyes.svg"
+    },
+    {
+      "id": "1F62F_mouth",
+      "type": "mouth",
+      "name": "hushed face — mouth",
+      "hexcode": "1F62F",
+      "source_emoji": "hushed face",
+      "emoji": "😯",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62F_mouth.svg"
+    },
+    {
+      "id": "1F62F_brows",
+      "type": "brows",
+      "name": "hushed face — brows",
+      "hexcode": "1F62F",
+      "source_emoji": "hushed face",
+      "emoji": "😯",
+      "subgroup": "face-concerned",
+      "file": "svg/1F62F_brows.svg"
+    },
+    {
+      "id": "1F630_face",
+      "type": "face",
+      "name": "anxious face with sweat — face",
+      "hexcode": "1F630",
+      "source_emoji": "anxious face with sweat",
+      "emoji": "😰",
+      "subgroup": "face-concerned",
+      "file": "svg/1F630_face.svg"
+    },
+    {
+      "id": "1F630_eyes",
+      "type": "eyes",
+      "name": "anxious face with sweat — eyes",
+      "hexcode": "1F630",
+      "source_emoji": "anxious face with sweat",
+      "emoji": "😰",
+      "subgroup": "face-concerned",
+      "file": "svg/1F630_eyes.svg"
+    },
+    {
+      "id": "1F630_mouth",
+      "type": "mouth",
+      "name": "anxious face with sweat — mouth",
+      "hexcode": "1F630",
+      "source_emoji": "anxious face with sweat",
+      "emoji": "😰",
+      "subgroup": "face-concerned",
+      "file": "svg/1F630_mouth.svg"
+    },
+    {
+      "id": "1F630_brows",
+      "type": "brows",
+      "name": "anxious face with sweat — brows",
+      "hexcode": "1F630",
+      "source_emoji": "anxious face with sweat",
+      "emoji": "😰",
+      "subgroup": "face-concerned",
+      "file": "svg/1F630_brows.svg"
+    },
+    {
+      "id": "1F631_face",
+      "type": "face",
+      "name": "face screaming in fear — face",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_face.svg"
+    },
+    {
+      "id": "1F631_eyes",
+      "type": "eyes",
+      "name": "face screaming in fear — eyes",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_eyes.svg"
+    },
+    {
+      "id": "1F631_mouth",
+      "type": "mouth",
+      "name": "face screaming in fear — mouth",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_mouth.svg"
+    },
+    {
+      "id": "1F631_brows",
+      "type": "brows",
+      "name": "face screaming in fear — brows",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_brows.svg"
+    },
+    {
+      "id": "1F631_arms",
+      "type": "arms",
+      "name": "face screaming in fear — arms",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_arms.svg"
+    },
+    {
+      "id": "1F631_extras",
+      "type": "extras",
+      "name": "face screaming in fear — extras",
+      "hexcode": "1F631",
+      "source_emoji": "face screaming in fear",
+      "emoji": "😱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F631_extras.svg"
+    },
+    {
+      "id": "1F632_face",
+      "type": "face",
+      "name": "astonished face — face",
+      "hexcode": "1F632",
+      "source_emoji": "astonished face",
+      "emoji": "😲",
+      "subgroup": "face-concerned",
+      "file": "svg/1F632_face.svg"
+    },
+    {
+      "id": "1F632_eyes",
+      "type": "eyes",
+      "name": "astonished face — eyes",
+      "hexcode": "1F632",
+      "source_emoji": "astonished face",
+      "emoji": "😲",
+      "subgroup": "face-concerned",
+      "file": "svg/1F632_eyes.svg"
+    },
+    {
+      "id": "1F632_mouth",
+      "type": "mouth",
+      "name": "astonished face — mouth",
+      "hexcode": "1F632",
+      "source_emoji": "astonished face",
+      "emoji": "😲",
+      "subgroup": "face-concerned",
+      "file": "svg/1F632_mouth.svg"
+    },
+    {
+      "id": "1F632_nose",
+      "type": "nose",
+      "name": "astonished face — nose",
+      "hexcode": "1F632",
+      "source_emoji": "astonished face",
+      "emoji": "😲",
+      "subgroup": "face-concerned",
+      "file": "svg/1F632_nose.svg"
+    },
+    {
+      "id": "1F632_brows",
+      "type": "brows",
+      "name": "astonished face — brows",
+      "hexcode": "1F632",
+      "source_emoji": "astonished face",
+      "emoji": "😲",
+      "subgroup": "face-concerned",
+      "file": "svg/1F632_brows.svg"
+    },
+    {
+      "id": "1F633_face",
+      "type": "face",
+      "name": "flushed face — face",
+      "hexcode": "1F633",
+      "source_emoji": "flushed face",
+      "emoji": "😳",
+      "subgroup": "face-concerned",
+      "file": "svg/1F633_face.svg"
+    },
+    {
+      "id": "1F633_eyes",
+      "type": "eyes",
+      "name": "flushed face — eyes",
+      "hexcode": "1F633",
+      "source_emoji": "flushed face",
+      "emoji": "😳",
+      "subgroup": "face-concerned",
+      "file": "svg/1F633_eyes.svg"
+    },
+    {
+      "id": "1F633_mouth",
+      "type": "mouth",
+      "name": "flushed face — mouth",
+      "hexcode": "1F633",
+      "source_emoji": "flushed face",
+      "emoji": "😳",
+      "subgroup": "face-concerned",
+      "file": "svg/1F633_mouth.svg"
+    },
+    {
+      "id": "1F633_brows",
+      "type": "brows",
+      "name": "flushed face — brows",
+      "hexcode": "1F633",
+      "source_emoji": "flushed face",
+      "emoji": "😳",
+      "subgroup": "face-concerned",
+      "file": "svg/1F633_brows.svg"
+    },
+    {
+      "id": "1F634_face",
+      "type": "face",
+      "name": "sleeping face — face",
+      "hexcode": "1F634",
+      "source_emoji": "sleeping face",
+      "emoji": "😴",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F634_face.svg"
+    },
+    {
+      "id": "1F634_eyes",
+      "type": "eyes",
+      "name": "sleeping face — eyes",
+      "hexcode": "1F634",
+      "source_emoji": "sleeping face",
+      "emoji": "😴",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F634_eyes.svg"
+    },
+    {
+      "id": "1F634_mouth",
+      "type": "mouth",
+      "name": "sleeping face — mouth",
+      "hexcode": "1F634",
+      "source_emoji": "sleeping face",
+      "emoji": "😴",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F634_mouth.svg"
+    },
+    {
+      "id": "1F634_extras",
+      "type": "extras",
+      "name": "sleeping face — extras",
+      "hexcode": "1F634",
+      "source_emoji": "sleeping face",
+      "emoji": "😴",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F634_extras.svg"
+    },
+    {
+      "id": "1F635_face",
+      "type": "face",
+      "name": "face with crossed-out eyes — face",
+      "hexcode": "1F635",
+      "source_emoji": "face with crossed-out eyes",
+      "emoji": "😵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635_face.svg"
+    },
+    {
+      "id": "1F635_eyes",
+      "type": "eyes",
+      "name": "face with crossed-out eyes — eyes",
+      "hexcode": "1F635",
+      "source_emoji": "face with crossed-out eyes",
+      "emoji": "😵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635_eyes.svg"
+    },
+    {
+      "id": "1F635_mouth",
+      "type": "mouth",
+      "name": "face with crossed-out eyes — mouth",
+      "hexcode": "1F635",
+      "source_emoji": "face with crossed-out eyes",
+      "emoji": "😵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635_mouth.svg"
+    },
+    {
+      "id": "1F635-200D-1F4AB_face",
+      "type": "face",
+      "name": "face with spiral eyes — face",
+      "hexcode": "1F635-200D-1F4AB",
+      "source_emoji": "face with spiral eyes",
+      "emoji": "😵‍💫",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635-200D-1F4AB_face.svg"
+    },
+    {
+      "id": "1F635-200D-1F4AB_eyes",
+      "type": "eyes",
+      "name": "face with spiral eyes — eyes",
+      "hexcode": "1F635-200D-1F4AB",
+      "source_emoji": "face with spiral eyes",
+      "emoji": "😵‍💫",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635-200D-1F4AB_eyes.svg"
+    },
+    {
+      "id": "1F635-200D-1F4AB_mouth",
+      "type": "mouth",
+      "name": "face with spiral eyes — mouth",
+      "hexcode": "1F635-200D-1F4AB",
+      "source_emoji": "face with spiral eyes",
+      "emoji": "😵‍💫",
+      "subgroup": "face-unwell",
+      "file": "svg/1F635-200D-1F4AB_mouth.svg"
+    },
+    {
+      "id": "1F636_face",
+      "type": "face",
+      "name": "face without mouth — face",
+      "hexcode": "1F636",
+      "source_emoji": "face without mouth",
+      "emoji": "😶",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F636_face.svg"
+    },
+    {
+      "id": "1F636_eyes",
+      "type": "eyes",
+      "name": "face without mouth — eyes",
+      "hexcode": "1F636",
+      "source_emoji": "face without mouth",
+      "emoji": "😶",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F636_eyes.svg"
+    },
+    {
+      "id": "1F636-200D-1F32B-FE0F_eyes",
+      "type": "eyes",
+      "name": "face in clouds — eyes",
+      "hexcode": "1F636-200D-1F32B-FE0F",
+      "source_emoji": "face in clouds",
+      "emoji": "😶‍🌫️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F636-200D-1F32B-FE0F_eyes.svg"
+    },
+    {
+      "id": "1F636-200D-1F32B-FE0F_mouth",
+      "type": "mouth",
+      "name": "face in clouds — mouth",
+      "hexcode": "1F636-200D-1F32B-FE0F",
+      "source_emoji": "face in clouds",
+      "emoji": "😶‍🌫️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F636-200D-1F32B-FE0F_mouth.svg"
+    },
+    {
+      "id": "1F636-200D-1F32B-FE0F_extras",
+      "type": "extras",
+      "name": "face in clouds — extras",
+      "hexcode": "1F636-200D-1F32B-FE0F",
+      "source_emoji": "face in clouds",
+      "emoji": "😶‍🌫️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F636-200D-1F32B-FE0F_extras.svg"
+    },
+    {
+      "id": "1F637_face",
+      "type": "face",
+      "name": "face with medical mask — face",
+      "hexcode": "1F637",
+      "source_emoji": "face with medical mask",
+      "emoji": "😷",
+      "subgroup": "face-unwell",
+      "file": "svg/1F637_face.svg"
+    },
+    {
+      "id": "1F637_eyes",
+      "type": "eyes",
+      "name": "face with medical mask — eyes",
+      "hexcode": "1F637",
+      "source_emoji": "face with medical mask",
+      "emoji": "😷",
+      "subgroup": "face-unwell",
+      "file": "svg/1F637_eyes.svg"
+    },
+    {
+      "id": "1F637_mouth",
+      "type": "mouth",
+      "name": "face with medical mask — mouth",
+      "hexcode": "1F637",
+      "source_emoji": "face with medical mask",
+      "emoji": "😷",
+      "subgroup": "face-unwell",
+      "file": "svg/1F637_mouth.svg"
+    },
+    {
+      "id": "1F637_extras",
+      "type": "extras",
+      "name": "face with medical mask — extras",
+      "hexcode": "1F637",
+      "source_emoji": "face with medical mask",
+      "emoji": "😷",
+      "subgroup": "face-unwell",
+      "file": "svg/1F637_extras.svg"
+    },
+    {
+      "id": "1F641_face",
+      "type": "face",
+      "name": "slightly frowning face — face",
+      "hexcode": "1F641",
+      "source_emoji": "slightly frowning face",
+      "emoji": "🙁",
+      "subgroup": "face-concerned",
+      "file": "svg/1F641_face.svg"
+    },
+    {
+      "id": "1F641_eyes",
+      "type": "eyes",
+      "name": "slightly frowning face — eyes",
+      "hexcode": "1F641",
+      "source_emoji": "slightly frowning face",
+      "emoji": "🙁",
+      "subgroup": "face-concerned",
+      "file": "svg/1F641_eyes.svg"
+    },
+    {
+      "id": "1F641_mouth",
+      "type": "mouth",
+      "name": "slightly frowning face — mouth",
+      "hexcode": "1F641",
+      "source_emoji": "slightly frowning face",
+      "emoji": "🙁",
+      "subgroup": "face-concerned",
+      "file": "svg/1F641_mouth.svg"
+    },
+    {
+      "id": "1F642_face",
+      "type": "face",
+      "name": "slightly smiling face — face",
+      "hexcode": "1F642",
+      "source_emoji": "slightly smiling face",
+      "emoji": "🙂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F642_face.svg"
+    },
+    {
+      "id": "1F642_eyes",
+      "type": "eyes",
+      "name": "slightly smiling face — eyes",
+      "hexcode": "1F642",
+      "source_emoji": "slightly smiling face",
+      "emoji": "🙂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F642_eyes.svg"
+    },
+    {
+      "id": "1F642_mouth",
+      "type": "mouth",
+      "name": "slightly smiling face — mouth",
+      "hexcode": "1F642",
+      "source_emoji": "slightly smiling face",
+      "emoji": "🙂",
+      "subgroup": "face-smiling",
+      "file": "svg/1F642_mouth.svg"
+    },
+    {
+      "id": "1F642-200D-2194-FE0F_face",
+      "type": "face",
+      "name": "head shaking horizontally — face",
+      "hexcode": "1F642-200D-2194-FE0F",
+      "source_emoji": "head shaking horizontally",
+      "emoji": "🙂‍↔️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2194-FE0F_face.svg"
+    },
+    {
+      "id": "1F642-200D-2194-FE0F_eyes",
+      "type": "eyes",
+      "name": "head shaking horizontally — eyes",
+      "hexcode": "1F642-200D-2194-FE0F",
+      "source_emoji": "head shaking horizontally",
+      "emoji": "🙂‍↔️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2194-FE0F_eyes.svg"
+    },
+    {
+      "id": "1F642-200D-2194-FE0F_nose",
+      "type": "nose",
+      "name": "head shaking horizontally — nose",
+      "hexcode": "1F642-200D-2194-FE0F",
+      "source_emoji": "head shaking horizontally",
+      "emoji": "🙂‍↔️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2194-FE0F_nose.svg"
+    },
+    {
+      "id": "1F642-200D-2194-FE0F_extras",
+      "type": "extras",
+      "name": "head shaking horizontally — extras",
+      "hexcode": "1F642-200D-2194-FE0F",
+      "source_emoji": "head shaking horizontally",
+      "emoji": "🙂‍↔️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2194-FE0F_extras.svg"
+    },
+    {
+      "id": "1F642-200D-2195-FE0F_face",
+      "type": "face",
+      "name": "head shaking vertically — face",
+      "hexcode": "1F642-200D-2195-FE0F",
+      "source_emoji": "head shaking vertically",
+      "emoji": "🙂‍↕️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2195-FE0F_face.svg"
+    },
+    {
+      "id": "1F642-200D-2195-FE0F_eyes",
+      "type": "eyes",
+      "name": "head shaking vertically — eyes",
+      "hexcode": "1F642-200D-2195-FE0F",
+      "source_emoji": "head shaking vertically",
+      "emoji": "🙂‍↕️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2195-FE0F_eyes.svg"
+    },
+    {
+      "id": "1F642-200D-2195-FE0F_mouth",
+      "type": "mouth",
+      "name": "head shaking vertically — mouth",
+      "hexcode": "1F642-200D-2195-FE0F",
+      "source_emoji": "head shaking vertically",
+      "emoji": "🙂‍↕️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2195-FE0F_mouth.svg"
+    },
+    {
+      "id": "1F642-200D-2195-FE0F_extras",
+      "type": "extras",
+      "name": "head shaking vertically — extras",
+      "hexcode": "1F642-200D-2195-FE0F",
+      "source_emoji": "head shaking vertically",
+      "emoji": "🙂‍↕️",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F642-200D-2195-FE0F_extras.svg"
+    },
+    {
+      "id": "1F643_face",
+      "type": "face",
+      "name": "upside-down face — face",
+      "hexcode": "1F643",
+      "source_emoji": "upside-down face",
+      "emoji": "🙃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F643_face.svg"
+    },
+    {
+      "id": "1F643_eyes",
+      "type": "eyes",
+      "name": "upside-down face — eyes",
+      "hexcode": "1F643",
+      "source_emoji": "upside-down face",
+      "emoji": "🙃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F643_eyes.svg"
+    },
+    {
+      "id": "1F643_extras",
+      "type": "extras",
+      "name": "upside-down face — extras",
+      "hexcode": "1F643",
+      "source_emoji": "upside-down face",
+      "emoji": "🙃",
+      "subgroup": "face-smiling",
+      "file": "svg/1F643_extras.svg"
+    },
+    {
+      "id": "1F644_face",
+      "type": "face",
+      "name": "face with rolling eyes — face",
+      "hexcode": "1F644",
+      "source_emoji": "face with rolling eyes",
+      "emoji": "🙄",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F644_face.svg"
+    },
+    {
+      "id": "1F644_eyes",
+      "type": "eyes",
+      "name": "face with rolling eyes — eyes",
+      "hexcode": "1F644",
+      "source_emoji": "face with rolling eyes",
+      "emoji": "🙄",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F644_eyes.svg"
+    },
+    {
+      "id": "1F644_mouth",
+      "type": "mouth",
+      "name": "face with rolling eyes — mouth",
+      "hexcode": "1F644",
+      "source_emoji": "face with rolling eyes",
+      "emoji": "🙄",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F644_mouth.svg"
+    },
+    {
+      "id": "1F910_face",
+      "type": "face",
+      "name": "zipper-mouth face — face",
+      "hexcode": "1F910",
+      "source_emoji": "zipper-mouth face",
+      "emoji": "🤐",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F910_face.svg"
+    },
+    {
+      "id": "1F910_eyes",
+      "type": "eyes",
+      "name": "zipper-mouth face — eyes",
+      "hexcode": "1F910",
+      "source_emoji": "zipper-mouth face",
+      "emoji": "🤐",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F910_eyes.svg"
+    },
+    {
+      "id": "1F910_mouth",
+      "type": "mouth",
+      "name": "zipper-mouth face — mouth",
+      "hexcode": "1F910",
+      "source_emoji": "zipper-mouth face",
+      "emoji": "🤐",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F910_mouth.svg"
+    },
+    {
+      "id": "1F910_nose",
+      "type": "nose",
+      "name": "zipper-mouth face — nose",
+      "hexcode": "1F910",
+      "source_emoji": "zipper-mouth face",
+      "emoji": "🤐",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F910_nose.svg"
+    },
+    {
+      "id": "1F910_extras",
+      "type": "extras",
+      "name": "zipper-mouth face — extras",
+      "hexcode": "1F910",
+      "source_emoji": "zipper-mouth face",
+      "emoji": "🤐",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F910_extras.svg"
+    },
+    {
+      "id": "1F911_face",
+      "type": "face",
+      "name": "money-mouth face — face",
+      "hexcode": "1F911",
+      "source_emoji": "money-mouth face",
+      "emoji": "🤑",
+      "subgroup": "face-tongue",
+      "file": "svg/1F911_face.svg"
+    },
+    {
+      "id": "1F911_eyes",
+      "type": "eyes",
+      "name": "money-mouth face — eyes",
+      "hexcode": "1F911",
+      "source_emoji": "money-mouth face",
+      "emoji": "🤑",
+      "subgroup": "face-tongue",
+      "file": "svg/1F911_eyes.svg"
+    },
+    {
+      "id": "1F911_mouth",
+      "type": "mouth",
+      "name": "money-mouth face — mouth",
+      "hexcode": "1F911",
+      "source_emoji": "money-mouth face",
+      "emoji": "🤑",
+      "subgroup": "face-tongue",
+      "file": "svg/1F911_mouth.svg"
+    },
+    {
+      "id": "1F911_brows",
+      "type": "brows",
+      "name": "money-mouth face — brows",
+      "hexcode": "1F911",
+      "source_emoji": "money-mouth face",
+      "emoji": "🤑",
+      "subgroup": "face-tongue",
+      "file": "svg/1F911_brows.svg"
+    },
+    {
+      "id": "1F912_face",
+      "type": "face",
+      "name": "face with thermometer — face",
+      "hexcode": "1F912",
+      "source_emoji": "face with thermometer",
+      "emoji": "🤒",
+      "subgroup": "face-unwell",
+      "file": "svg/1F912_face.svg"
+    },
+    {
+      "id": "1F912_eyes",
+      "type": "eyes",
+      "name": "face with thermometer — eyes",
+      "hexcode": "1F912",
+      "source_emoji": "face with thermometer",
+      "emoji": "🤒",
+      "subgroup": "face-unwell",
+      "file": "svg/1F912_eyes.svg"
+    },
+    {
+      "id": "1F912_mouth",
+      "type": "mouth",
+      "name": "face with thermometer — mouth",
+      "hexcode": "1F912",
+      "source_emoji": "face with thermometer",
+      "emoji": "🤒",
+      "subgroup": "face-unwell",
+      "file": "svg/1F912_mouth.svg"
+    },
+    {
+      "id": "1F912_brows",
+      "type": "brows",
+      "name": "face with thermometer — brows",
+      "hexcode": "1F912",
+      "source_emoji": "face with thermometer",
+      "emoji": "🤒",
+      "subgroup": "face-unwell",
+      "file": "svg/1F912_brows.svg"
+    },
+    {
+      "id": "1F913_face",
+      "type": "face",
+      "name": "nerd face — face",
+      "hexcode": "1F913",
+      "source_emoji": "nerd face",
+      "emoji": "🤓",
+      "subgroup": "face-glasses",
+      "file": "svg/1F913_face.svg"
+    },
+    {
+      "id": "1F913_eyes",
+      "type": "eyes",
+      "name": "nerd face — eyes",
+      "hexcode": "1F913",
+      "source_emoji": "nerd face",
+      "emoji": "🤓",
+      "subgroup": "face-glasses",
+      "file": "svg/1F913_eyes.svg"
+    },
+    {
+      "id": "1F913_mouth",
+      "type": "mouth",
+      "name": "nerd face — mouth",
+      "hexcode": "1F913",
+      "source_emoji": "nerd face",
+      "emoji": "🤓",
+      "subgroup": "face-glasses",
+      "file": "svg/1F913_mouth.svg"
+    },
+    {
+      "id": "1F913_extras",
+      "type": "extras",
+      "name": "nerd face — extras",
+      "hexcode": "1F913",
+      "source_emoji": "nerd face",
+      "emoji": "🤓",
+      "subgroup": "face-glasses",
+      "file": "svg/1F913_extras.svg"
+    },
+    {
+      "id": "1F914_face",
+      "type": "face",
+      "name": "thinking face — face",
+      "hexcode": "1F914",
+      "source_emoji": "thinking face",
+      "emoji": "🤔",
+      "subgroup": "face-hand",
+      "file": "svg/1F914_face.svg"
+    },
+    {
+      "id": "1F914_eyes",
+      "type": "eyes",
+      "name": "thinking face — eyes",
+      "hexcode": "1F914",
+      "source_emoji": "thinking face",
+      "emoji": "🤔",
+      "subgroup": "face-hand",
+      "file": "svg/1F914_eyes.svg"
+    },
+    {
+      "id": "1F914_mouth",
+      "type": "mouth",
+      "name": "thinking face — mouth",
+      "hexcode": "1F914",
+      "source_emoji": "thinking face",
+      "emoji": "🤔",
+      "subgroup": "face-hand",
+      "file": "svg/1F914_mouth.svg"
+    },
+    {
+      "id": "1F914_brows",
+      "type": "brows",
+      "name": "thinking face — brows",
+      "hexcode": "1F914",
+      "source_emoji": "thinking face",
+      "emoji": "🤔",
+      "subgroup": "face-hand",
+      "file": "svg/1F914_brows.svg"
+    },
+    {
+      "id": "1F914_arms",
+      "type": "arms",
+      "name": "thinking face — arms",
+      "hexcode": "1F914",
+      "source_emoji": "thinking face",
+      "emoji": "🤔",
+      "subgroup": "face-hand",
+      "file": "svg/1F914_arms.svg"
+    },
+    {
+      "id": "1F915_face",
+      "type": "face",
+      "name": "face with head-bandage — face",
+      "hexcode": "1F915",
+      "source_emoji": "face with head-bandage",
+      "emoji": "🤕",
+      "subgroup": "face-unwell",
+      "file": "svg/1F915_face.svg"
+    },
+    {
+      "id": "1F915_eyes",
+      "type": "eyes",
+      "name": "face with head-bandage — eyes",
+      "hexcode": "1F915",
+      "source_emoji": "face with head-bandage",
+      "emoji": "🤕",
+      "subgroup": "face-unwell",
+      "file": "svg/1F915_eyes.svg"
+    },
+    {
+      "id": "1F915_mouth",
+      "type": "mouth",
+      "name": "face with head-bandage — mouth",
+      "hexcode": "1F915",
+      "source_emoji": "face with head-bandage",
+      "emoji": "🤕",
+      "subgroup": "face-unwell",
+      "file": "svg/1F915_mouth.svg"
+    },
+    {
+      "id": "1F915_brows",
+      "type": "brows",
+      "name": "face with head-bandage — brows",
+      "hexcode": "1F915",
+      "source_emoji": "face with head-bandage",
+      "emoji": "🤕",
+      "subgroup": "face-unwell",
+      "file": "svg/1F915_brows.svg"
+    },
+    {
+      "id": "1F915_extras",
+      "type": "extras",
+      "name": "face with head-bandage — extras",
+      "hexcode": "1F915",
+      "source_emoji": "face with head-bandage",
+      "emoji": "🤕",
+      "subgroup": "face-unwell",
+      "file": "svg/1F915_extras.svg"
+    },
+    {
+      "id": "1F916_face",
+      "type": "face",
+      "name": "robot — face",
+      "hexcode": "1F916",
+      "source_emoji": "robot",
+      "emoji": "🤖",
+      "subgroup": "face-costume",
+      "file": "svg/1F916_face.svg"
+    },
+    {
+      "id": "1F916_eyes",
+      "type": "eyes",
+      "name": "robot — eyes",
+      "hexcode": "1F916",
+      "source_emoji": "robot",
+      "emoji": "🤖",
+      "subgroup": "face-costume",
+      "file": "svg/1F916_eyes.svg"
+    },
+    {
+      "id": "1F916_mouth",
+      "type": "mouth",
+      "name": "robot — mouth",
+      "hexcode": "1F916",
+      "source_emoji": "robot",
+      "emoji": "🤖",
+      "subgroup": "face-costume",
+      "file": "svg/1F916_mouth.svg"
+    },
+    {
+      "id": "1F916_nose",
+      "type": "nose",
+      "name": "robot — nose",
+      "hexcode": "1F916",
+      "source_emoji": "robot",
+      "emoji": "🤖",
+      "subgroup": "face-costume",
+      "file": "svg/1F916_nose.svg"
+    },
+    {
+      "id": "1F916_extras",
+      "type": "extras",
+      "name": "robot — extras",
+      "hexcode": "1F916",
+      "source_emoji": "robot",
+      "emoji": "🤖",
+      "subgroup": "face-costume",
+      "file": "svg/1F916_extras.svg"
+    },
+    {
+      "id": "1F917_face",
+      "type": "face",
+      "name": "smiling face with open hands — face",
+      "hexcode": "1F917",
+      "source_emoji": "smiling face with open hands",
+      "emoji": "🤗",
+      "subgroup": "face-hand",
+      "file": "svg/1F917_face.svg"
+    },
+    {
+      "id": "1F917_eyes",
+      "type": "eyes",
+      "name": "smiling face with open hands — eyes",
+      "hexcode": "1F917",
+      "source_emoji": "smiling face with open hands",
+      "emoji": "🤗",
+      "subgroup": "face-hand",
+      "file": "svg/1F917_eyes.svg"
+    },
+    {
+      "id": "1F917_mouth",
+      "type": "mouth",
+      "name": "smiling face with open hands — mouth",
+      "hexcode": "1F917",
+      "source_emoji": "smiling face with open hands",
+      "emoji": "🤗",
+      "subgroup": "face-hand",
+      "file": "svg/1F917_mouth.svg"
+    },
+    {
+      "id": "1F917_arms",
+      "type": "arms",
+      "name": "smiling face with open hands — arms",
+      "hexcode": "1F917",
+      "source_emoji": "smiling face with open hands",
+      "emoji": "🤗",
+      "subgroup": "face-hand",
+      "file": "svg/1F917_arms.svg"
+    },
+    {
+      "id": "1F917_extras",
+      "type": "extras",
+      "name": "smiling face with open hands — extras",
+      "hexcode": "1F917",
+      "source_emoji": "smiling face with open hands",
+      "emoji": "🤗",
+      "subgroup": "face-hand",
+      "file": "svg/1F917_extras.svg"
+    },
+    {
+      "id": "1F920_face",
+      "type": "face",
+      "name": "cowboy hat face — face",
+      "hexcode": "1F920",
+      "source_emoji": "cowboy hat face",
+      "emoji": "🤠",
+      "subgroup": "face-hat",
+      "file": "svg/1F920_face.svg"
+    },
+    {
+      "id": "1F920_eyes",
+      "type": "eyes",
+      "name": "cowboy hat face — eyes",
+      "hexcode": "1F920",
+      "source_emoji": "cowboy hat face",
+      "emoji": "🤠",
+      "subgroup": "face-hat",
+      "file": "svg/1F920_eyes.svg"
+    },
+    {
+      "id": "1F920_mouth",
+      "type": "mouth",
+      "name": "cowboy hat face — mouth",
+      "hexcode": "1F920",
+      "source_emoji": "cowboy hat face",
+      "emoji": "🤠",
+      "subgroup": "face-hat",
+      "file": "svg/1F920_mouth.svg"
+    },
+    {
+      "id": "1F920_extras",
+      "type": "extras",
+      "name": "cowboy hat face — extras",
+      "hexcode": "1F920",
+      "source_emoji": "cowboy hat face",
+      "emoji": "🤠",
+      "subgroup": "face-hat",
+      "file": "svg/1F920_extras.svg"
+    },
+    {
+      "id": "1F921_face",
+      "type": "face",
+      "name": "clown face — face",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_face.svg"
+    },
+    {
+      "id": "1F921_eyes",
+      "type": "eyes",
+      "name": "clown face — eyes",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_eyes.svg"
+    },
+    {
+      "id": "1F921_mouth",
+      "type": "mouth",
+      "name": "clown face — mouth",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_mouth.svg"
+    },
+    {
+      "id": "1F921_nose",
+      "type": "nose",
+      "name": "clown face — nose",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_nose.svg"
+    },
+    {
+      "id": "1F921_brows",
+      "type": "brows",
+      "name": "clown face — brows",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_brows.svg"
+    },
+    {
+      "id": "1F921_extras",
+      "type": "extras",
+      "name": "clown face — extras",
+      "hexcode": "1F921",
+      "source_emoji": "clown face",
+      "emoji": "🤡",
+      "subgroup": "face-costume",
+      "file": "svg/1F921_extras.svg"
+    },
+    {
+      "id": "1F922_face",
+      "type": "face",
+      "name": "nauseated face — face",
+      "hexcode": "1F922",
+      "source_emoji": "nauseated face",
+      "emoji": "🤢",
+      "subgroup": "face-unwell",
+      "file": "svg/1F922_face.svg"
+    },
+    {
+      "id": "1F922_eyes",
+      "type": "eyes",
+      "name": "nauseated face — eyes",
+      "hexcode": "1F922",
+      "source_emoji": "nauseated face",
+      "emoji": "🤢",
+      "subgroup": "face-unwell",
+      "file": "svg/1F922_eyes.svg"
+    },
+    {
+      "id": "1F922_mouth",
+      "type": "mouth",
+      "name": "nauseated face — mouth",
+      "hexcode": "1F922",
+      "source_emoji": "nauseated face",
+      "emoji": "🤢",
+      "subgroup": "face-unwell",
+      "file": "svg/1F922_mouth.svg"
+    },
+    {
+      "id": "1F923_face",
+      "type": "face",
+      "name": "rolling on the floor laughing — face",
+      "hexcode": "1F923",
+      "source_emoji": "rolling on the floor laughing",
+      "emoji": "🤣",
+      "subgroup": "face-smiling",
+      "file": "svg/1F923_face.svg"
+    },
+    {
+      "id": "1F923_eyes",
+      "type": "eyes",
+      "name": "rolling on the floor laughing — eyes",
+      "hexcode": "1F923",
+      "source_emoji": "rolling on the floor laughing",
+      "emoji": "🤣",
+      "subgroup": "face-smiling",
+      "file": "svg/1F923_eyes.svg"
+    },
+    {
+      "id": "1F923_mouth",
+      "type": "mouth",
+      "name": "rolling on the floor laughing — mouth",
+      "hexcode": "1F923",
+      "source_emoji": "rolling on the floor laughing",
+      "emoji": "🤣",
+      "subgroup": "face-smiling",
+      "file": "svg/1F923_mouth.svg"
+    },
+    {
+      "id": "1F923_extras",
+      "type": "extras",
+      "name": "rolling on the floor laughing — extras",
+      "hexcode": "1F923",
+      "source_emoji": "rolling on the floor laughing",
+      "emoji": "🤣",
+      "subgroup": "face-smiling",
+      "file": "svg/1F923_extras.svg"
+    },
+    {
+      "id": "1F924_face",
+      "type": "face",
+      "name": "drooling face — face",
+      "hexcode": "1F924",
+      "source_emoji": "drooling face",
+      "emoji": "🤤",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F924_face.svg"
+    },
+    {
+      "id": "1F924_eyes",
+      "type": "eyes",
+      "name": "drooling face — eyes",
+      "hexcode": "1F924",
+      "source_emoji": "drooling face",
+      "emoji": "🤤",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F924_eyes.svg"
+    },
+    {
+      "id": "1F924_mouth",
+      "type": "mouth",
+      "name": "drooling face — mouth",
+      "hexcode": "1F924",
+      "source_emoji": "drooling face",
+      "emoji": "🤤",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F924_mouth.svg"
+    },
+    {
+      "id": "1F924_brows",
+      "type": "brows",
+      "name": "drooling face — brows",
+      "hexcode": "1F924",
+      "source_emoji": "drooling face",
+      "emoji": "🤤",
+      "subgroup": "face-sleepy",
+      "file": "svg/1F924_brows.svg"
+    },
+    {
+      "id": "1F925_face",
+      "type": "face",
+      "name": "lying face — face",
+      "hexcode": "1F925",
+      "source_emoji": "lying face",
+      "emoji": "🤥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F925_face.svg"
+    },
+    {
+      "id": "1F925_eyes",
+      "type": "eyes",
+      "name": "lying face — eyes",
+      "hexcode": "1F925",
+      "source_emoji": "lying face",
+      "emoji": "🤥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F925_eyes.svg"
+    },
+    {
+      "id": "1F925_mouth",
+      "type": "mouth",
+      "name": "lying face — mouth",
+      "hexcode": "1F925",
+      "source_emoji": "lying face",
+      "emoji": "🤥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F925_mouth.svg"
+    },
+    {
+      "id": "1F925_brows",
+      "type": "brows",
+      "name": "lying face — brows",
+      "hexcode": "1F925",
+      "source_emoji": "lying face",
+      "emoji": "🤥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F925_brows.svg"
+    },
+    {
+      "id": "1F927_face",
+      "type": "face",
+      "name": "sneezing face — face",
+      "hexcode": "1F927",
+      "source_emoji": "sneezing face",
+      "emoji": "🤧",
+      "subgroup": "face-unwell",
+      "file": "svg/1F927_face.svg"
+    },
+    {
+      "id": "1F927_eyes",
+      "type": "eyes",
+      "name": "sneezing face — eyes",
+      "hexcode": "1F927",
+      "source_emoji": "sneezing face",
+      "emoji": "🤧",
+      "subgroup": "face-unwell",
+      "file": "svg/1F927_eyes.svg"
+    },
+    {
+      "id": "1F927_mouth",
+      "type": "mouth",
+      "name": "sneezing face — mouth",
+      "hexcode": "1F927",
+      "source_emoji": "sneezing face",
+      "emoji": "🤧",
+      "subgroup": "face-unwell",
+      "file": "svg/1F927_mouth.svg"
+    },
+    {
+      "id": "1F928_face",
+      "type": "face",
+      "name": "face with raised eyebrow — face",
+      "hexcode": "1F928",
+      "source_emoji": "face with raised eyebrow",
+      "emoji": "🤨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F928_face.svg"
+    },
+    {
+      "id": "1F928_eyes",
+      "type": "eyes",
+      "name": "face with raised eyebrow — eyes",
+      "hexcode": "1F928",
+      "source_emoji": "face with raised eyebrow",
+      "emoji": "🤨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F928_eyes.svg"
+    },
+    {
+      "id": "1F928_mouth",
+      "type": "mouth",
+      "name": "face with raised eyebrow — mouth",
+      "hexcode": "1F928",
+      "source_emoji": "face with raised eyebrow",
+      "emoji": "🤨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F928_mouth.svg"
+    },
+    {
+      "id": "1F928_brows",
+      "type": "brows",
+      "name": "face with raised eyebrow — brows",
+      "hexcode": "1F928",
+      "source_emoji": "face with raised eyebrow",
+      "emoji": "🤨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F928_brows.svg"
+    },
+    {
+      "id": "1F929_face",
+      "type": "face",
+      "name": "star-struck — face",
+      "hexcode": "1F929",
+      "source_emoji": "star-struck",
+      "emoji": "🤩",
+      "subgroup": "face-affection",
+      "file": "svg/1F929_face.svg"
+    },
+    {
+      "id": "1F929_mouth",
+      "type": "mouth",
+      "name": "star-struck — mouth",
+      "hexcode": "1F929",
+      "source_emoji": "star-struck",
+      "emoji": "🤩",
+      "subgroup": "face-affection",
+      "file": "svg/1F929_mouth.svg"
+    },
+    {
+      "id": "1F929_extras",
+      "type": "extras",
+      "name": "star-struck — extras",
+      "hexcode": "1F929",
+      "source_emoji": "star-struck",
+      "emoji": "🤩",
+      "subgroup": "face-affection",
+      "file": "svg/1F929_extras.svg"
+    },
+    {
+      "id": "1F92A_face",
+      "type": "face",
+      "name": "zany face — face",
+      "hexcode": "1F92A",
+      "source_emoji": "zany face",
+      "emoji": "🤪",
+      "subgroup": "face-tongue",
+      "file": "svg/1F92A_face.svg"
+    },
+    {
+      "id": "1F92A_eyes",
+      "type": "eyes",
+      "name": "zany face — eyes",
+      "hexcode": "1F92A",
+      "source_emoji": "zany face",
+      "emoji": "🤪",
+      "subgroup": "face-tongue",
+      "file": "svg/1F92A_eyes.svg"
+    },
+    {
+      "id": "1F92A_mouth",
+      "type": "mouth",
+      "name": "zany face — mouth",
+      "hexcode": "1F92A",
+      "source_emoji": "zany face",
+      "emoji": "🤪",
+      "subgroup": "face-tongue",
+      "file": "svg/1F92A_mouth.svg"
+    },
+    {
+      "id": "1F92A_brows",
+      "type": "brows",
+      "name": "zany face — brows",
+      "hexcode": "1F92A",
+      "source_emoji": "zany face",
+      "emoji": "🤪",
+      "subgroup": "face-tongue",
+      "file": "svg/1F92A_brows.svg"
+    },
+    {
+      "id": "1F92B_face",
+      "type": "face",
+      "name": "shushing face — face",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_face.svg"
+    },
+    {
+      "id": "1F92B_eyes",
+      "type": "eyes",
+      "name": "shushing face — eyes",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_eyes.svg"
+    },
+    {
+      "id": "1F92B_mouth",
+      "type": "mouth",
+      "name": "shushing face — mouth",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_mouth.svg"
+    },
+    {
+      "id": "1F92B_nose",
+      "type": "nose",
+      "name": "shushing face — nose",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_nose.svg"
+    },
+    {
+      "id": "1F92B_brows",
+      "type": "brows",
+      "name": "shushing face — brows",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_brows.svg"
+    },
+    {
+      "id": "1F92B_arms",
+      "type": "arms",
+      "name": "shushing face — arms",
+      "hexcode": "1F92B",
+      "source_emoji": "shushing face",
+      "emoji": "🤫",
+      "subgroup": "face-hand",
+      "file": "svg/1F92B_arms.svg"
+    },
+    {
+      "id": "1F92C_face",
+      "type": "face",
+      "name": "face with symbols on mouth — face",
+      "hexcode": "1F92C",
+      "source_emoji": "face with symbols on mouth",
+      "emoji": "🤬",
+      "subgroup": "face-negative",
+      "file": "svg/1F92C_face.svg"
+    },
+    {
+      "id": "1F92C_eyes",
+      "type": "eyes",
+      "name": "face with symbols on mouth — eyes",
+      "hexcode": "1F92C",
+      "source_emoji": "face with symbols on mouth",
+      "emoji": "🤬",
+      "subgroup": "face-negative",
+      "file": "svg/1F92C_eyes.svg"
+    },
+    {
+      "id": "1F92C_mouth",
+      "type": "mouth",
+      "name": "face with symbols on mouth — mouth",
+      "hexcode": "1F92C",
+      "source_emoji": "face with symbols on mouth",
+      "emoji": "🤬",
+      "subgroup": "face-negative",
+      "file": "svg/1F92C_mouth.svg"
+    },
+    {
+      "id": "1F92C_brows",
+      "type": "brows",
+      "name": "face with symbols on mouth — brows",
+      "hexcode": "1F92C",
+      "source_emoji": "face with symbols on mouth",
+      "emoji": "🤬",
+      "subgroup": "face-negative",
+      "file": "svg/1F92C_brows.svg"
+    },
+    {
+      "id": "1F92D_face",
+      "type": "face",
+      "name": "face with hand over mouth — face",
+      "hexcode": "1F92D",
+      "source_emoji": "face with hand over mouth",
+      "emoji": "🤭",
+      "subgroup": "face-hand",
+      "file": "svg/1F92D_face.svg"
+    },
+    {
+      "id": "1F92D_eyes",
+      "type": "eyes",
+      "name": "face with hand over mouth — eyes",
+      "hexcode": "1F92D",
+      "source_emoji": "face with hand over mouth",
+      "emoji": "🤭",
+      "subgroup": "face-hand",
+      "file": "svg/1F92D_eyes.svg"
+    },
+    {
+      "id": "1F92D_mouth",
+      "type": "mouth",
+      "name": "face with hand over mouth — mouth",
+      "hexcode": "1F92D",
+      "source_emoji": "face with hand over mouth",
+      "emoji": "🤭",
+      "subgroup": "face-hand",
+      "file": "svg/1F92D_mouth.svg"
+    },
+    {
+      "id": "1F92E_face",
+      "type": "face",
+      "name": "face vomiting — face",
+      "hexcode": "1F92E",
+      "source_emoji": "face vomiting",
+      "emoji": "🤮",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92E_face.svg"
+    },
+    {
+      "id": "1F92E_eyes",
+      "type": "eyes",
+      "name": "face vomiting — eyes",
+      "hexcode": "1F92E",
+      "source_emoji": "face vomiting",
+      "emoji": "🤮",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92E_eyes.svg"
+    },
+    {
+      "id": "1F92E_mouth",
+      "type": "mouth",
+      "name": "face vomiting — mouth",
+      "hexcode": "1F92E",
+      "source_emoji": "face vomiting",
+      "emoji": "🤮",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92E_mouth.svg"
+    },
+    {
+      "id": "1F92E_extras",
+      "type": "extras",
+      "name": "face vomiting — extras",
+      "hexcode": "1F92E",
+      "source_emoji": "face vomiting",
+      "emoji": "🤮",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92E_extras.svg"
+    },
+    {
+      "id": "1F92F_eyes",
+      "type": "eyes",
+      "name": "exploding head — eyes",
+      "hexcode": "1F92F",
+      "source_emoji": "exploding head",
+      "emoji": "🤯",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92F_eyes.svg"
+    },
+    {
+      "id": "1F92F_mouth",
+      "type": "mouth",
+      "name": "exploding head — mouth",
+      "hexcode": "1F92F",
+      "source_emoji": "exploding head",
+      "emoji": "🤯",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92F_mouth.svg"
+    },
+    {
+      "id": "1F92F_brows",
+      "type": "brows",
+      "name": "exploding head — brows",
+      "hexcode": "1F92F",
+      "source_emoji": "exploding head",
+      "emoji": "🤯",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92F_brows.svg"
+    },
+    {
+      "id": "1F92F_extras",
+      "type": "extras",
+      "name": "exploding head — extras",
+      "hexcode": "1F92F",
+      "source_emoji": "exploding head",
+      "emoji": "🤯",
+      "subgroup": "face-unwell",
+      "file": "svg/1F92F_extras.svg"
+    },
+    {
+      "id": "1F970_face",
+      "type": "face",
+      "name": "smiling face with hearts — face",
+      "hexcode": "1F970",
+      "source_emoji": "smiling face with hearts",
+      "emoji": "🥰",
+      "subgroup": "face-affection",
+      "file": "svg/1F970_face.svg"
+    },
+    {
+      "id": "1F970_eyes",
+      "type": "eyes",
+      "name": "smiling face with hearts — eyes",
+      "hexcode": "1F970",
+      "source_emoji": "smiling face with hearts",
+      "emoji": "🥰",
+      "subgroup": "face-affection",
+      "file": "svg/1F970_eyes.svg"
+    },
+    {
+      "id": "1F970_mouth",
+      "type": "mouth",
+      "name": "smiling face with hearts — mouth",
+      "hexcode": "1F970",
+      "source_emoji": "smiling face with hearts",
+      "emoji": "🥰",
+      "subgroup": "face-affection",
+      "file": "svg/1F970_mouth.svg"
+    },
+    {
+      "id": "1F970_arms",
+      "type": "arms",
+      "name": "smiling face with hearts — arms",
+      "hexcode": "1F970",
+      "source_emoji": "smiling face with hearts",
+      "emoji": "🥰",
+      "subgroup": "face-affection",
+      "file": "svg/1F970_arms.svg"
+    },
+    {
+      "id": "1F970_extras",
+      "type": "extras",
+      "name": "smiling face with hearts — extras",
+      "hexcode": "1F970",
+      "source_emoji": "smiling face with hearts",
+      "emoji": "🥰",
+      "subgroup": "face-affection",
+      "file": "svg/1F970_extras.svg"
+    },
+    {
+      "id": "1F971_face",
+      "type": "face",
+      "name": "yawning face — face",
+      "hexcode": "1F971",
+      "source_emoji": "yawning face",
+      "emoji": "🥱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F971_face.svg"
+    },
+    {
+      "id": "1F971_mouth",
+      "type": "mouth",
+      "name": "yawning face — mouth",
+      "hexcode": "1F971",
+      "source_emoji": "yawning face",
+      "emoji": "🥱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F971_mouth.svg"
+    },
+    {
+      "id": "1F971_brows",
+      "type": "brows",
+      "name": "yawning face — brows",
+      "hexcode": "1F971",
+      "source_emoji": "yawning face",
+      "emoji": "🥱",
+      "subgroup": "face-concerned",
+      "file": "svg/1F971_brows.svg"
+    },
+    {
+      "id": "1F972_face",
+      "type": "face",
+      "name": "smiling face with tear — face",
+      "hexcode": "1F972",
+      "source_emoji": "smiling face with tear",
+      "emoji": "🥲",
+      "subgroup": "face-affection",
+      "file": "svg/1F972_face.svg"
+    },
+    {
+      "id": "1F972_eyes",
+      "type": "eyes",
+      "name": "smiling face with tear — eyes",
+      "hexcode": "1F972",
+      "source_emoji": "smiling face with tear",
+      "emoji": "🥲",
+      "subgroup": "face-affection",
+      "file": "svg/1F972_eyes.svg"
+    },
+    {
+      "id": "1F972_mouth",
+      "type": "mouth",
+      "name": "smiling face with tear — mouth",
+      "hexcode": "1F972",
+      "source_emoji": "smiling face with tear",
+      "emoji": "🥲",
+      "subgroup": "face-affection",
+      "file": "svg/1F972_mouth.svg"
+    },
+    {
+      "id": "1F973_face",
+      "type": "face",
+      "name": "partying face — face",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_face.svg"
+    },
+    {
+      "id": "1F973_eyes",
+      "type": "eyes",
+      "name": "partying face — eyes",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_eyes.svg"
+    },
+    {
+      "id": "1F973_mouth",
+      "type": "mouth",
+      "name": "partying face — mouth",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_mouth.svg"
+    },
+    {
+      "id": "1F973_brows",
+      "type": "brows",
+      "name": "partying face — brows",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_brows.svg"
+    },
+    {
+      "id": "1F973_ears",
+      "type": "ears",
+      "name": "partying face — ears",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_ears.svg"
+    },
+    {
+      "id": "1F973_extras",
+      "type": "extras",
+      "name": "partying face — extras",
+      "hexcode": "1F973",
+      "source_emoji": "partying face",
+      "emoji": "🥳",
+      "subgroup": "face-hat",
+      "file": "svg/1F973_extras.svg"
+    },
+    {
+      "id": "1F974_face",
+      "type": "face",
+      "name": "woozy face — face",
+      "hexcode": "1F974",
+      "source_emoji": "woozy face",
+      "emoji": "🥴",
+      "subgroup": "face-unwell",
+      "file": "svg/1F974_face.svg"
+    },
+    {
+      "id": "1F974_eyes",
+      "type": "eyes",
+      "name": "woozy face — eyes",
+      "hexcode": "1F974",
+      "source_emoji": "woozy face",
+      "emoji": "🥴",
+      "subgroup": "face-unwell",
+      "file": "svg/1F974_eyes.svg"
+    },
+    {
+      "id": "1F974_mouth",
+      "type": "mouth",
+      "name": "woozy face — mouth",
+      "hexcode": "1F974",
+      "source_emoji": "woozy face",
+      "emoji": "🥴",
+      "subgroup": "face-unwell",
+      "file": "svg/1F974_mouth.svg"
+    },
+    {
+      "id": "1F974_brows",
+      "type": "brows",
+      "name": "woozy face — brows",
+      "hexcode": "1F974",
+      "source_emoji": "woozy face",
+      "emoji": "🥴",
+      "subgroup": "face-unwell",
+      "file": "svg/1F974_brows.svg"
+    },
+    {
+      "id": "1F975_face",
+      "type": "face",
+      "name": "hot face — face",
+      "hexcode": "1F975",
+      "source_emoji": "hot face",
+      "emoji": "🥵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F975_face.svg"
+    },
+    {
+      "id": "1F975_eyes",
+      "type": "eyes",
+      "name": "hot face — eyes",
+      "hexcode": "1F975",
+      "source_emoji": "hot face",
+      "emoji": "🥵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F975_eyes.svg"
+    },
+    {
+      "id": "1F975_mouth",
+      "type": "mouth",
+      "name": "hot face — mouth",
+      "hexcode": "1F975",
+      "source_emoji": "hot face",
+      "emoji": "🥵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F975_mouth.svg"
+    },
+    {
+      "id": "1F975_brows",
+      "type": "brows",
+      "name": "hot face — brows",
+      "hexcode": "1F975",
+      "source_emoji": "hot face",
+      "emoji": "🥵",
+      "subgroup": "face-unwell",
+      "file": "svg/1F975_brows.svg"
+    },
+    {
+      "id": "1F976_face",
+      "type": "face",
+      "name": "cold face — face",
+      "hexcode": "1F976",
+      "source_emoji": "cold face",
+      "emoji": "🥶",
+      "subgroup": "face-unwell",
+      "file": "svg/1F976_face.svg"
+    },
+    {
+      "id": "1F976_eyes",
+      "type": "eyes",
+      "name": "cold face — eyes",
+      "hexcode": "1F976",
+      "source_emoji": "cold face",
+      "emoji": "🥶",
+      "subgroup": "face-unwell",
+      "file": "svg/1F976_eyes.svg"
+    },
+    {
+      "id": "1F976_mouth",
+      "type": "mouth",
+      "name": "cold face — mouth",
+      "hexcode": "1F976",
+      "source_emoji": "cold face",
+      "emoji": "🥶",
+      "subgroup": "face-unwell",
+      "file": "svg/1F976_mouth.svg"
+    },
+    {
+      "id": "1F976_brows",
+      "type": "brows",
+      "name": "cold face — brows",
+      "hexcode": "1F976",
+      "source_emoji": "cold face",
+      "emoji": "🥶",
+      "subgroup": "face-unwell",
+      "file": "svg/1F976_brows.svg"
+    },
+    {
+      "id": "1F976_extras",
+      "type": "extras",
+      "name": "cold face — extras",
+      "hexcode": "1F976",
+      "source_emoji": "cold face",
+      "emoji": "🥶",
+      "subgroup": "face-unwell",
+      "file": "svg/1F976_extras.svg"
+    },
+    {
+      "id": "1F978_face",
+      "type": "face",
+      "name": "disguised face — face",
+      "hexcode": "1F978",
+      "source_emoji": "disguised face",
+      "emoji": "🥸",
+      "subgroup": "face-hat",
+      "file": "svg/1F978_face.svg"
+    },
+    {
+      "id": "1F978_mouth",
+      "type": "mouth",
+      "name": "disguised face — mouth",
+      "hexcode": "1F978",
+      "source_emoji": "disguised face",
+      "emoji": "🥸",
+      "subgroup": "face-hat",
+      "file": "svg/1F978_mouth.svg"
+    },
+    {
+      "id": "1F978_extras",
+      "type": "extras",
+      "name": "disguised face — extras",
+      "hexcode": "1F978",
+      "source_emoji": "disguised face",
+      "emoji": "🥸",
+      "subgroup": "face-hat",
+      "file": "svg/1F978_extras.svg"
+    },
+    {
+      "id": "1F979_face",
+      "type": "face",
+      "name": "face holding back tears — face",
+      "hexcode": "1F979",
+      "source_emoji": "face holding back tears",
+      "emoji": "🥹",
+      "subgroup": "face-concerned",
+      "file": "svg/1F979_face.svg"
+    },
+    {
+      "id": "1F979_eyes",
+      "type": "eyes",
+      "name": "face holding back tears — eyes",
+      "hexcode": "1F979",
+      "source_emoji": "face holding back tears",
+      "emoji": "🥹",
+      "subgroup": "face-concerned",
+      "file": "svg/1F979_eyes.svg"
+    },
+    {
+      "id": "1F979_mouth",
+      "type": "mouth",
+      "name": "face holding back tears — mouth",
+      "hexcode": "1F979",
+      "source_emoji": "face holding back tears",
+      "emoji": "🥹",
+      "subgroup": "face-concerned",
+      "file": "svg/1F979_mouth.svg"
+    },
+    {
+      "id": "1F979_brows",
+      "type": "brows",
+      "name": "face holding back tears — brows",
+      "hexcode": "1F979",
+      "source_emoji": "face holding back tears",
+      "emoji": "🥹",
+      "subgroup": "face-concerned",
+      "file": "svg/1F979_brows.svg"
+    },
+    {
+      "id": "1F97A_face",
+      "type": "face",
+      "name": "pleading face — face",
+      "hexcode": "1F97A",
+      "source_emoji": "pleading face",
+      "emoji": "🥺",
+      "subgroup": "face-concerned",
+      "file": "svg/1F97A_face.svg"
+    },
+    {
+      "id": "1F97A_eyes",
+      "type": "eyes",
+      "name": "pleading face — eyes",
+      "hexcode": "1F97A",
+      "source_emoji": "pleading face",
+      "emoji": "🥺",
+      "subgroup": "face-concerned",
+      "file": "svg/1F97A_eyes.svg"
+    },
+    {
+      "id": "1F97A_mouth",
+      "type": "mouth",
+      "name": "pleading face — mouth",
+      "hexcode": "1F97A",
+      "source_emoji": "pleading face",
+      "emoji": "🥺",
+      "subgroup": "face-concerned",
+      "file": "svg/1F97A_mouth.svg"
+    },
+    {
+      "id": "1F97A_extras",
+      "type": "extras",
+      "name": "pleading face — extras",
+      "hexcode": "1F97A",
+      "source_emoji": "pleading face",
+      "emoji": "🥺",
+      "subgroup": "face-concerned",
+      "file": "svg/1F97A_extras.svg"
+    },
+    {
+      "id": "1F9D0_face",
+      "type": "face",
+      "name": "face with monocle — face",
+      "hexcode": "1F9D0",
+      "source_emoji": "face with monocle",
+      "emoji": "🧐",
+      "subgroup": "face-glasses",
+      "file": "svg/1F9D0_face.svg"
+    },
+    {
+      "id": "1F9D0_eyes",
+      "type": "eyes",
+      "name": "face with monocle — eyes",
+      "hexcode": "1F9D0",
+      "source_emoji": "face with monocle",
+      "emoji": "🧐",
+      "subgroup": "face-glasses",
+      "file": "svg/1F9D0_eyes.svg"
+    },
+    {
+      "id": "1F9D0_mouth",
+      "type": "mouth",
+      "name": "face with monocle — mouth",
+      "hexcode": "1F9D0",
+      "source_emoji": "face with monocle",
+      "emoji": "🧐",
+      "subgroup": "face-glasses",
+      "file": "svg/1F9D0_mouth.svg"
+    },
+    {
+      "id": "1F9D0_brows",
+      "type": "brows",
+      "name": "face with monocle — brows",
+      "hexcode": "1F9D0",
+      "source_emoji": "face with monocle",
+      "emoji": "🧐",
+      "subgroup": "face-glasses",
+      "file": "svg/1F9D0_brows.svg"
+    },
+    {
+      "id": "1F9D0_extras",
+      "type": "extras",
+      "name": "face with monocle — extras",
+      "hexcode": "1F9D0",
+      "source_emoji": "face with monocle",
+      "emoji": "🧐",
+      "subgroup": "face-glasses",
+      "file": "svg/1F9D0_extras.svg"
+    },
+    {
+      "id": "1FAE0_face",
+      "type": "face",
+      "name": "melting face — face",
+      "hexcode": "1FAE0",
+      "source_emoji": "melting face",
+      "emoji": "🫠",
+      "subgroup": "face-smiling",
+      "file": "svg/1FAE0_face.svg"
+    },
+    {
+      "id": "1FAE0_eyes",
+      "type": "eyes",
+      "name": "melting face — eyes",
+      "hexcode": "1FAE0",
+      "source_emoji": "melting face",
+      "emoji": "🫠",
+      "subgroup": "face-smiling",
+      "file": "svg/1FAE0_eyes.svg"
+    },
+    {
+      "id": "1FAE0_extras",
+      "type": "extras",
+      "name": "melting face — extras",
+      "hexcode": "1FAE0",
+      "source_emoji": "melting face",
+      "emoji": "🫠",
+      "subgroup": "face-smiling",
+      "file": "svg/1FAE0_extras.svg"
+    },
+    {
+      "id": "1FAE1_face",
+      "type": "face",
+      "name": "saluting face — face",
+      "hexcode": "1FAE1",
+      "source_emoji": "saluting face",
+      "emoji": "🫡",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE1_face.svg"
+    },
+    {
+      "id": "1FAE1_eyes",
+      "type": "eyes",
+      "name": "saluting face — eyes",
+      "hexcode": "1FAE1",
+      "source_emoji": "saluting face",
+      "emoji": "🫡",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE1_eyes.svg"
+    },
+    {
+      "id": "1FAE1_mouth",
+      "type": "mouth",
+      "name": "saluting face — mouth",
+      "hexcode": "1FAE1",
+      "source_emoji": "saluting face",
+      "emoji": "🫡",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE1_mouth.svg"
+    },
+    {
+      "id": "1FAE1_extras",
+      "type": "extras",
+      "name": "saluting face — extras",
+      "hexcode": "1FAE1",
+      "source_emoji": "saluting face",
+      "emoji": "🫡",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE1_extras.svg"
+    },
+    {
+      "id": "1FAE2_face",
+      "type": "face",
+      "name": "face with open eyes and hand over mouth — face",
+      "hexcode": "1FAE2",
+      "source_emoji": "face with open eyes and hand over mouth",
+      "emoji": "🫢",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE2_face.svg"
+    },
+    {
+      "id": "1FAE2_eyes",
+      "type": "eyes",
+      "name": "face with open eyes and hand over mouth — eyes",
+      "hexcode": "1FAE2",
+      "source_emoji": "face with open eyes and hand over mouth",
+      "emoji": "🫢",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE2_eyes.svg"
+    },
+    {
+      "id": "1FAE2_brows",
+      "type": "brows",
+      "name": "face with open eyes and hand over mouth — brows",
+      "hexcode": "1FAE2",
+      "source_emoji": "face with open eyes and hand over mouth",
+      "emoji": "🫢",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE2_brows.svg"
+    },
+    {
+      "id": "1FAE2_arms",
+      "type": "arms",
+      "name": "face with open eyes and hand over mouth — arms",
+      "hexcode": "1FAE2",
+      "source_emoji": "face with open eyes and hand over mouth",
+      "emoji": "🫢",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE2_arms.svg"
+    },
+    {
+      "id": "1FAE3_face",
+      "type": "face",
+      "name": "face with peeking eye — face",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_face.svg"
+    },
+    {
+      "id": "1FAE3_eyes",
+      "type": "eyes",
+      "name": "face with peeking eye — eyes",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_eyes.svg"
+    },
+    {
+      "id": "1FAE3_mouth",
+      "type": "mouth",
+      "name": "face with peeking eye — mouth",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_mouth.svg"
+    },
+    {
+      "id": "1FAE3_nose",
+      "type": "nose",
+      "name": "face with peeking eye — nose",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_nose.svg"
+    },
+    {
+      "id": "1FAE3_brows",
+      "type": "brows",
+      "name": "face with peeking eye — brows",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_brows.svg"
+    },
+    {
+      "id": "1FAE3_extras",
+      "type": "extras",
+      "name": "face with peeking eye — extras",
+      "hexcode": "1FAE3",
+      "source_emoji": "face with peeking eye",
+      "emoji": "🫣",
+      "subgroup": "face-hand",
+      "file": "svg/1FAE3_extras.svg"
+    },
+    {
+      "id": "1FAE4_face",
+      "type": "face",
+      "name": "face with diagonal mouth — face",
+      "hexcode": "1FAE4",
+      "source_emoji": "face with diagonal mouth",
+      "emoji": "🫤",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAE4_face.svg"
+    },
+    {
+      "id": "1FAE4_eyes",
+      "type": "eyes",
+      "name": "face with diagonal mouth — eyes",
+      "hexcode": "1FAE4",
+      "source_emoji": "face with diagonal mouth",
+      "emoji": "🫤",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAE4_eyes.svg"
+    },
+    {
+      "id": "1FAE4_mouth",
+      "type": "mouth",
+      "name": "face with diagonal mouth — mouth",
+      "hexcode": "1FAE4",
+      "source_emoji": "face with diagonal mouth",
+      "emoji": "🫤",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAE4_mouth.svg"
+    },
+    {
+      "id": "1FAE5_face",
+      "type": "face",
+      "name": "dotted line face — face",
+      "hexcode": "1FAE5",
+      "source_emoji": "dotted line face",
+      "emoji": "🫥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE5_face.svg"
+    },
+    {
+      "id": "1FAE5_eyes",
+      "type": "eyes",
+      "name": "dotted line face — eyes",
+      "hexcode": "1FAE5",
+      "source_emoji": "dotted line face",
+      "emoji": "🫥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE5_eyes.svg"
+    },
+    {
+      "id": "1FAE5_mouth",
+      "type": "mouth",
+      "name": "dotted line face — mouth",
+      "hexcode": "1FAE5",
+      "source_emoji": "dotted line face",
+      "emoji": "🫥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE5_mouth.svg"
+    },
+    {
+      "id": "1FAE8_face",
+      "type": "face",
+      "name": "shaking face — face",
+      "hexcode": "1FAE8",
+      "source_emoji": "shaking face",
+      "emoji": "🫨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE8_face.svg"
+    },
+    {
+      "id": "1FAE8_eyes",
+      "type": "eyes",
+      "name": "shaking face — eyes",
+      "hexcode": "1FAE8",
+      "source_emoji": "shaking face",
+      "emoji": "🫨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE8_eyes.svg"
+    },
+    {
+      "id": "1FAE8_mouth",
+      "type": "mouth",
+      "name": "shaking face — mouth",
+      "hexcode": "1FAE8",
+      "source_emoji": "shaking face",
+      "emoji": "🫨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE8_mouth.svg"
+    },
+    {
+      "id": "1FAE8_extras",
+      "type": "extras",
+      "name": "shaking face — extras",
+      "hexcode": "1FAE8",
+      "source_emoji": "shaking face",
+      "emoji": "🫨",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1FAE8_extras.svg"
+    },
+    {
+      "id": "1FAE9_face",
+      "type": "face",
+      "name": "face with bags under eyes — face",
+      "hexcode": "1FAE9",
+      "source_emoji": "face with bags under eyes",
+      "emoji": "🫩",
+      "subgroup": "face-sleepy",
+      "file": "svg/1FAE9_face.svg"
+    },
+    {
+      "id": "1FAE9_eyes",
+      "type": "eyes",
+      "name": "face with bags under eyes — eyes",
+      "hexcode": "1FAE9",
+      "source_emoji": "face with bags under eyes",
+      "emoji": "🫩",
+      "subgroup": "face-sleepy",
+      "file": "svg/1FAE9_eyes.svg"
+    },
+    {
+      "id": "1FAE9_mouth",
+      "type": "mouth",
+      "name": "face with bags under eyes — mouth",
+      "hexcode": "1FAE9",
+      "source_emoji": "face with bags under eyes",
+      "emoji": "🫩",
+      "subgroup": "face-sleepy",
+      "file": "svg/1FAE9_mouth.svg"
+    },
+    {
+      "id": "1FAE9_brows",
+      "type": "brows",
+      "name": "face with bags under eyes — brows",
+      "hexcode": "1FAE9",
+      "source_emoji": "face with bags under eyes",
+      "emoji": "🫩",
+      "subgroup": "face-sleepy",
+      "file": "svg/1FAE9_brows.svg"
+    },
+    {
+      "id": "1FAEA_face",
+      "type": "face",
+      "name": "distorted face — face",
+      "hexcode": "1FAEA",
+      "source_emoji": "distorted face",
+      "emoji": "🫪",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAEA_face.svg"
+    },
+    {
+      "id": "1FAEA_eyes",
+      "type": "eyes",
+      "name": "distorted face — eyes",
+      "hexcode": "1FAEA",
+      "source_emoji": "distorted face",
+      "emoji": "🫪",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAEA_eyes.svg"
+    },
+    {
+      "id": "1FAEA_mouth",
+      "type": "mouth",
+      "name": "distorted face — mouth",
+      "hexcode": "1FAEA",
+      "source_emoji": "distorted face",
+      "emoji": "🫪",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAEA_mouth.svg"
+    },
+    {
+      "id": "1FAEA_extras",
+      "type": "extras",
+      "name": "distorted face — extras",
+      "hexcode": "1FAEA",
+      "source_emoji": "distorted face",
+      "emoji": "🫪",
+      "subgroup": "face-concerned",
+      "file": "svg/1FAEA_extras.svg"
+    },
+    {
+      "id": "2620_eyes",
+      "type": "eyes",
+      "name": "skull and crossbones — eyes",
+      "hexcode": "2620",
+      "source_emoji": "skull and crossbones",
+      "emoji": "☠️",
+      "subgroup": "face-negative",
+      "file": "svg/2620_eyes.svg"
+    },
+    {
+      "id": "2620_mouth",
+      "type": "mouth",
+      "name": "skull and crossbones — mouth",
+      "hexcode": "2620",
+      "source_emoji": "skull and crossbones",
+      "emoji": "☠️",
+      "subgroup": "face-negative",
+      "file": "svg/2620_mouth.svg"
+    },
+    {
+      "id": "2620_extras",
+      "type": "extras",
+      "name": "skull and crossbones — extras",
+      "hexcode": "2620",
+      "source_emoji": "skull and crossbones",
+      "emoji": "☠️",
+      "subgroup": "face-negative",
+      "file": "svg/2620_extras.svg"
+    },
+    {
+      "id": "2639_face",
+      "type": "face",
+      "name": "frowning face — face",
+      "hexcode": "2639",
+      "source_emoji": "frowning face",
+      "emoji": "☹️",
+      "subgroup": "face-concerned",
+      "file": "svg/2639_face.svg"
+    },
+    {
+      "id": "2639_eyes",
+      "type": "eyes",
+      "name": "frowning face — eyes",
+      "hexcode": "2639",
+      "source_emoji": "frowning face",
+      "emoji": "☹️",
+      "subgroup": "face-concerned",
+      "file": "svg/2639_eyes.svg"
+    },
+    {
+      "id": "2639_mouth",
+      "type": "mouth",
+      "name": "frowning face — mouth",
+      "hexcode": "2639",
+      "source_emoji": "frowning face",
+      "emoji": "☹️",
+      "subgroup": "face-concerned",
+      "file": "svg/2639_mouth.svg"
+    },
+    {
+      "id": "263A_face",
+      "type": "face",
+      "name": "smiling face — face",
+      "hexcode": "263A",
+      "source_emoji": "smiling face",
+      "emoji": "☺️",
+      "subgroup": "face-affection",
+      "file": "svg/263A_face.svg"
+    },
+    {
+      "id": "263A_eyes",
+      "type": "eyes",
+      "name": "smiling face — eyes",
+      "hexcode": "263A",
+      "source_emoji": "smiling face",
+      "emoji": "☺️",
+      "subgroup": "face-affection",
+      "file": "svg/263A_eyes.svg"
+    },
+    {
+      "id": "263A_mouth",
+      "type": "mouth",
+      "name": "smiling face — mouth",
+      "hexcode": "263A",
+      "source_emoji": "smiling face",
+      "emoji": "☺️",
+      "subgroup": "face-affection",
+      "file": "svg/263A_mouth.svg"
+    },
+    {
+      "id": "263A_brows",
+      "type": "brows",
+      "name": "smiling face — brows",
+      "hexcode": "263A",
+      "source_emoji": "smiling face",
+      "emoji": "☺️",
+      "subgroup": "face-affection",
+      "file": "svg/263A_brows.svg"
+    }
+  ]
+}

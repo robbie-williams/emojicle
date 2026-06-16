@@ -1,0 +1,10 @@
+<svg id="emoji" viewBox="0 0 72 72" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g id="color">
+    
+    <path fill-rule="evenodd" d="m35.93 51.58c-2.461 0-4.742-2.368-4.742-4.987s2.444-4.66 4.905-4.66 4.701 2.205 4.701 4.823-2.403 4.823-4.864 4.823z"></path>
+    
+  </g>
+  <g id="line">
+    <circle cx="36" cy="46.6" r="4.759" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+  </g>
+</svg>
