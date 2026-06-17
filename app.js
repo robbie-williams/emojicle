@@ -21,9 +21,18 @@ const LAYER_LABELS = {
 // control row order (UI order, not render order)
 const CONTROL_ORDER = ['face', 'eyes', 'eyebrows', 'nose', 'mouth', 'extras'];
 
+// Layers the user can pick up and move on the canvas — everything except the
+// face, which stays put as the anchor.
+const MOVABLE = ['eyebrows', 'eyes', 'nose', 'mouth', 'extras'];
+
 // ── State ─────────────────────────────────────────────────────────────────────
 const state = {};
 LAYERS.forEach(l => { state[l] = 0; });
+
+// per-layer drag offset (in viewBox units) and the currently-selected layer
+const offsets = {};
+MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; });
+let selectedLayer = null;
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
@@ -33,6 +42,7 @@ function renderLayer(layer) {
   if (g) g.innerHTML = part.svg;
   const nameEl = document.getElementById('name-' + layer);
   if (nameEl) nameEl.textContent = part.name;
+  if (layer === selectedLayer) updateSelectBox();
 }
 
 function renderAll() {
@@ -45,6 +55,9 @@ function randomise() {
   LAYERS.forEach(layer => {
     state[layer] = Math.floor(Math.random() * PARTS[layer].length);
   });
+  // fresh emoji → back to the default layout
+  MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; applyOffset(l); });
+  deselect();
   renderAll();
   pulse('btn-random');
 }
@@ -123,6 +136,7 @@ function dance(key) {
   const move = DANCES[key] || DANCES[keys[Math.floor(Math.random() * keys.length)]];
 
   dancing = true;
+  deselect();
   const group = document.getElementById('dance-group');
   const arms = document.getElementById('layer-arms');
   arms.innerHTML = move.arms;
@@ -183,6 +197,148 @@ function buildControls() {
   });
 }
 
+// ── Select & drag layers ──────────────────────────────────────────────────────
+// Tap a part to select it (tap again to deselect); press-and-drag to move it
+// anywhere on the canvas. The face layer is fixed — it's the anchor everything
+// else sits on, so it is never selectable or movable. Positions are per-layer
+// translate offsets in viewBox units; they survive part swaps and reset on
+// Randomise. Disabled while dancing.
+
+const DRAG_THRESHOLD = 2.5;   // viewBox units before a press becomes a drag
+let drag = null;
+
+function layerHasContent(layer) {
+  const part = PARTS[layer] && PARTS[layer][state[layer]];
+  return !!(part && part.svg);
+}
+
+function applyOffset(layer) {
+  const g = document.getElementById('layer-' + layer);
+  if (!g) return;
+  const { x, y } = offsets[layer];
+  if (x || y) g.setAttribute('transform', `translate(${x} ${y})`);
+  else g.removeAttribute('transform');
+}
+
+// bbox of a layer's art in dance-group space (its own translate added in)
+function layerBox(layer) {
+  if (!layerHasContent(layer)) return null;
+  const g = document.getElementById('layer-' + layer);
+  let bb;
+  try { bb = g.getBBox(); } catch (e) { return null; }
+  if (!bb || bb.width === 0) return null;
+  const { x, y } = offsets[layer];
+  return { x: bb.x + x, y: bb.y + y, w: bb.width, h: bb.height };
+}
+
+function updateSelectBox() {
+  const box = document.getElementById('select-box');
+  const b = selectedLayer ? layerBox(selectedLayer) : null;
+  if (!b) { box.setAttribute('visibility', 'hidden'); return; }
+  const pad = 2.5;
+  box.setAttribute('x', b.x - pad);
+  box.setAttribute('y', b.y - pad);
+  box.setAttribute('width', b.w + pad * 2);
+  box.setAttribute('height', b.h + pad * 2);
+  box.setAttribute('visibility', 'visible');
+}
+
+function selectLayer(layer) {
+  if (selectedLayer) {
+    const prev = document.getElementById('layer-' + selectedLayer);
+    if (prev) prev.classList.remove('layer-selected');
+  }
+  selectedLayer = layer;
+  if (layer) document.getElementById('layer-' + layer).classList.add('layer-selected');
+  updateSelectBox();
+}
+
+function deselect() {
+  if (selectedLayer) {
+    const g = document.getElementById('layer-' + selectedLayer);
+    if (g) g.classList.remove('layer-selected');
+  }
+  selectedLayer = null;
+  const box = document.getElementById('select-box');
+  if (box) box.setAttribute('visibility', 'hidden');
+}
+
+// client coords → viewBox units (identity with dance-group while not dancing)
+function toSvg(evt) {
+  const svg = document.getElementById('emoji-svg');
+  const m = svg.getScreenCTM();
+  if (!m) return null;
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX;
+  pt.y = evt.clientY;
+  return pt.matrixTransform(m.inverse());
+}
+
+// topmost movable layer whose box contains the point; prefers the already-
+// selected layer so it stays grabbable when parts overlap.
+function hitLayer(p) {
+  const hits = [];
+  for (const layer of MOVABLE) {
+    const b = layerBox(layer);
+    if (b && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) hits.push(layer);
+  }
+  if (!hits.length) return null;
+  if (selectedLayer && hits.includes(selectedLayer)) return selectedLayer;
+  return hits.reduce((top, c) => LAYERS.indexOf(c) > LAYERS.indexOf(top) ? c : top, hits[0]);
+}
+
+function onPointerDown(e) {
+  if (dancing) return;
+  const p = toSvg(e);
+  if (!p) return;
+  const layer = hitLayer(p);
+  drag = {
+    layer, startX: p.x, startY: p.y, moved: false,
+    baseX: layer ? offsets[layer].x : 0,
+    baseY: layer ? offsets[layer].y : 0,
+  };
+  const svg = document.getElementById('emoji-svg');
+  if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+}
+
+function onPointerMove(e) {
+  if (!drag || dancing) return;
+  const p = toSvg(e);
+  if (!p) return;
+  const dx = p.x - drag.startX;
+  const dy = p.y - drag.startY;
+  if (!drag.moved) {
+    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    drag.moved = true;
+    if (!drag.layer) { drag = null; return; }   // started on empty space
+    if (selectedLayer !== drag.layer) selectLayer(drag.layer);
+  }
+  offsets[drag.layer].x = drag.baseX + dx;
+  offsets[drag.layer].y = drag.baseY + dy;
+  applyOffset(drag.layer);
+  updateSelectBox();
+  e.preventDefault();
+}
+
+function onPointerUp() {
+  if (!drag || dancing) { drag = null; return; }
+  const { layer, moved } = drag;
+  drag = null;
+  if (moved) return;            // a drag — keep the layer selected where it landed
+  // a tap — toggle selection
+  if (!layer) deselect();
+  else if (layer === selectedLayer) deselect();
+  else selectLayer(layer);
+}
+
+function initDrag() {
+  const svg = document.getElementById('emoji-svg');
+  svg.addEventListener('pointerdown', onPointerDown);
+  svg.addEventListener('pointermove', onPointerMove);
+  svg.addEventListener('pointerup', onPointerUp);
+  svg.addEventListener('pointercancel', () => { drag = null; });
+}
+
 // ── Service Worker ────────────────────────────────────────────────────────────
 
 function registerSW() {
@@ -195,6 +351,7 @@ function registerSW() {
 
 function init() {
   buildControls();
+  initDrag();
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', () => dance());
 

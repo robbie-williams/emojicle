@@ -232,7 +232,20 @@ body {
 /* ── Dance ────────────────────────────────────────────────────────────────── */
 
 /* let arms and the body lean spill past the 0 0 72 72 viewBox */
-#emoji-svg { overflow: visible; }
+#emoji-svg { overflow: visible; touch-action: none; }
+
+/* tap-to-select / drag-to-move parts */
+#emoji-svg .layer-selected { cursor: grabbing; }
+.select-box {
+  stroke: var(--clr-brand);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  animation: select-pulse 1.1s ease-in-out infinite;
+}
+@keyframes select-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .select-box { animation: none; } }
 
 /* pivot the whole body near the "feet" for a believable sway */
 #dance-group { transform-box: view-box; transform-origin: 50% 82%; }
