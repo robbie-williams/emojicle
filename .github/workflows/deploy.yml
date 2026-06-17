@@ -28,6 +28,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build parts bundle + stamp SW cache
+        run: node tools/build-parts.js
+
       - name: Generate PNG icons
         run: |
           npm install @resvg/resvg-js
