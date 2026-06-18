@@ -168,6 +168,7 @@ body {
 /* ── Action buttons (Bulma .button overridden) ────────────────────────────── */
 
 .actions { gap: 0; margin: 0; }
+.actions + .actions { margin-top: 10px; }
 .actions .column { padding: 0; }
 .actions .column:first-child { padding-right: 5px; }
 .actions .column:last-child  { padding-left: 5px; }
@@ -201,6 +202,10 @@ body {
 .btn-random.button:hover  { background: var(--clr-random); color: #fff; }
 .btn-dance.button         { background: var(--clr-dance);  border-bottom-color: var(--clr-dance-dk); }
 .btn-dance.button:hover   { background: var(--clr-dance);  color: #fff; }
+.btn-share.button         { background: #2BB673; border-bottom-color: #1E8E59; }
+.btn-share.button:hover   { background: #2BB673; color: #fff; }
+.btn-save.button          { background: #3E9BE0; border-bottom-color: #2B7CC0; }
+.btn-save.button:hover    { background: #3E9BE0; color: #fff; }
 
 .btn-icon { font-size: 1.25rem; line-height: 1; }
 

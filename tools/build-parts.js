@@ -105,14 +105,16 @@ for (const file of files) {
   const svg = innerSvg(fs.readFileSync(path.join(SVG_DIR, file), 'utf8'));
   if (!svg) { skipped++; continue; }
 
-  const entry = { name: displayName(token, type.toLowerCase(), names), svg };
+  // `id` is the filename token (e.g. yellow, 1F602, 1F4A9-hat) — a STABLE
+  // handle used by share links, so they survive pack re-curation (indices don't).
+  const entry = { id: token, name: displayName(token, type.toLowerCase(), names), svg };
   if (layer === 'arms') arms.push(entry);
   else layers[layer].push(entry);
 }
 
 // prepend the blank option where a layer is optional
 for (const l of Object.keys(layers)) {
-  if (OPTIONAL.has(l)) layers[l].unshift({ name: 'None', svg: '' });
+  if (OPTIONAL.has(l)) layers[l].unshift({ id: '', name: 'None', svg: '' });
 }
 
 const total = Object.values(layers).reduce((n, a) => n + a.length, 0) + arms.length;

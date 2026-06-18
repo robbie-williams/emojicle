@@ -34,6 +34,16 @@ const offsets = {};
 MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; });
 let selectedLayer = null;
 
+// optional layers carry a leading "None" entry (id '')
+const OPTIONAL = new Set(['eyebrows', 'nose', 'extras']);
+
+// id → index lookup per layer, so share links can address parts by stable id
+const ID_INDEX = {};
+LAYERS.forEach(l => {
+  ID_INDEX[l] = {};
+  PARTS[l].forEach((p, i) => { if (p.id) ID_INDEX[l][p.id] = i; });
+});
+
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
 function renderLayer(layer) {
@@ -59,6 +69,7 @@ function randomise() {
   MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; applyOffset(l); });
   deselect();
   renderAll();
+  updateUrl();
   pulse('btn-random');
 }
 
@@ -90,6 +101,7 @@ function openPicker(layer) {
       state[layer] = i;
       renderLayer(layer);
       closePicker();
+      updateUrl();
     });
     grid.appendChild(cell);
   });
@@ -324,7 +336,7 @@ function onPointerUp() {
   if (!drag || dancing) { drag = null; return; }
   const { layer, moved } = drag;
   drag = null;
-  if (moved) return;            // a drag — keep the layer selected where it landed
+  if (moved) { updateUrl(); return; }   // a drag — keep the layer selected where it landed
   // a tap — toggle selection
   if (!layer) deselect();
   else if (layer === selectedLayer) deselect();
@@ -337,6 +349,131 @@ function initDrag() {
   svg.addEventListener('pointermove', onPointerMove);
   svg.addEventListener('pointerup', onPointerUp);
   svg.addEventListener('pointercancel', () => { drag = null; });
+}
+
+// ── Stateless share link ──────────────────────────────────────────────────────
+// The whole emoji is encoded into the ?e= query param so a link rebuilds it
+// exactly — no backend, no storage. Parts are referenced by their STABLE id
+// (filename token), not array index, so links survive pack re-curation.
+// Format (layers in render order, '.' between):  id[_x_y]
+//   e.g.  yellow.1F47F_3_-2.1F600..1F602_-5_8.
+//   empty segment = None; _x_y present only when a layer has been dragged.
+
+function encodeState() {
+  return LAYERS.map(layer => {
+    let seg = PARTS[layer][state[layer]].id || '';
+    if (seg && MOVABLE.includes(layer)) {
+      const o = offsets[layer];
+      const x = Math.round(o.x), y = Math.round(o.y);
+      if (x || y) seg += '_' + x + '_' + y;
+    }
+    return seg;
+  }).join('.');
+}
+
+function applyEncoded(str) {
+  const segs = str.split('.');
+  LAYERS.forEach((layer, i) => {
+    const f = (segs[i] || '').split('_');
+    const id = f[0];
+    let idx = id ? ID_INDEX[layer][id] : 0;       // unknown / empty → default
+    if (idx === undefined) idx = OPTIONAL.has(layer) ? 0 : 0;  // 0 is None on optional layers
+    state[layer] = idx;
+    if (MOVABLE.includes(layer)) {
+      offsets[layer] = { x: parseFloat(f[1]) || 0, y: parseFloat(f[2]) || 0 };
+    }
+  });
+}
+
+function updateUrl() {
+  const u = new URL(location.href);
+  u.searchParams.set('e', encodeState());
+  history.replaceState(null, '', u);
+}
+
+// ── Rasterise, share & save ───────────────────────────────────────────────────
+// Serialise the current layers (with their drag offsets) into a self-contained
+// SVG — the OpenMoji art has inline fills, so no CSS/fonts are needed — then
+// draw it to a canvas and export a transparent PNG. All client-side / offline.
+
+const EXPORT_SIZE = 600;
+
+function buildExportSvg() {
+  let inner = '';
+  LAYERS.forEach(layer => {
+    const part = PARTS[layer][state[layer]];
+    if (!part.svg) return;
+    const o = MOVABLE.includes(layer) ? offsets[layer] : { x: 0, y: 0 };
+    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
+    inner += `<g${t}>${part.svg}</g>`;
+  });
+  // 72 box + an 8-unit margin so a part dragged slightly off-centre isn't clipped
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 88 88" ` +
+         `width="${EXPORT_SIZE}" height="${EXPORT_SIZE}">${inner}</svg>`;
+}
+
+function rasterise() {
+  return new Promise((resolve, reject) => {
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildExportSvg());
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = EXPORT_SIZE;
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);   // transparent background
+      ctx.drawImage(img, 0, 0, EXPORT_SIZE, EXPORT_SIZE);
+      c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
+    };
+    img.onerror = () => reject(new Error('svg decode failed'));
+    img.src = url;
+  });
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function canShareFiles(file) {
+  return !!(navigator.canShare && navigator.canShare({ files: [file] }));
+}
+
+async function shareEmoji() {
+  pulse('btn-share');
+  let blob;
+  try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
+  const file = new File([blob], 'emojicle.png', { type: 'image/png' });
+  if (canShareFiles(file)) {
+    try {
+      await navigator.share({ files: [file], text: location.href });
+    } catch (e) { /* user cancelled — no-op */ }
+  } else {
+    // desktop / unsupported: download the image and copy the link
+    downloadBlob(blob, 'emojicle.png');
+    try { await navigator.clipboard.writeText(location.href); } catch (e) {}
+    showToast('Image saved · link copied');
+  }
+}
+
+async function saveEmoji() {
+  pulse('btn-save');
+  let blob;
+  try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
+  const file = new File([blob], 'emojicle.png', { type: 'image/png' });
+  // On mobile the share sheet is the only route to the camera roll ("Save Image");
+  // elsewhere just download the file.
+  if (canShareFiles(file)) {
+    try { await navigator.share({ files: [file] }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  downloadBlob(blob, 'emojicle.png');
+  showToast('Saved emojicle.png');
 }
 
 // ── Service Worker ────────────────────────────────────────────────────────────
@@ -354,6 +491,8 @@ function init() {
   initDrag();
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', () => dance());
+  document.getElementById('btn-share').addEventListener('click', shareEmoji);
+  document.getElementById('btn-save').addEventListener('click', saveEmoji);
 
   document.getElementById('picker-close').addEventListener('click', closePicker);
   document.getElementById('picker').addEventListener('click', e => {
@@ -363,7 +502,16 @@ function init() {
     if (e.key === 'Escape') closePicker();
   });
 
-  randomise();
+  // rebuild from a share link if present, otherwise start random
+  const e = new URLSearchParams(location.search).get('e');
+  if (e) {
+    applyEncoded(e);
+    renderAll();
+    MOVABLE.forEach(applyOffset);
+    updateUrl();   // normalise the URL to the canonical encoding
+  } else {
+    randomise();
+  }
   registerSW();
 }
 
