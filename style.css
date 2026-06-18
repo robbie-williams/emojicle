@@ -209,6 +209,33 @@ body {
 
 .btn-icon { font-size: 1.1rem; line-height: 1; }
 
+/* "Share with link" toggle — sits under the Share/Save button (rightmost) */
+.share-opts {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.link-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--clr-label);
+  cursor: pointer;
+  touch-action: manipulation;
+  /* keep it visually under the 3rd-of-3 button */
+  width: calc(33.333% - 2px);
+  justify-content: center;
+}
+.link-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2BB673;
+  cursor: pointer;
+}
+
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 
 .toast {

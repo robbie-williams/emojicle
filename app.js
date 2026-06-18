@@ -449,17 +449,20 @@ function canShareFiles(file) {
 // (no Web Share for files) we download the PNG and copy the link instead.
 async function shareEmoji() {
   pulse('btn-share');
+  const withLink = document.getElementById('opt-link').checked;
   let blob;
   try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
   const file = new File([blob], 'emojicle.png', { type: 'image/png' });
   if (canShareFiles(file)) {
-    try {
-      await navigator.share({ files: [file], text: location.href });
-    } catch (e) { /* user cancelled — no-op */ }
+    const data = { files: [file] };
+    if (withLink) data.text = location.href;   // link only when opted in
+    try { await navigator.share(data); } catch (e) { /* user cancelled — no-op */ }
   } else {
     downloadBlob(blob, 'emojicle.png');
-    try { await navigator.clipboard.writeText(location.href); } catch (e) {}
-    showToast('Image saved · link copied');
+    if (withLink) {
+      try { await navigator.clipboard.writeText(location.href); } catch (e) {}
+    }
+    showToast(withLink ? 'Image saved · link copied' : 'Image saved');
   }
 }
 
