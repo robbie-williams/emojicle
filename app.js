@@ -444,6 +444,9 @@ function canShareFiles(file) {
   return !!(navigator.canShare && navigator.canShare({ files: [file] }));
 }
 
+// One action for both sharing and saving: on a phone the native share sheet
+// offers Messages, "Save Image" (→ Photos), and everything else; on desktop
+// (no Web Share for files) we download the PNG and copy the link instead.
 async function shareEmoji() {
   pulse('btn-share');
   let blob;
@@ -454,26 +457,10 @@ async function shareEmoji() {
       await navigator.share({ files: [file], text: location.href });
     } catch (e) { /* user cancelled — no-op */ }
   } else {
-    // desktop / unsupported: download the image and copy the link
     downloadBlob(blob, 'emojicle.png');
     try { await navigator.clipboard.writeText(location.href); } catch (e) {}
     showToast('Image saved · link copied');
   }
-}
-
-async function saveEmoji() {
-  pulse('btn-save');
-  let blob;
-  try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
-  const file = new File([blob], 'emojicle.png', { type: 'image/png' });
-  // On mobile the share sheet is the only route to the camera roll ("Save Image");
-  // elsewhere just download the file.
-  if (canShareFiles(file)) {
-    try { await navigator.share({ files: [file] }); return; }
-    catch (e) { if (e && e.name === 'AbortError') return; }
-  }
-  downloadBlob(blob, 'emojicle.png');
-  showToast('Saved emojicle.png');
 }
 
 // ── Service Worker ────────────────────────────────────────────────────────────
@@ -492,7 +479,6 @@ function init() {
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', () => dance());
   document.getElementById('btn-share').addEventListener('click', shareEmoji);
-  document.getElementById('btn-save').addEventListener('click', saveEmoji);
 
   document.getElementById('picker-close').addEventListener('click', closePicker);
   document.getElementById('picker').addEventListener('click', e => {
