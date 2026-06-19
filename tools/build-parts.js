@@ -137,11 +137,12 @@ fs.writeFileSync(OUT, out);
 
 // Auto-bump the service-worker cache so returning users pick up changes. The
 // cache name is a hash of every cached runtime asset (the generated data plus
-// app.js / style.css / index.html / manifest / vendored CSS), so running the
-// build after ANY of those changes produces a fresh cache name.
+// app.js / style.css / index.html / manifest / vendored CSS / icons), so
+// running the build after ANY of those changes produces a fresh cache name.
 const CACHE_INPUTS = [
   'index.html', 'style.css', 'app.js', 'parts-data.js',
   'manifest.json', 'vendor/bulma.min.css',
+  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 const h = crypto.createHash('md5');
 for (const rel of CACHE_INPUTS) {
