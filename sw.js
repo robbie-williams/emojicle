@@ -1,4 +1,4 @@
-const CACHE = 'emojicle-5a838111';
+const CACHE = 'emojicle-b836b0a5';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,9 @@ const ASSETS = [
   './parts-data.js',
   './manifest.json',
   './vendor/bulma.min.css',
+  './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', e => {

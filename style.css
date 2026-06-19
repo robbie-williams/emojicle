@@ -370,24 +370,33 @@ body {
 
 /* ── Landscape (short screens): canvas + controls side by side ────────────── */
 
-@media (orientation: landscape) and (max-height: 520px) {
-  .app-main {
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-width: 760px;
-    align-items: flex-start;
-  }
-  .canvas-card { flex: 0 0 auto; }
-  .canvas-wrap { width: min(180px, 34vw); }
-  .controls-card { flex: 1 1 300px; }
-  .actions { flex: 1 1 100%; }
-}
-
-/* ── Larger phones / tablets ──────────────────────────────────────────────── */
+/* ── Larger phones / tablets (portrait) ──────────────────────────────────── */
 
 @media (min-width: 420px) {
   .canvas-wrap { width: min(260px, 54vw, 33vh); }
   .part-name   { font-size: 0.9rem; }
+}
+
+/* ── Landscape phones & tablets: canvas beside the controls ──────────────────
+   Use the horizontal space instead of a cramped tall column that strands the
+   UI in the middle of a wide screen. Applies to any landscape viewport ≥640px
+   wide — phones in landscape and every tablet. Placed AFTER the portrait
+   tablet rule above so its canvas sizing wins the cascade. */
+@media (orientation: landscape) and (min-width: 640px) {
+  .app-main {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 920px;
+    align-items: flex-start;
+    gap: 12px 18px;
+  }
+  .canvas-card   { flex: 0 0 auto; }
+  /* cap by height too so a short landscape phone keeps the canvas on screen */
+  .canvas-wrap   { width: min(320px, 38vw, 66vh); }
+  .controls-card { flex: 1 1 360px; align-self: stretch; }
+  .controls      { gap: 6px; }
+  .actions       { flex: 1 1 100%; }
+  .share-opts    { flex: 1 1 100%; }
 }
 
 /* ── Attribution footer ───────────────────────────────────────────────────── */
