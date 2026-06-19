@@ -65,7 +65,10 @@ body {
 /* ── Layout ───────────────────────────────────────────────────────────────── */
 
 .app-main {
-  flex: 1;
+  /* grow to fill a tall screen, but never shrink below the content — on a
+     short screen the page scrolls cleanly instead of the rows compressing
+     and spilling over the canvas / buttons (and the footer floating). */
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -73,7 +76,6 @@ body {
   width: 100%;
   max-width: 460px;
   margin: 0 auto;
-  min-height: 0;   /* let children shrink so the column fits the viewport */
 }
 
 /* ── Cards ────────────────────────────────────────────────────────────────── */
@@ -384,19 +386,39 @@ body {
    tablet rule above so its canvas sizing wins the cascade. */
 @media (orientation: landscape) and (min-width: 640px) {
   .app-main {
+    /* size to content (not flex:1) so the footer flows directly after the
+       actions instead of being stranded at a squeezed-shorter reserved box */
+    flex: 0 0 auto;
     flex-direction: row;
     flex-wrap: wrap;
     max-width: 920px;
     align-items: flex-start;
-    gap: 12px 18px;
+    gap: 10px 18px;
+    padding: 10px 14px;
   }
+  /* compact the chrome so the buttons fit on a short landscape phone */
+  .app-header    { padding: 8px 16px; }
   .canvas-card   { flex: 0 0 auto; }
   /* cap by height too so a short landscape phone keeps the canvas on screen */
-  .canvas-wrap   { width: min(320px, 38vw, 66vh); }
-  .controls-card { flex: 1 1 360px; align-self: stretch; }
-  .controls      { gap: 6px; }
+  .canvas-wrap   { width: min(300px, 34vw, 58vh); }
+  .controls-card { flex: 1 1 360px; align-self: stretch; padding: 5px 12px; }
+  .controls      { gap: 3px; }
+  .layer-row     { padding: 2px 2px; }
+  .part-name     { padding: 7px 14px; }
   .actions       { flex: 1 1 100%; }
-  .share-opts    { flex: 1 1 100%; }
+  .btn-action.button { height: 46px; }
+  .share-opts    { flex: 1 1 100%; margin-top: 4px; }
+}
+
+/* ── Very narrow / Display-Zoom phones (≈320px) ──────────────────────────────
+   At these widths the three action buttons can't keep their full text width
+   and bleed past the page edge. Reclaim the side padding and shrink the
+   button label/icon a touch so the row stays inside the box. */
+@media (max-width: 360px) {
+  .app-main { padding-left: 10px; padding-right: 10px; }
+  .actions .column { padding: 0 2px; }
+  .btn-action.button { font-size: 0.8rem; gap: 4px; }
+  .btn-icon { font-size: 0.95rem; }
 }
 
 /* ── Attribution footer ───────────────────────────────────────────────────── */
