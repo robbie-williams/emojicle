@@ -136,7 +136,9 @@ const ARMS_SVG = `
   </g>`;
 
 const DANCES = {
-  tango: { name: 'Tango', emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango', arms: ARMS_SVG },
+  tango:  { name: 'Tango',  emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',  arms: ARMS_SVG },
+  bounce: { name: 'Bounce', emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce', arms: ARMS_SVG },
+  wiggle: { name: 'Wiggle', emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle', arms: ARMS_SVG },
   // add more moves here later…
 };
 

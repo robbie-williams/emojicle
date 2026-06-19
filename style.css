@@ -318,11 +318,53 @@ body {
   75%      { transform: rotate(60deg); }   /* fling up on the right lean */
 }
 
+/* Bounce: hop up and down with a squash-on-landing, both arms pumping up */
+.dance-bounce { animation: bounce-body 0.6s ease-in-out infinite; }
+@keyframes bounce-body {
+  0%, 100% { transform: translateY(0)    scaleY(1); }
+  30%      { transform: translateY(-6px) scaleY(1.04); }
+  55%      { transform: translateY(0)    scaleY(0.9); }   /* squash on landing */
+  75%      { transform: translateY(-3px) scaleY(1.02); }
+}
+.dance-bounce .arm-left  { animation: bounce-arm-l 0.6s ease-in-out infinite; }
+.dance-bounce .arm-right { animation: bounce-arm-r 0.6s ease-in-out infinite; }
+@keyframes bounce-arm-l {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(-55deg); }   /* fling up on the hop */
+}
+@keyframes bounce-arm-r {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(55deg); }
+}
+
+/* Wiggle: fast happy shimmy, arms held out wide and bobbing */
+.dance-wiggle { animation: wiggle-body 0.5s ease-in-out infinite; }
+@keyframes wiggle-body {
+  0%, 100% { transform: rotate(-5deg); }
+  50%      { transform: rotate(5deg); }
+}
+.dance-wiggle .arm-left  { animation: wiggle-arm-l 0.5s ease-in-out infinite; }
+.dance-wiggle .arm-right { animation: wiggle-arm-r 0.5s ease-in-out infinite; }
+@keyframes wiggle-arm-l {
+  0%, 100% { transform: rotate(-35deg); }
+  50%      { transform: rotate(-8deg); }
+}
+@keyframes wiggle-arm-r {
+  0%, 100% { transform: rotate(35deg); }
+  50%      { transform: rotate(8deg); }
+}
+
 /* respect users who prefer no motion */
 @media (prefers-reduced-motion: reduce) {
   .dance-tango,
   .dance-tango .arm-left,
   .dance-tango .arm-right,
+  .dance-bounce,
+  .dance-bounce .arm-left,
+  .dance-bounce .arm-right,
+  .dance-wiggle,
+  .dance-wiggle .arm-left,
+  .dance-wiggle .arm-right,
   .dancing #layer-arms { animation: none; }
 }
 
