@@ -65,6 +65,10 @@
     </div>
 
     <div class="share-opts">
+      <label class="link-toggle dance-toggle">
+        <input type="checkbox" id="opt-random-dance" checked>
+        <span>Random dance</span>
+      </label>
       <label class="link-toggle">
         <input type="checkbox" id="opt-link">
         <span>Share with link</span>
@@ -84,6 +88,16 @@
         <button id="picker-close" class="picker-close" aria-label="Close picker">&times;</button>
       </div>
       <div id="picker-grid" class="picker-grid"></div>
+    </div>
+  </div>
+
+  <div id="dance-picker" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel dance-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">Pick a dance</h2>
+        <button id="dance-picker-close" class="picker-close" aria-label="Close dance picker">&times;</button>
+      </div>
+      <div id="dance-grid" class="dance-grid"></div>
     </div>
   </div>
 

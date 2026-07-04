@@ -135,10 +135,75 @@ const ARMS_SVG = `
     <circle cx="69" cy="64" r="3.4" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.2"/>
   </g>`;
 
+// ── Dance sounds ──────────────────────────────────────────────────────────────
+// Tiny synthesized soundbites (Web Audio) — no audio files, so the app stays
+// fully static and offline. Each move schedules its whole 5s of notes up front;
+// the rhythms are written to line up with that move's CSS keyframe cycle.
+
+let audioCtx = null;
+
+function getAudioCtx() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!audioCtx) {
+    try { audioCtx = new AC(); } catch (e) { return null; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// one enveloped note; `glide` slides the pitch over the note for boings/wobbles
+function note(ctx, at, freq, dur, opts) {
+  const { type = 'triangle', vol = 0.1, glide } = opts || {};
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, at);
+  if (glide) osc.frequency.exponentialRampToValueAtTime(glide, at + dur);
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(vol, at + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, at + dur);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(at);
+  osc.stop(at + dur + 0.05);
+}
+
+// Tango: a habanera bass line — DUM… da-DUM-DUM — one bar per 1.25s body sway
+function soundTango(ctx, t0) {
+  for (let bar = 0; bar < 4; bar++) {
+    const t = t0 + bar * 1.25;
+    note(ctx, t,          146.83, 0.4);            // D3
+    note(ctx, t + 0.469,  146.83, 0.14);           // D3
+    note(ctx, t + 0.625,  174.61, 0.25);           // F3
+    note(ctx, t + 0.9375, 220.00, 0.25);           // A3
+  }
+  note(ctx, t0 + 4.7, 293.66, 0.28, { vol: 0.12 }); // D4 — ta-da!
+}
+
+// Bounce: a springy "boing" on every hop, a soft blip on each landing (0.6s cycle)
+function soundBounce(ctx, t0) {
+  for (let hop = 0; hop < 8; hop++) {
+    const t = t0 + hop * 0.6;
+    note(ctx, t,        130, 0.28, { type: 'sine', glide: 420, vol: 0.14 });
+    note(ctx, t + 0.33, 523, 0.08, { type: 'square', vol: 0.04 });
+  }
+}
+
+// Wiggle: fast happy chirps flip-flopping between two notes with the shimmy
+function soundWiggle(ctx, t0) {
+  for (let i = 0; i < 19; i++) {
+    const t = t0 + i * 0.25;
+    const hi = i % 2 === 0;
+    note(ctx, t, hi ? 523.25 : 392.0, 0.14, { vol: 0.08, glide: hi ? 587.33 : 440.0 });
+  }
+  note(ctx, t0 + 4.75, 659.25, 0.22, { vol: 0.1 });  // E5 — finishing chirp
+}
+
 const DANCES = {
-  tango:  { name: 'Tango',  emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',  arms: ARMS_SVG },
-  bounce: { name: 'Bounce', emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce', arms: ARMS_SVG },
-  wiggle: { name: 'Wiggle', emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle', arms: ARMS_SVG },
+  tango:  { name: 'Tango',  emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',  arms: ARMS_SVG, sound: soundTango },
+  bounce: { name: 'Bounce', emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce', arms: ARMS_SVG, sound: soundBounce },
+  wiggle: { name: 'Wiggle', emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle', arms: ARMS_SVG, sound: soundWiggle },
   // add more moves here later…
 };
 
@@ -158,11 +223,53 @@ function dance(key) {
   pulse('btn-dance');
   showToast(move.emoji + ' ' + move.name + '!');
 
+  const ctx = getAudioCtx();   // created inside the tap — autoplay-policy safe
+  if (ctx && move.sound) move.sound(ctx, ctx.currentTime + 0.05);
+
   setTimeout(() => {
     group.classList.remove('dancing', move.cssClass);
     arms.innerHTML = '';
     dancing = false;
   }, move.duration);
+}
+
+// ── Dance picker ──────────────────────────────────────────────────────────────
+// "Random dance" (checkbox under the Dance button) is on by default; unticking
+// it makes the Dance button open this modal so the user picks the move instead.
+
+function buildDancePicker() {
+  const grid = document.getElementById('dance-grid');
+  Object.keys(DANCES).forEach(key => {
+    const move = DANCES[key];
+    const btn = document.createElement('button');
+    btn.className = 'dance-option';
+    btn.setAttribute('aria-label', 'Dance the ' + move.name);
+    btn.innerHTML = '<span class="dance-emoji" aria-hidden="true">' + move.emoji + '</span>' +
+                    '<span class="dance-name">' + move.name + '</span>';
+    btn.addEventListener('click', () => {
+      closeDancePicker();
+      dance(key);
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function openDancePicker() {
+  const el = document.getElementById('dance-picker');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden', 'false');
+}
+
+function closeDancePicker() {
+  const el = document.getElementById('dance-picker');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden', 'true');
+}
+
+function onDanceButton() {
+  if (dancing) return;
+  if (document.getElementById('opt-random-dance').checked) dance();
+  else openDancePicker();
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -480,17 +587,22 @@ function registerSW() {
 
 function init() {
   buildControls();
+  buildDancePicker();
   initDrag();
   document.getElementById('btn-random').addEventListener('click', randomise);
-  document.getElementById('btn-dance').addEventListener('click', () => dance());
+  document.getElementById('btn-dance').addEventListener('click', onDanceButton);
   document.getElementById('btn-share').addEventListener('click', shareEmoji);
 
   document.getElementById('picker-close').addEventListener('click', closePicker);
   document.getElementById('picker').addEventListener('click', e => {
     if (e.target.id === 'picker') closePicker();
   });
+  document.getElementById('dance-picker-close').addEventListener('click', closeDancePicker);
+  document.getElementById('dance-picker').addEventListener('click', e => {
+    if (e.target.id === 'dance-picker') closeDancePicker();
+  });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePicker();
+    if (e.key === 'Escape') { closePicker(); closeDancePicker(); }
   });
 
   // rebuild from a share link if present, otherwise start random

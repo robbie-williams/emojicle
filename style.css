@@ -211,7 +211,9 @@ body {
 
 .btn-icon { font-size: 1.1rem; line-height: 1; }
 
-/* "Share with link" toggle — sits under the Share/Save button (rightmost) */
+/* Toggles under the action row: "Random dance" sits under the Dance button
+   (middle third) and "Share with link" under the Share button (right third) —
+   flex-end packs the two 33% labels into those last two columns. */
 .share-opts {
   display: flex;
   justify-content: flex-end;
@@ -237,6 +239,7 @@ body {
   accent-color: #2BB673;
   cursor: pointer;
 }
+.dance-toggle input { accent-color: var(--clr-dance); }
 
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 
@@ -531,6 +534,39 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* ── Dance picker (shares the .picker sheet chrome) ───────────────────────── */
+
+.dance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 4px 16px calc(18px + env(safe-area-inset-bottom));
+}
+
+.dance-option {
+  border: 2px solid var(--clr-card-edge);
+  background: var(--clr-card);
+  border-bottom: 4px solid var(--clr-card-edge);
+  border-radius: 16px;
+  padding: 14px 4px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+.dance-option:hover  { border-color: var(--clr-dance); }
+.dance-option:active { transform: scale(0.95); }
+
+.dance-emoji { font-size: 2rem; line-height: 1; }
+.dance-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--clr-partname);
 }
 
 @media (prefers-reduced-motion: reduce) {
