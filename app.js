@@ -518,8 +518,30 @@ function initDrag() {
 // exactly — no backend, no storage. Parts are referenced by their STABLE id
 // (filename token), not array index, so links survive pack re-curation.
 // Format (layers in render order, '.' between):  id[_x_y]
-//   e.g.  yellow.1F47F_3_-2.1F600..1F602_-5_8.
+//   e.g.  yellow.1F47F_3_-2.1F600..1F60A_-5_8.
 //   empty segment = None; _x_y present only when a layer has been dragged.
+
+// Ids retired by pack curation AFTER share links launched (the 2026-06-19
+// dedupe passes), mapped to their surviving visual twin so those links still
+// rebuild the same-looking emoji. Twins were verified by rasterising the
+// deleted art from git history beside the survivors. Extend this map whenever
+// a future curation deletes a part.
+const ID_ALIASES = {
+  eyes: {
+    '1F614': '1F634', '1F624': '1F634', '1F61D': '1F606', '1F62A': '1F605',
+    '1F479': '1F600', '1F47F': '1F600', '1F60F': '1F600', '1F612': '1F600',
+    '1F974': '1F600', '1F9D0': '1F600', '1FAE1': '1F600',
+  },
+  mouth: {
+    '1F607': '1F60A', '1F61C': '1F61B', '1F621': '1F622', '1F62F': '1F62E',
+    '1F929': '1F600', '1F47E': '1F614',
+  },
+};
+
+// A still-unknown id on a mandatory layer falls back to a neutral part, not
+// whatever happens to sort first in the pack (which is how old links grew
+// surprise Ogre mouths).
+const DEFAULT_IDS = { face: 'yellow', eyes: '1F600', mouth: '1F60A' };
 
 function encodeState() {
   return LAYERS.map(layer => {
@@ -537,9 +559,15 @@ function applyEncoded(str) {
   const segs = str.split('.');
   LAYERS.forEach((layer, i) => {
     const f = (segs[i] || '').split('_');
-    const id = f[0];
-    let idx = id ? ID_INDEX[layer][id] : 0;       // unknown / empty → default
-    if (idx === undefined) idx = OPTIONAL.has(layer) ? 0 : 0;  // 0 is None on optional layers
+    let id = f[0];
+    if (id && ID_INDEX[layer][id] === undefined && ID_ALIASES[layer]) {
+      id = ID_ALIASES[layer][id] || id;           // retired id → surviving twin
+    }
+    let idx = id ? ID_INDEX[layer][id] : 0;       // empty → None/default
+    if (idx === undefined) {
+      // unknown id: None on optional layers, a neutral part on mandatory ones
+      idx = OPTIONAL.has(layer) ? 0 : (ID_INDEX[layer][DEFAULT_IDS[layer]] || 0);
+    }
     state[layer] = idx;
     if (MOVABLE.includes(layer)) {
       offsets[layer] = { x: parseFloat(f[1]) || 0, y: parseFloat(f[2]) || 0 };
