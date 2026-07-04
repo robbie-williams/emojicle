@@ -3,9 +3,15 @@
 // ── Emojicle Clinic — a pocket-surgery minigame ───────────────────────────────
 // Trauma Center-style operations, kid-sized: the emoji currently on the canvas
 // becomes the patient. A case is a short sequence of steps (spray, tweeze,
-// suture, ice…), each needing the right tool from the tray. There is no fail
-// state — using the wrong tool just dents the happy meter, which decides the
-// star rating at the end.
+// suture, ice…), each needing the right tool from the tray. Using the wrong
+// tool dents the happy meter, which decides the star rating at the end.
+//
+// Levels: each case is one level, played against a countdown. Difficulty
+// climbs with the level — the time limit shrinks (case base time × a
+// multiplier that floors at 50%) and cases get more work via prep(level):
+// more/faster germs, extra prickles, extra stitches, longer ice holds.
+// Beating the clock advances a level; running out offers a retry of the same
+// case. The best level reached is kept in localStorage.
 //
 // Reads the builder's globals (PARTS, state, offsets, zOrder, note,
 // getAudioCtx, pulse); everything else stays inside this IIFE.
@@ -53,6 +59,8 @@ const SFX = {
   buzz:   () => sfx((c, t) => note(c, t, 110, 0.25, { type: 'square', vol: 0.05 })),
   step:   () => sfx((c, t) => { note(c, t, 523.25, 0.1, { vol: 0.08 }); note(c, t + 0.11, 659.25, 0.16, { vol: 0.08 }); }),
   win:    () => sfx((c, t) => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(c, t + i * 0.13, f, 0.18, { vol: 0.09 }))),
+  tick:   () => sfx((c, t) => note(c, t, 1050, 0.05, { type: 'square', vol: 0.03 })),
+  fail:   () => sfx((c, t) => { note(c, t, 392, 0.25, { vol: 0.09 }); note(c, t + 0.28, 261.63, 0.45, { vol: 0.09 }); }),
 };
 
 // ── Tools ─────────────────────────────────────────────────────────────────────
@@ -73,6 +81,9 @@ const toolById = id => TOOLS.find(t => t.id === id);
 
 let game = null;        // null when the clinic is closed
 let lastCase = null;    // avoid dealing the same case twice in a row
+let level = 1;          // current level; resets to 1 when opened from the builder
+let best = 0;           // highest level ever cleared (persisted)
+const BEST_KEY = 'emojicle-clinic-best';
 let parts = [];         // live particles
 let ring = null;        // hold-progress ring
 let ghost = null;       // dashed "put it here" target circle
@@ -81,7 +92,7 @@ let msgTimer = null;
 // DOM refs, resolved once in initClinic
 let overlay, opSvg, patientG, woundsG, fxG, cursorG, cursorText,
     titleEl, msgEl, moodFace, moodFill, tray, stageEl,
-    introPanel, donePanel;
+    introPanel, donePanel, failPanel;
 
 const PRAISE = ['Great job! \u{1F31F}', 'Nice work! \u{1F496}', 'You did it! \u{1F44F}', 'Super doctor! \u{1FA7A}'];
 
@@ -132,9 +143,10 @@ function spawnGerm() {
   el('circle', { cx: -0.7, cy: -0.35, r: 0.28, fill: '#2B2B2B' }, grp);
   el('circle', { cx: 0.7, cy: -0.35, r: 0.28, fill: '#2B2B2B' }, grp);
   const va = Math.random() * Math.PI * 2;
+  const v0 = (game.params.germSpeed || 9) * 0.8;
   const germ = {
     x: 36 + Math.cos(a) * d, y: 36 + Math.sin(a) * d,
-    vx: Math.cos(va) * 7, vy: Math.sin(va) * 7,
+    vx: Math.cos(va) * v0, vy: Math.sin(va) * v0,
     el: grp, alive: true,
   };
   grp.setAttribute('transform', `translate(${germ.x} ${germ.y})`);
@@ -142,10 +154,11 @@ function spawnGerm() {
 }
 
 function moveGerm(g, dt) {
+  const cap = game.params.germSpeed || 9;   // germs get quicker on later levels
   g.vx += rnd(-15, 15) * dt;
   g.vy += rnd(-15, 15) * dt;
   const sp = Math.hypot(g.vx, g.vy);
-  if (sp > 9) { g.vx *= 9 / sp; g.vy *= 9 / sp; }
+  if (sp > cap) { g.vx *= cap / sp; g.vy *= cap / sp; }
   g.x += g.vx * dt;
   g.y += g.vy * dt;
   const dx = g.x - 36, dy = g.y - 36, d = Math.hypot(dx, dy);
@@ -254,62 +267,86 @@ function hideGhost() {
 // A step names its type (the engine mechanic), the required tool, the kid-
 // facing instruction, and optional onProgress/onDone hooks that animate the
 // case's own art (kept in game.art by dress()).
+//
+// `time` is the level-1 limit in seconds (shrunk per level by openCase);
+// `prep(L)` bakes the level's difficulty into fresh params (game.params),
+// which dress() and steps() both read — steps is a FUNCTION so every play
+// gets fresh step objects (handlers scribble progress onto them).
 
-const SPLINTERS = [
+const SPLINTER_SPOTS = [
   { x: 30, y: 24, a: -27 },
   { x: 46, y: 29, a: 55 },
   { x: 39, y: 51, a: 169 },
+  { x: 24, y: 35, a: -85 },   // extra prickles for higher levels
+  { x: 44, y: 44, a: 135 },
 ];
 
 const CASES = [
   {
-    id: 'scrape', icon: '\u{1F6F9}', name: 'Skateboard Scrape',
+    id: 'scrape', icon: '\u{1F6F9}', name: 'Skateboard Scrape', time: 40,
     story: 'Your emoji wiped out on a skateboard and scraped its cheek. Clean it, stitch it, patch it!',
+    prep(L) {
+      return { stitches: 4 + Math.min(3, Math.floor((L - 1) / 3)) };
+    },
     dress(g, art) {
       art.cut = jaggedLine(g, 21, 41.5, 29, 48.5, '#E05252', 1.1);
       art.dots = [[23, 41], [27.5, 44], [25, 47.5]].map(([x, y]) =>
         el('circle', { cx: x, cy: y, r: 1.5, fill: '#8CC63F', stroke: '#5E9427', 'stroke-width': 0.4 }, g));
     },
-    steps: [
+    steps: p => [
       { type: 'spray', tool: 'spray', text: 'Spray the scrape squeaky clean!',
         zones: [{ x: 25, y: 45, r: 7.5 }], time: 1.6,
-        onProgress(p) { game.art.dots.forEach(d => d.setAttribute('opacity', String(1 - p))); } },
+        onProgress(prog) { game.art.dots.forEach(d => d.setAttribute('opacity', String(1 - prog))); } },
       { type: 'suture', tool: 'suture', text: 'Stitch the cut — zigzag across it!',
-        line: { x1: 21, y1: 41.5, x2: 29, y2: 48.5 }, stitches: 4,
+        line: { x1: 21, y1: 41.5, x2: 29, y2: 48.5 }, stitches: p.stitches,
         onDone() { game.art.cut.setAttribute('stroke', '#EBA8A8'); } },
       { type: 'place', tool: 'bandage', text: 'Finish with a bandage!',
         target: { x: 25, y: 45, r: 7 }, rot: -40 },
     ],
   },
   {
-    id: 'cactus', icon: '\u{1F335}', name: 'Cactus Hug',
-    story: 'Your emoji hugged a cactus (it looked friendly). Three prickles need to come out!',
-    dress(g, art) {
-      art.holes = SPLINTERS.map(it =>
-        el('circle', { cx: it.x, cy: it.y, r: 1.1, fill: '#E8938C', opacity: 0 }, g));
-      art.spl = SPLINTERS.map(it => drawSplinter(g, it));
+    id: 'cactus', icon: '\u{1F335}', name: 'Cactus Hug', time: 35,
+    story: 'Your emoji hugged a cactus (it looked friendly). Those prickles need to come out!',
+    prep(L) {
+      const n = 3 + Math.min(2, Math.floor((L - 1) / 3));
+      return { spots: SPLINTER_SPOTS.slice(0, n).map(s => ({ ...s })) };
     },
-    steps: [
-      { type: 'tweeze', tool: 'tweezers', text: 'Grab each prickle and pull it out!', items: SPLINTERS },
+    dress(g, art) {
+      const spots = game.params.spots;
+      art.holes = spots.map(it =>
+        el('circle', { cx: it.x, cy: it.y, r: 1.1, fill: '#E8938C', opacity: 0 }, g));
+      art.spl = spots.map(it => drawSplinter(g, it));
+    },
+    steps: p => [
+      { type: 'tweeze', tool: 'tweezers', text: 'Grab each prickle and pull it out!', items: p.spots },
       { type: 'spray', tool: 'spray', text: 'Spray each sore spot!',
-        zones: SPLINTERS.map(it => ({ x: it.x, y: it.y, r: 4.5 })), time: 0.7,
-        onZoneProgress(i, p) { game.art.holes[i].setAttribute('opacity', String(1 - p)); } },
+        zones: p.spots.map(it => ({ x: it.x, y: it.y, r: 4.5 })), time: 0.7,
+        onZoneProgress(i, prog) { game.art.holes[i].setAttribute('opacity', String(1 - prog)); } },
     ],
   },
   {
-    id: 'germs', icon: '\u{1F9A0}', name: 'Germ Attack',
+    id: 'germs', icon: '\u{1F9A0}', name: 'Germ Attack', time: 35,
     story: 'Your emoji forgot to wash its hands and now germs are having a party. Zap them all!',
+    prep(L) {
+      return {
+        count: 4 + Math.min(8, Math.ceil(L / 2)),       // 5 germs at level 1 → 12
+        germSpeed: 9 + Math.min(7, (L - 1) * 0.8),      // and they get faster
+      };
+    },
     dress() {},   // the germs are spawned by the zap step itself
-    steps: [
-      { type: 'zap', tool: 'spray', text: 'Spray every wiggly germ!', count: 6 },
+    steps: p => [
+      { type: 'zap', tool: 'spray', text: 'Spray every wiggly germ!', count: p.count },
       { type: 'hold', tool: 'syringe', text: 'One vitamin boost to finish!',
         target: { x: 46, y: 46, r: 8 }, time: 1.3,
         onDone() { sparkleBurst(46, 46); } },
     ],
   },
   {
-    id: 'fever', icon: '\u{1F975}', name: 'Too Hot!',
+    id: 'fever', icon: '\u{1F975}', name: 'Too Hot!', time: 35,
     story: 'Your emoji feels all hot and wobbly. Find out how hot, then cool it down!',
+    prep(L) {
+      return { iceTime: 2.2 + Math.min(1.6, (L - 1) * 0.2) };
+    },
     dress(g, art) {
       art.cheeks = [26, 46].map(x =>
         el('circle', { cx: x, cy: 44, r: 4.5, fill: '#FF6B6B', opacity: 0.55 }, g));
@@ -320,16 +357,16 @@ const CASES = [
         'font-weight': 700, fill: '#E03E47', opacity: 0,
       }, g);
     },
-    steps: [
+    steps: p => [
       { type: 'hold', tool: 'thermo', text: 'Hold the thermometer on the forehead!',
         target: { x: 36, y: 23, r: 8 }, time: 1.3,
         onDone() { game.art.temp.textContent = '39.9°!'; game.art.temp.setAttribute('opacity', 1); } },
       { type: 'hold', tool: 'ice', text: '39.9°?! Ice pack on the forehead!',
-        target: { x: 36, y: 23, r: 9 }, time: 2.2,
-        onProgress(p) {
-          game.art.temp.textContent = (39.9 - 3.4 * p).toFixed(1) + '°';
-          game.art.cheeks.forEach(c => c.setAttribute('opacity', String(0.55 * (1 - p))));
-          game.art.drops.forEach(d => d.setAttribute('opacity', String(0.9 * (1 - p))));
+        target: { x: 36, y: 23, r: 9 }, time: p.iceTime,
+        onProgress(prog) {
+          game.art.temp.textContent = (39.9 - 3.4 * prog).toFixed(1) + '°';
+          game.art.cheeks.forEach(c => c.setAttribute('opacity', String(0.55 * (1 - prog))));
+          game.art.drops.forEach(d => d.setAttribute('opacity', String(0.9 * (1 - prog))));
         },
         onDone() {
           game.art.temp.textContent = '36.5°';
@@ -341,8 +378,11 @@ const CASES = [
     ],
   },
   {
-    id: 'bump', icon: '\u{1F4AB}', name: 'Bonked Head',
+    id: 'bump', icon: '\u{1F4AB}', name: 'Bonked Head', time: 28,
     story: 'Your emoji bonked its head and now it sees little stars. Shrink that bump!',
+    prep(L) {
+      return { iceTime: 2.2 + Math.min(1.6, (L - 1) * 0.2) };
+    },
     dress(g, art) {
       art.bump = el('ellipse', {
         cx: 44, cy: 14.5, rx: 4.4, ry: 4,
@@ -355,13 +395,13 @@ const CASES = [
       });
       game.orbit = { cx: 36, cy: 13, r: 15, t: 0, els: art.stars };
     },
-    steps: [
+    steps: p => [
       { type: 'hold', tool: 'ice', text: 'Hold the ice on the bump till it shrinks!',
-        target: { x: 44, y: 15, r: 7 }, time: 2.2,
-        onProgress(p) {
-          game.art.bump.setAttribute('rx', String(4.4 - 3.8 * p));
-          game.art.bump.setAttribute('ry', String(4 - 3.5 * p));
-          game.orbit.els.forEach(s => s.setAttribute('opacity', String(0.9 * (1 - p))));
+        target: { x: 44, y: 15, r: 7 }, time: p.iceTime,
+        onProgress(prog) {
+          game.art.bump.setAttribute('rx', String(4.4 - 3.8 * prog));
+          game.art.bump.setAttribute('ry', String(4 - 3.5 * prog));
+          game.orbit.els.forEach(s => s.setAttribute('opacity', String(0.9 * (1 - prog))));
         },
         onDone() {
           game.art.bump.setAttribute('opacity', 0);
@@ -597,7 +637,7 @@ function mistake() {
 }
 
 function startStep() {
-  game.step = game.caseDef.steps[game.stepIdx];
+  game.step = game.steps[game.stepIdx];
   game.phase = 'op';
   const h = HANDLERS[game.step.type];
   if (h.enter) h.enter(game.step);
@@ -615,9 +655,48 @@ function completeStep() {
   hideGhost();
   clearTimeout(msgTimer);
   game.stepIdx++;
-  if (game.stepIdx >= game.caseDef.steps.length) { finishOp(); return; }
+  if (game.stepIdx >= game.steps.length) { finishOp(); return; }
   setMsg(PRAISE[Math.floor(Math.random() * PRAISE.length)], 'praise');
   game.timer = setTimeout(startStep, 950);
+}
+
+// ── Countdown ────────────────────────────────────────────────────────────────
+// Runs during 'op' AND the little praise pauses ('wait') — the clock only
+// stops when the operation is over. Amber under 10s, red + blink + tick
+// under 5s, timeUp() at zero.
+
+const timerRow = () => document.getElementById('clinic-timer');
+
+function updateTimer() {
+  const secs = Math.ceil(game.timeLeft);
+  document.getElementById('timer-num').textContent = secs + 's';
+  document.getElementById('timer-fill').style.width =
+    (game.timeLeft / game.timeLimit * 100) + '%';
+  timerRow().classList.toggle('low', game.timeLeft <= 10 && game.timeLeft > 5);
+  timerRow().classList.toggle('critical', game.timeLeft <= 5);
+}
+
+function tickTimer(dt) {
+  const before = Math.ceil(game.timeLeft);
+  game.timeLeft = Math.max(0, game.timeLeft - dt);
+  const now = Math.ceil(game.timeLeft);
+  if (now !== before && now <= 5 && now > 0) SFX.tick();
+  updateTimer();
+  if (game.timeLeft <= 0) timeUp();
+}
+
+function timeUp() {
+  game.phase = 'fail';
+  clearTimeout(game.timer);
+  clearTimeout(msgTimer);
+  hideRing();
+  hideGhost();
+  highlightTool(null);
+  SFX.fail();
+  setMsg("Time's up! ⏰");
+  document.getElementById('fail-note').textContent =
+    `Level ${level} needs a speedier doctor. Same patient, fresh clock — go again!`;
+  failPanel.classList.add('show');
 }
 
 function finishOp() {
@@ -625,11 +704,17 @@ function finishOp() {
   SFX.win();
   confetti();
   highlightTool(null);
+  if (level > best) {
+    best = level;
+    try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+  }
   const stars = game.mistakes === 0 ? 3 : game.mistakes <= 2 ? 2 : 1;
   document.getElementById('done-stars').textContent =
     '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+  document.getElementById('done-title').textContent = `Level ${level} cleared! \u{1F389}`;
   document.getElementById('done-note').textContent =
-    ['', 'A good save, doctor!', 'Great work, doctor!', 'A perfect operation!'][stars];
+    ['', 'A good save, doctor!', 'Great work, doctor!', 'A perfect operation!'][stars] +
+    ` ⏱ ${Math.ceil(game.timeLeft)}s to spare.`;
   setMsg('All better! \u{1F389}');
   game.timer = setTimeout(() => donePanel.classList.add('show'), 1000);
 }
@@ -652,9 +737,14 @@ function patientSvg() {
 
 // ── Open / close / flow ───────────────────────────────────────────────────────
 
-function openClinic() {
+function pickCase() {
   const pool = CASES.filter(c => c !== lastCase);
-  const caseDef = pool[Math.floor(Math.random() * pool.length)];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// deal one case as the current level: fresh game state, level-scaled params,
+// level-scaled time limit, intro card up
+function openCase(caseDef) {
   lastCase = caseDef;
 
   game = {
@@ -662,6 +752,11 @@ function openClinic() {
     mood: 100, mistakes: 0, tool: null,
     ptr: { down: false, x: 0, y: 0 }, art: {}, orbit: null, lastT: 0,
   };
+  game.params = caseDef.prep ? caseDef.prep(level) : {};
+  game.steps = caseDef.steps(game.params);
+  // the level-1 base time shrinks 5% per level, flooring at half
+  game.timeLimit = Math.round(caseDef.time * Math.max(0.5, 1 - 0.05 * (level - 1)));
+  game.timeLeft = game.timeLimit;
 
   patientG.innerHTML = patientSvg();
   woundsG.innerHTML = '';
@@ -671,10 +766,17 @@ function openClinic() {
   tray.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('is-active', 'is-hint'));
 
   titleEl.textContent = caseDef.icon + ' ' + caseDef.name;
+  document.getElementById('timer-level').textContent = 'Lv ' + level;
+  document.getElementById('intro-level').textContent = 'Level ' + level;
   document.getElementById('intro-icon').textContent = caseDef.icon;
   document.getElementById('intro-name').textContent = caseDef.name;
   document.getElementById('intro-story').textContent = caseDef.story;
+  document.getElementById('intro-time').textContent = '⏱ ' + game.timeLimit + ' seconds';
+  document.getElementById('intro-best').textContent = best > 0 ? '\u{1F3C6} Best: level ' + best : '';
+  timerRow().classList.remove('low', 'critical');
+  updateTimer();
   donePanel.classList.remove('show');
+  failPanel.classList.remove('show');
   introPanel.classList.add('show');
   setMsg('Your patient is here! \u{1F691}');
   updateMood();
@@ -685,6 +787,11 @@ function openClinic() {
   game.raf = requestAnimationFrame(tickLoop);
 }
 
+function openClinic() {
+  level = 1;   // a fresh visit starts the ladder from the bottom
+  openCase(pickCase());
+}
+
 function startOp() {
   introPanel.classList.remove('show');
   game.art = {};
@@ -692,12 +799,23 @@ function startOp() {
   startStep();
 }
 
-function nextPatient() {
+function endCase() {
   cancelAnimationFrame(game.raf);
   clearTimeout(game.timer);
   clearTimeout(msgTimer);
   game = null;
-  openClinic();
+}
+
+function nextLevel() {
+  endCase();
+  level++;
+  openCase(pickCase());   // pickCase still excludes the case just cleared
+}
+
+function retryLevel() {
+  const again = game.caseDef;   // same patient, same level, fresh clock
+  endCase();
+  openCase(again);
 }
 
 function closeClinic() {
@@ -715,7 +833,8 @@ function tickLoop(t) {
   if (!game) return;
   const dt = game.lastT ? Math.min(0.05, (t - game.lastT) / 1000) : 0.016;
   game.lastT = t;
-  if (game.phase === 'op') {
+  if (game.phase === 'op' || game.phase === 'wait') tickTimer(dt);
+  if (game && game.phase === 'op') {
     const h = HANDLERS[game.step.type];
     if (h.tick) h.tick(dt);
   }
@@ -850,17 +969,28 @@ function initClinic() {
   stageEl = document.querySelector('.clinic-stage');
   introPanel = document.getElementById('clinic-intro');
   donePanel = document.getElementById('clinic-done');
+  failPanel = document.getElementById('clinic-fail');
 
   cursorText = el('text', {
     x: 0, y: -2.5, 'font-size': 8, 'text-anchor': 'middle',
   }, cursorG);
 
+  try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) {}
+
   buildTray();
   document.getElementById('btn-play').addEventListener('click', onPlayButton);
   document.getElementById('clinic-close').addEventListener('click', closeClinic);
   document.getElementById('intro-start').addEventListener('click', startOp);
-  document.getElementById('done-again').addEventListener('click', nextPatient);
+  document.getElementById('done-again').addEventListener('click', nextLevel);
   document.getElementById('done-close').addEventListener('click', closeClinic);
+  document.getElementById('fail-retry').addEventListener('click', retryLevel);
+  document.getElementById('fail-close').addEventListener('click', closeClinic);
+
+  // tiny hook for automated tests: shrink the clock / peek at the phase
+  window.__clinic = {
+    hurry: () => { if (game) game.timeLeft = Math.min(game.timeLeft, 2); },
+    state: () => game && { phase: game.phase, level, timeLeft: game.timeLeft },
+  };
 
   opSvg.addEventListener('pointerdown', onDown);
   opSvg.addEventListener('pointermove', onMove);

@@ -786,6 +786,34 @@ async function shareEmoji() {
   }
 }
 
+// ── Theme (dark mode) ─────────────────────────────────────────────────────────
+// The head script in index.html stamps data-theme before first paint (saved
+// choice, else system preference). The header moon/sun button flips and saves
+// it; while the user hasn't chosen, we keep following the system live.
+
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  // show the mode the button switches TO
+  document.getElementById('btn-theme').textContent = t === 'dark' ? '☀️' : '\u{1F319}';
+}
+
+function initTheme() {
+  applyTheme(document.documentElement.dataset.theme || 'light');
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('emojicle-theme', t); } catch (e) {}
+    applyTheme(t);
+  });
+  const mq = matchMedia('(prefers-color-scheme: dark)');
+  const follow = e => {
+    let saved = null;
+    try { saved = localStorage.getItem('emojicle-theme'); } catch (err) {}
+    if (!saved) applyTheme(e.matches ? 'dark' : 'light');
+  };
+  if (mq.addEventListener) mq.addEventListener('change', follow);
+  else if (mq.addListener) mq.addListener(follow);   // older iOS Safari
+}
+
 // ── Service Worker ────────────────────────────────────────────────────────────
 
 function registerSW() {
@@ -800,6 +828,7 @@ function init() {
   buildControls();
   buildDancePicker();
   initDrag();
+  initTheme();
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', onDanceButton);
   document.getElementById('btn-share').addEventListener('click', shareEmoji);

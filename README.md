@@ -19,10 +19,15 @@ free, no ads, no accounts, works offline.
   soundbite (synthesized in the browser — no audio files). Random by default;
   untick "Random dance" to pick the move yourself.
 - **Doctor** — a Trauma Center-style minigame: your emoji becomes the patient
-  in the Emoji Clinic. Five random cases (scrapes, splinters, germs, fever,
-  bumps) treated with the right tools — spray, tweezers, stitches, bandage,
+  in the Emoji Clinic. Five cases (scrapes, splinters, germs, fever, bumps)
+  treated with the right tools — spray, tweezers, stitches, bandage,
   thermometer, ice, vitamins. Wrong tools dent the happy meter, which sets
-  the star rating; there's no fail state.
+  the star rating. Each case is a level played against a countdown; levels
+  get harder (less time, more/faster germs, extra prickles and stitches) and
+  the best level reached is remembered. Run out of time and you can retry
+  the same patient.
+- **Dark mode** — follows the system preference, with a moon/sun toggle in
+  the header to override (remembered across visits).
 - **Send** — shares a transparent PNG through the native share sheet (or
   downloads it on desktop). Tick "Share with link" to include a link that
   rebuilds the exact emoji.

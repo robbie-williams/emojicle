@@ -18,9 +18,36 @@
   --clr-random-dk: #6F4FD6;
   --clr-dance:     #FF4FA3;   /* pink */
   --clr-dance-dk:  #D81B7C;
+  --clr-chip:       #FBF2E8;  /* tappable chips: part names, +, ✕, cancel */
+  --clr-chip-edge:  #EAD9C4;  /* their 3D under-edge */
+  --clr-chip-hover: #F4E6D4;
+  --clr-active-bg:  #E9F9F1;  /* selected-tool tint */
+  --clr-toast-bg:   #2B2B2B;
+  --clr-toast-fg:   #FFFFFF;
+  --clr-link:       #6F4FD6;
 
   --radius-card: 22px;
   --radius-btn:  18px;
+}
+
+/* Dark mode — stamped as data-theme on <html> by the head script (saved
+   choice, else system preference) and flipped by the header moon/sun button.
+   Warm near-black keeps the cosy feel; the coral header and the chunky
+   action-button colours stay put in both themes. */
+:root[data-theme="dark"] {
+  --clr-bg:        #211B16;
+  --clr-card:      #2C251E;
+  --clr-card-edge: #453A2E;
+  --clr-canvas:    #26303D;   /* dark soft-blue behind the emoji */
+  --clr-label:     #C9A183;
+  --clr-partname:  #F2E7D8;
+  --clr-chip:       #3A3128;
+  --clr-chip-edge:  #241E18;
+  --clr-chip-hover: #463B2F;
+  --clr-active-bg:  #1E3A2C;
+  --clr-toast-bg:   #F2E7D8;
+  --clr-toast-fg:   #2B2B2B;
+  --clr-link:       #B39CFF;
 }
 
 *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
@@ -40,11 +67,30 @@ body {
 /* ── Header ───────────────────────────────────────────────────────────────── */
 
 .app-header {
+  position: relative;                    /* anchors the theme toggle */
   background: var(--clr-brand);          /* flat — no gradient */
   padding: 14px 16px 12px;
   text-align: center;
   flex-shrink: 0;
 }
+
+/* moon/sun in the header corner — flips the whole app's theme */
+.theme-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.theme-toggle:active { transform: translateY(-50%) scale(0.9); }
 
 .app-title {
   font-size: 1.9rem;
@@ -149,8 +195,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   border: none;
-  background: #FBF2E8;
-  border-bottom: 3px solid #EAD9C4;
+  background: var(--clr-chip);
+  border-bottom: 3px solid var(--clr-chip-edge);
   border-radius: 12px;
   padding: 9px 14px;
   cursor: pointer;
@@ -167,7 +213,7 @@ body {
   flex-shrink: 0;
 }
 
-.part-name:hover  { background: #F4E6D4; }
+.part-name:hover  { background: var(--clr-chip-hover); }
 .part-name:active { transform: translateY(2px); border-bottom-width: 1px; }
 
 /* extras slots share one row: up to three slot buttons plus the + */
@@ -185,8 +231,8 @@ body {
 .add-extra {
   flex-shrink: 0;
   border: none;
-  background: #FBF2E8;
-  border-bottom: 3px solid #EAD9C4;
+  background: var(--clr-chip);
+  border-bottom: 3px solid var(--clr-chip-edge);
   border-radius: 12px;
   width: 38px;
   align-self: stretch;
@@ -198,7 +244,7 @@ body {
   touch-action: manipulation;
   transition: background 0.12s ease, transform 0.08s ease, border-width 0.08s ease;
 }
-.add-extra:hover  { background: #F4E6D4; }
+.add-extra:hover  { background: var(--clr-chip-hover); }
 .add-extra:active { transform: translateY(2px); border-bottom-width: 1px; }
 
 /* ── Action buttons (Bulma .button overridden) ────────────────────────────── */
@@ -284,8 +330,8 @@ body {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(120px);
-  background: var(--clr-ink);
-  color: #fff;
+  background: var(--clr-toast-bg);
+  color: var(--clr-toast-fg);
   padding: 11px 22px;
   border-radius: 18px;
   font-size: 0.88rem;
@@ -470,7 +516,7 @@ body {
   padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
   opacity: 0.85;
 }
-.app-credit a { color: var(--clr-random-dk); font-weight: 700; }
+.app-credit a { color: var(--clr-link); font-weight: 700; }
 
 /* ── Tap picker (grid of all options for a layer) ─────────────────────────── */
 
@@ -517,7 +563,7 @@ body {
 }
 .picker-close {
   border: none;
-  background: #FBF2E8;
+  background: var(--clr-chip);
   color: var(--clr-partname);
   width: 38px;
   height: 38px;
@@ -637,7 +683,7 @@ body {
 .confirm-btn:active { transform: translateY(3px); border-bottom-width: 1px; }
 .confirm-top    { background: var(--clr-random); border-bottom-color: var(--clr-random-dk); }
 .confirm-back   { background: var(--clr-dance);  border-bottom-color: var(--clr-dance-dk); }
-.confirm-cancel { background: #FBF2E8; border-bottom-color: #EAD9C4; color: var(--clr-partname); }
+.confirm-cancel { background: var(--clr-chip); border-bottom-color: var(--clr-chip-edge); color: var(--clr-partname); }
 
 @media (prefers-reduced-motion: reduce) {
   .confirm-panel { animation: none; }
@@ -749,6 +795,54 @@ body.clinic-open { overflow: hidden; }
   75%      { transform: translateX(5px); }
 }
 
+/* ── Level chip + countdown bar (the challenge row) ── */
+
+.clinic-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 18px 2px;
+  flex-shrink: 0;
+}
+.level-chip {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #fff;
+  background: var(--clr-random);
+  border-radius: 9px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.timer-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--clr-chip);
+  overflow: hidden;
+}
+#timer-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  background: #2BB673;
+  transition: width 0.2s linear, background 0.3s ease;
+}
+#timer-num {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--clr-partname);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.4em;
+  text-align: right;
+}
+.clinic-timer.low #timer-fill      { background: #FFB020; }
+.clinic-timer.critical #timer-fill { background: #FF5A5F; }
+.clinic-timer.critical #timer-num  {
+  color: #FF5A5F;
+  animation: timer-blink 0.5s step-start infinite;
+}
+@keyframes timer-blink { 50% { opacity: 0.35; } }
+
 .clinic-stage {
   flex: 1;
   min-height: 0;
@@ -803,7 +897,7 @@ body.clinic-open { overflow: hidden; }
   transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
 }
 .tool-btn:active { transform: scale(0.93); }
-.tool-btn.is-active { border-color: #2BB673; background: #E9F9F1; }
+.tool-btn.is-active { border-color: #2BB673; background: var(--clr-active-bg); }
 .tool-btn.is-hint   { animation: tool-hint 1s ease-in-out infinite; }
 @keyframes tool-hint {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0); }
@@ -853,7 +947,24 @@ body.clinic-open { overflow: hidden; }
 .clinic-start   { background: #FF9F1C; border-bottom-color: #DB7F00; }
 .done-stars     { font-size: 2.2rem; line-height: 1; letter-spacing: 4px; }
 
+.level-badge {
+  align-self: center;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #fff;
+  background: var(--clr-random);
+  border-radius: 10px;
+  padding: 4px 14px;
+}
+.intro-meta {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 0.85rem;
+}
+.intro-meta span:empty { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .clinic-msg.flash, .op-shake, .tool-btn.is-hint,
-  .op-ghost, .clinic-card { animation: none; }
+  .op-ghost, .clinic-card, .clinic-timer.critical #timer-num { animation: none; }
 }
