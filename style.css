@@ -170,9 +170,20 @@ body {
 .part-name:hover  { background: #F4E6D4; }
 .part-name:active { transform: translateY(2px); border-bottom-width: 1px; }
 
-/* extras rows: a third column for the + that reveals the next extras slot */
-.layer-row-extras { grid-template-columns: 56px 1fr auto; }
+/* extras slots share one row: up to three slot buttons plus the + */
+.extra-slots {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.extra-slots .part-name {
+  flex: 1;
+  min-width: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
 .add-extra {
+  flex-shrink: 0;
   border: none;
   background: #FBF2E8;
   border-bottom: 3px solid #EAD9C4;
@@ -554,6 +565,57 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* ── "Where should it go?" restack modal (long-press / double-tap a part) ─── */
+
+.move-top { align-items: center; padding: 24px; }
+
+.confirm-panel {
+  background: var(--clr-bg);
+  border-radius: 22px;
+  padding: 20px 18px 16px;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  animation: confirm-pop 0.18s ease-out;
+}
+@keyframes confirm-pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.confirm-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--clr-partname);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.confirm-text strong { text-transform: capitalize; }
+
+.confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confirm-btn {
+  border: none;
+  border-bottom: 4px solid transparent;
+  border-radius: var(--radius-btn);
+  height: 46px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-width 0.08s ease;
+}
+.confirm-btn:active { transform: translateY(3px); border-bottom-width: 1px; }
+.confirm-top    { background: var(--clr-random); border-bottom-color: var(--clr-random-dk); }
+.confirm-back   { background: var(--clr-dance);  border-bottom-color: var(--clr-dance-dk); }
+.confirm-cancel { background: #FBF2E8; border-bottom-color: #EAD9C4; color: var(--clr-partname); }
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-panel { animation: none; }
 }
 
 /* ── Dance picker (shares the .picker sheet chrome) ───────────────────────── */

@@ -23,8 +23,8 @@ const LAYER_LABELS = {
   nose: 'Nose',
   mouth: 'Mouth',
   extras: 'Extras',
-  extras2: 'Extras 2',
-  extras3: 'Extras 3',
+  extras2: 'Extras',
+  extras3: 'Extras',
 };
 
 // control row order (UI order, not render order)
@@ -78,7 +78,8 @@ function randomise() {
   state.extras2 = 0;
   state.extras3 = 0;
   extrasShown = 1;
-  syncExtraRows();
+  syncExtraSlots();
+  resetZOrder();
   // fresh emoji → back to the default layout
   MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; applyOffset(l); });
   deselect();
@@ -313,33 +314,44 @@ function buildControls() {
   const container = document.getElementById('controls');
 
   CONTROL_ORDER.forEach(layer => {
+    // extras2/3 live inside the single Extras row, not rows of their own
+    if (layer === 'extras2' || layer === 'extras3') return;
+
     const row = document.createElement('div');
     row.className = 'layer-row';
-    row.id = 'row-' + layer;
 
     const label = document.createElement('span');
     label.className = 'layer-label';
     label.textContent = LAYER_LABELS[layer];
-
-    const nameBtn = document.createElement('button');
-    nameBtn.className = 'part-name';
-    nameBtn.id = 'name-' + layer;
-    nameBtn.setAttribute('aria-label', 'Browse all ' + LAYER_LABELS[layer]);
-    nameBtn.addEventListener('click', () => openPicker(layer));
-
     row.appendChild(label);
-    row.appendChild(nameBtn);
 
-    // extras rows carry a + that reveals the next slot (up to 3)
-    if (EXTRA_SLOTS.includes(layer)) {
-      row.classList.add('layer-row-extras');
+    if (layer === 'extras') {
+      // one row, up to three slot buttons side by side, plus the +
+      const slots = document.createElement('div');
+      slots.className = 'extra-slots';
+      EXTRA_SLOTS.forEach(l => {
+        const b = document.createElement('button');
+        b.className = 'part-name';
+        b.id = 'name-' + l;
+        b.setAttribute('aria-label', 'Browse all Extras');
+        b.addEventListener('click', () => openPicker(l));
+        slots.appendChild(b);
+      });
       const add = document.createElement('button');
       add.className = 'add-extra';
-      add.id = 'add-' + layer;
+      add.id = 'add-extra';
       add.textContent = '+';
       add.setAttribute('aria-label', 'Add another extra');
-      add.addEventListener('click', addExtraRow);
-      row.appendChild(add);
+      add.addEventListener('click', addExtraSlot);
+      slots.appendChild(add);
+      row.appendChild(slots);
+    } else {
+      const nameBtn = document.createElement('button');
+      nameBtn.className = 'part-name';
+      nameBtn.id = 'name-' + layer;
+      nameBtn.setAttribute('aria-label', 'Browse all ' + LAYER_LABELS[layer]);
+      nameBtn.addEventListener('click', () => openPicker(layer));
+      row.appendChild(nameBtn);
     }
 
     container.appendChild(row);
@@ -347,27 +359,26 @@ function buildControls() {
 }
 
 // ── Extra slots ───────────────────────────────────────────────────────────────
-// One Extras row shows by default; the + on the last visible row reveals the
-// next (up to 3) and drops straight into its picker. Rows collapse again on
+// One slot button shows by default; the + reveals the next (up to 3) in the
+// same row and drops straight into its picker. Slots collapse again on
 // Randomise; a share link with parts in a slot re-reveals it on load.
 
 let extrasShown = 1;
 
-function syncExtraRows() {
+function syncExtraSlots() {
   EXTRA_SLOTS.forEach((l, i) => { if (state[l] > 0) extrasShown = Math.max(extrasShown, i + 1); });
   EXTRA_SLOTS.forEach((l, i) => {
-    const row = document.getElementById('row-' + l);
-    if (row) row.style.display = i < extrasShown ? '' : 'none';
-    const add = document.getElementById('add-' + l);
-    if (add) add.style.display =
-      (i === extrasShown - 1 && extrasShown < EXTRA_SLOTS.length) ? '' : 'none';
+    const btn = document.getElementById('name-' + l);
+    if (btn) btn.style.display = i < extrasShown ? '' : 'none';
   });
+  const add = document.getElementById('add-extra');
+  if (add) add.style.display = extrasShown < EXTRA_SLOTS.length ? '' : 'none';
 }
 
-function addExtraRow() {
+function addExtraSlot() {
   if (extrasShown >= EXTRA_SLOTS.length) return;
   extrasShown++;
-  syncExtraRows();
+  syncExtraSlots();
   openPicker(EXTRA_SLOTS[extrasShown - 1]);
 }
 
@@ -380,6 +391,79 @@ function addExtraRow() {
 
 const DRAG_THRESHOLD = 2.5;   // viewBox units before a press becomes a drag
 let drag = null;
+
+// ── Layer z-order ─────────────────────────────────────────────────────────────
+// LAYERS stays the canonical (positional) list — share links depend on it —
+// while zOrder is the current stacking, mutable via "Move to top". The DOM
+// group order inside #dance-group is kept in sync; select-box stays last.
+// Not encoded in share links; resets on Randomise.
+
+let zOrder = LAYERS.slice();
+
+function moveLayerToTop(layer) {
+  zOrder.splice(zOrder.indexOf(layer), 1);
+  zOrder.push(layer);
+  const g = document.getElementById('layer-' + layer);
+  g.parentNode.insertBefore(g, document.getElementById('select-box'));
+  updateSelectBox();
+}
+
+function moveLayerToBack(layer) {
+  zOrder.splice(zOrder.indexOf(layer), 1);
+  const g = document.getElementById('layer-' + layer);
+  g.parentNode.insertBefore(g, document.getElementById('layer-' + zOrder[0]));
+  zOrder.unshift(layer);
+  updateSelectBox();
+}
+
+function resetZOrder() {
+  zOrder = LAYERS.slice();
+  const box = document.getElementById('select-box');
+  LAYERS.forEach(l => box.parentNode.insertBefore(document.getElementById('layer-' + l), box));
+}
+
+// ── Layer-order modal ─────────────────────────────────────────────────────────
+// Long-press (or double-tap / double-click) a part on the canvas to offer
+// moving its layer above everything else or behind everything else.
+
+const LONG_PRESS_MS = 500;
+let pressTimer = null;
+let lastTap = { layer: null, t: 0 };
+let moveTopLayer = null;
+
+function openMoveTop(layer) {
+  moveTopLayer = layer;
+  selectLayer(layer);
+  document.getElementById('move-top-name').textContent = PARTS[layer][state[layer]].name;
+  const el = document.getElementById('move-top');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden', 'false');
+}
+
+function closeMoveTop() {
+  moveTopLayer = null;
+  const el = document.getElementById('move-top');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden', 'true');
+}
+
+function confirmMoveTop() {
+  if (moveTopLayer) {
+    const layer = moveTopLayer;
+    moveLayerToTop(layer);
+    showToast('⬆️ ' + PARTS[layer][state[layer]].name + ' is on top!');
+  }
+  closeMoveTop();
+}
+
+function confirmMoveBack() {
+  if (moveTopLayer) {
+    const layer = moveTopLayer;
+    moveLayerToBack(layer);
+    showToast('⬇️ ' + PARTS[layer][state[layer]].name + ' went to the back!');
+  }
+  closeMoveTop();
+}
 
 function layerHasContent(layer) {
   const part = PARTS[layer] && PARTS[layer][state[layer]];
@@ -458,7 +542,7 @@ function hitLayer(p) {
   }
   if (!hits.length) return null;
   if (selectedLayer && hits.includes(selectedLayer)) return selectedLayer;
-  return hits.reduce((top, c) => LAYERS.indexOf(c) > LAYERS.indexOf(top) ? c : top, hits[0]);
+  return hits.reduce((top, c) => zOrder.indexOf(c) > zOrder.indexOf(top) ? c : top, hits[0]);
 }
 
 function onPointerDown(e) {
@@ -471,6 +555,16 @@ function onPointerDown(e) {
     baseX: layer ? offsets[layer].x : 0,
     baseY: layer ? offsets[layer].y : 0,
   };
+  // held still on a part long enough → offer to restack it instead of dragging
+  clearTimeout(pressTimer);
+  if (layer) {
+    pressTimer = setTimeout(() => {
+      if (drag && drag.layer === layer && !drag.moved) {
+        drag = null;
+        openMoveTop(layer);
+      }
+    }, LONG_PRESS_MS);
+  }
   const svg = document.getElementById('emoji-svg');
   if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
 }
@@ -484,6 +578,7 @@ function onPointerMove(e) {
   if (!drag.moved) {
     if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
     drag.moved = true;
+    clearTimeout(pressTimer);   // it's a drag, not a long-press
     if (!drag.layer) { drag = null; return; }   // started on empty space
     if (selectedLayer !== drag.layer) selectLayer(drag.layer);
   }
@@ -495,10 +590,21 @@ function onPointerMove(e) {
 }
 
 function onPointerUp() {
+  clearTimeout(pressTimer);
   if (!drag || dancing) { drag = null; return; }
   const { layer, moved } = drag;
   drag = null;
   if (moved) { updateUrl(); return; }   // a drag — keep the layer selected where it landed
+  // a second tap on the same part in quick succession → restack modal
+  if (layer) {
+    const now = Date.now();
+    if (lastTap.layer === layer && now - lastTap.t < 350) {
+      lastTap = { layer: null, t: 0 };
+      openMoveTop(layer);
+      return;
+    }
+    lastTap = { layer, t: now };
+  }
   // a tap — toggle selection
   if (!layer) deselect();
   else if (layer === selectedLayer) deselect();
@@ -510,7 +616,7 @@ function initDrag() {
   svg.addEventListener('pointerdown', onPointerDown);
   svg.addEventListener('pointermove', onPointerMove);
   svg.addEventListener('pointerup', onPointerUp);
-  svg.addEventListener('pointercancel', () => { drag = null; });
+  svg.addEventListener('pointercancel', () => { clearTimeout(pressTimer); drag = null; });
 }
 
 // ── Stateless share link ──────────────────────────────────────────────────────
@@ -590,7 +696,7 @@ const EXPORT_SIZE = 600;
 
 function buildExportSvg() {
   let inner = '';
-  LAYERS.forEach(layer => {
+  zOrder.forEach(layer => {   // current stacking, so the PNG matches the canvas
     const part = PARTS[layer][state[layer]];
     if (!part.svg) return;
     const o = MOVABLE.includes(layer) ? offsets[layer] : { x: 0, y: 0 };
@@ -682,8 +788,14 @@ function init() {
   document.getElementById('dance-picker').addEventListener('click', e => {
     if (e.target.id === 'dance-picker') closeDancePicker();
   });
+  document.getElementById('move-top-yes').addEventListener('click', confirmMoveTop);
+  document.getElementById('move-top-back').addEventListener('click', confirmMoveBack);
+  document.getElementById('move-top-cancel').addEventListener('click', closeMoveTop);
+  document.getElementById('move-top').addEventListener('click', e => {
+    if (e.target.id === 'move-top') closeMoveTop();
+  });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePicker(); closeDancePicker(); }
+    if (e.key === 'Escape') { closePicker(); closeDancePicker(); closeMoveTop(); }
   });
 
   // rebuild from a share link if present, otherwise start random
@@ -696,7 +808,7 @@ function init() {
   } else {
     randomise();
   }
-  syncExtraRows();   // reveal any extras slots a share link populated
+  syncExtraSlots();   // reveal any extras slots a share link populated
   registerSW();
 }
 
