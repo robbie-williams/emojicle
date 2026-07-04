@@ -18,6 +18,11 @@ free, no ads, no accounts, works offline.
 - **Dance** — grows a pair of arms and busts a move, each with its own little
   soundbite (synthesized in the browser — no audio files). Random by default;
   untick "Random dance" to pick the move yourself.
+- **Doctor** — a Trauma Center-style minigame: your emoji becomes the patient
+  in the Emoji Clinic. Five random cases (scrapes, splinters, germs, fever,
+  bumps) treated with the right tools — spray, tweezers, stitches, bandage,
+  thermometer, ice, vitamins. Wrong tools dent the happy meter, which sets
+  the star rating; there's no fail state.
 - **Send** — shares a transparent PNG through the native share sheet (or
   downloads it on desktop). Tick "Share with link" to include a link that
   rebuilds the exact emoji.
@@ -36,6 +41,7 @@ app makes zero per-part fetches.
 ```
 index.html        app shell
 app.js            all behaviour (rendering, picker, drag, dance, share)
+minigames.js      the Emoji Clinic minigame (cases, tools, step engine)
 style.css         flat-modern theme on top of Bulma
 parts-data.js     GENERATED — the whole art pack, inline (npm run build)
 sw.js             cache-first service worker (cache name stamped by the build)

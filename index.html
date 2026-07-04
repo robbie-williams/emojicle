@@ -59,6 +59,12 @@
         </button>
       </div>
       <div class="column">
+        <button id="btn-play" class="button is-rounded btn-action btn-play" aria-label="Play a minigame">
+          <span class="btn-icon" aria-hidden="true">&#x1FA7A;</span>
+          <span>Doctor</span>
+        </button>
+      </div>
+      <div class="column">
         <button id="btn-share" class="button is-rounded btn-action btn-share" aria-label="Share or save your emoji">
           <span class="btn-icon" aria-hidden="true">&#x1F4E4;</span>
           <span>Send</span>
@@ -115,9 +121,49 @@
     </div>
   </div>
 
+  <div id="clinic" class="clinic" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="clinic-top">
+      <button id="clinic-close" class="picker-close" aria-label="Close the clinic">&times;</button>
+      <h2 id="clinic-title" class="clinic-title">Emoji Clinic</h2>
+      <div class="clinic-mood" aria-hidden="true">
+        <span id="mood-face">&#x1F604;</span>
+        <div class="mood-bar"><div id="mood-fill"></div></div>
+      </div>
+    </div>
+    <div id="clinic-msg" class="clinic-msg" aria-live="polite"></div>
+    <div class="clinic-stage">
+      <svg id="op-svg" viewBox="-8 -8 88 88" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your patient">
+        <g id="op-patient"></g>
+        <g id="op-wounds"></g>
+        <g id="op-fx"></g>
+        <g id="op-cursor" visibility="hidden"></g>
+      </svg>
+    </div>
+    <div id="tool-tray" class="tool-tray"></div>
+
+    <div id="clinic-intro" class="clinic-panel">
+      <div class="clinic-card">
+        <div id="intro-icon" class="intro-icon" aria-hidden="true"></div>
+        <h3 id="intro-name"></h3>
+        <p id="intro-story"></p>
+        <button id="intro-start" class="confirm-btn clinic-start">&#x1F691; Start the operation!</button>
+      </div>
+    </div>
+    <div id="clinic-done" class="clinic-panel">
+      <div class="clinic-card">
+        <div id="done-stars" class="done-stars"></div>
+        <h3>All better! &#x1F389;</h3>
+        <p id="done-note"></p>
+        <button id="done-again" class="confirm-btn clinic-start">&#x1F691; Next patient</button>
+        <button id="done-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="parts-data.js"></script>
   <script src="app.js"></script>
+  <script src="minigames.js"></script>
 </body>
 </html>

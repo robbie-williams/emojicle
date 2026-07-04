@@ -239,18 +239,25 @@ body {
 .btn-dance.button:hover   { background: var(--clr-dance);  color: #fff; }
 .btn-share.button         { background: #2BB673; border-bottom-color: #1E8E59; }
 .btn-share.button:hover   { background: #2BB673; color: #fff; }
+.btn-play.button          { background: #FF9F1C; border-bottom-color: #DB7F00; }
+.btn-play.button:hover    { background: #FF9F1C; color: #fff; }
+
+/* four buttons share the row now — trim Bulma's side padding so they fit */
+.actions .btn-action.button { padding-left: 4px; padding-right: 4px; }
 
 .btn-icon { font-size: 1.1rem; line-height: 1; }
 
-/* Toggles under the action row: "Random dance" sits under the Dance button
-   (middle third) and "Share with link" under the Share button (right third) —
-   flex-end packs the two 33% labels into those last two columns. */
+/* Toggles under the action row: "Random dance" sits roughly under the Dance
+   button (2nd of 4) and "Share with link" under the Send button (4th). They
+   size to their labels — 25% columns are too narrow for the text — and the
+   margins nudge them under their buttons. */
 .share-opts {
   display: flex;
-  justify-content: flex-end;
   margin-top: 6px;
   flex-shrink: 0;
 }
+.share-opts .dance-toggle { margin-left: 13%; }
+.share-opts .link-toggle:last-child { margin-left: auto; margin-right: 2%; }
 .link-toggle {
   display: flex;
   align-items: center;
@@ -260,9 +267,7 @@ body {
   color: var(--clr-label);
   cursor: pointer;
   touch-action: manipulation;
-  /* keep it visually under the 3rd-of-3 button */
-  width: calc(33.333% - 2px);
-  justify-content: center;
+  white-space: nowrap;
 }
 .link-toggle input {
   width: 16px;
@@ -673,4 +678,182 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .picker-panel { animation: none; }
+}
+
+/* ── Emoji Clinic minigame ────────────────────────────────────────────────────
+   Full-screen operating theatre: coral top bar, instruction banner, the
+   patient on a soft-blue table, and the tool tray along the bottom. */
+
+body.clinic-open { overflow: hidden; }
+
+.clinic {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  background: var(--clr-bg);
+}
+.clinic.show { display: flex; }
+
+.clinic-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  background: var(--clr-brand);
+  flex-shrink: 0;
+}
+.clinic-title {
+  flex: 1;
+  min-width: 0;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clinic-mood { display: flex; align-items: center; gap: 6px; }
+#mood-face { font-size: 1.35rem; line-height: 1; }
+.mood-bar {
+  width: 64px;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+}
+#mood-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  background: #2BB673;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.clinic-msg {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--clr-partname);
+  padding: 10px 16px 2px;
+  min-height: 2.5em;
+  flex-shrink: 0;
+}
+.clinic-msg.praise { color: #2BB673; }
+.clinic-msg.flash  { color: var(--clr-brand-dk); animation: msg-shake 0.3s ease; }
+@keyframes msg-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+
+.clinic-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+#op-svg {
+  width: min(92vw, 56vh, 480px);
+  aspect-ratio: 1;
+  touch-action: none;
+  background: var(--clr-canvas);
+  border-radius: 20px;
+}
+#op-cursor { pointer-events: none; }
+.op-ghost  { animation: select-pulse 1.1s ease-in-out infinite; }
+
+.op-shake { animation: op-shake 0.35s ease; }
+@keyframes op-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ── Tool tray ── */
+
+.tool-tray {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px calc(12px + env(safe-area-inset-bottom));
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tool-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 76px;
+  border: 2px solid var(--clr-card-edge);
+  border-bottom-width: 4px;
+  background: var(--clr-card);
+  border-radius: 14px;
+  padding: 6px 2px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.tool-btn:active { transform: scale(0.93); }
+.tool-btn.is-active { border-color: #2BB673; background: #E9F9F1; }
+.tool-btn.is-hint   { animation: tool-hint 1s ease-in-out infinite; }
+@keyframes tool-hint {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(255, 159, 28, 0.55); }
+}
+.tool-emoji { font-size: 1.35rem; line-height: 1.15; }
+.tool-name {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: var(--clr-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Intro / all-better panels ── */
+
+.clinic-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(43, 43, 43, 0.45);
+}
+.clinic-panel.show { display: flex; }
+
+.clinic-card {
+  background: var(--clr-bg);
+  border-radius: 22px;
+  padding: 22px 20px 18px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: confirm-pop 0.18s ease-out;
+}
+.intro-icon { font-size: 3rem; line-height: 1; }
+.clinic-card h3 { font-size: 1.25rem; font-weight: 900; color: var(--clr-partname); }
+.clinic-card p  { font-size: 0.92rem; font-weight: 600; color: var(--clr-label); }
+.clinic-start   { background: #FF9F1C; border-bottom-color: #DB7F00; }
+.done-stars     { font-size: 2.2rem; line-height: 1; letter-spacing: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .clinic-msg.flash, .op-shake, .tool-btn.is-hint,
+  .op-ghost, .clinic-card { animation: none; }
 }
