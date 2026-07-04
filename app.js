@@ -6,8 +6,15 @@
 //   { face:[{name,svg}], eyes:[…], eyebrows:[…], nose:[…], mouth:[…], extras:[…] }
 // Optional layers (eyebrows, nose, extras) start with a "None" option.
 
+// Up to three extras can be stacked: extras2/extras3 are additional layers
+// that share the extras part list (aliased below), revealed one at a time by
+// the + button on the last visible Extras row.
+const EXTRA_SLOTS = ['extras', 'extras2', 'extras3'];
+PARTS.extras2 = PARTS.extras;
+PARTS.extras3 = PARTS.extras;
+
 // ── Layer rendering order (bottom → top) ──────────────────────────────────────
-const LAYERS = ['face', 'eyebrows', 'eyes', 'nose', 'mouth', 'extras'];
+const LAYERS = ['face', 'eyebrows', 'eyes', 'nose', 'mouth', 'extras', 'extras2', 'extras3'];
 
 const LAYER_LABELS = {
   face: 'Face',
@@ -16,14 +23,16 @@ const LAYER_LABELS = {
   nose: 'Nose',
   mouth: 'Mouth',
   extras: 'Extras',
+  extras2: 'Extras 2',
+  extras3: 'Extras 3',
 };
 
 // control row order (UI order, not render order)
-const CONTROL_ORDER = ['face', 'eyes', 'eyebrows', 'nose', 'mouth', 'extras'];
+const CONTROL_ORDER = ['face', 'eyes', 'eyebrows', 'nose', 'mouth', 'extras', 'extras2', 'extras3'];
 
 // Layers the user can pick up and move on the canvas — everything except the
 // face, which stays put as the anchor.
-const MOVABLE = ['eyebrows', 'eyes', 'nose', 'mouth', 'extras'];
+const MOVABLE = ['eyebrows', 'eyes', 'nose', 'mouth', 'extras', 'extras2', 'extras3'];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const state = {};
@@ -35,7 +44,7 @@ MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; });
 let selectedLayer = null;
 
 // optional layers carry a leading "None" entry (id '')
-const OPTIONAL = new Set(['eyebrows', 'nose', 'extras']);
+const OPTIONAL = new Set(['eyebrows', 'nose', 'extras', 'extras2', 'extras3']);
 
 // id → index lookup per layer, so share links can address parts by stable id
 const ID_INDEX = {};
@@ -65,6 +74,11 @@ function randomise() {
   LAYERS.forEach(layer => {
     state[layer] = Math.floor(Math.random() * PARTS[layer].length);
   });
+  // fresh emoji → one extras slot again (a random roll shouldn't pile on hats)
+  state.extras2 = 0;
+  state.extras3 = 0;
+  extrasShown = 1;
+  syncExtraRows();
   // fresh emoji → back to the default layout
   MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; applyOffset(l); });
   deselect();
@@ -301,6 +315,7 @@ function buildControls() {
   CONTROL_ORDER.forEach(layer => {
     const row = document.createElement('div');
     row.className = 'layer-row';
+    row.id = 'row-' + layer;
 
     const label = document.createElement('span');
     label.className = 'layer-label';
@@ -314,8 +329,46 @@ function buildControls() {
 
     row.appendChild(label);
     row.appendChild(nameBtn);
+
+    // extras rows carry a + that reveals the next slot (up to 3)
+    if (EXTRA_SLOTS.includes(layer)) {
+      row.classList.add('layer-row-extras');
+      const add = document.createElement('button');
+      add.className = 'add-extra';
+      add.id = 'add-' + layer;
+      add.textContent = '+';
+      add.setAttribute('aria-label', 'Add another extra');
+      add.addEventListener('click', addExtraRow);
+      row.appendChild(add);
+    }
+
     container.appendChild(row);
   });
+}
+
+// ── Extra slots ───────────────────────────────────────────────────────────────
+// One Extras row shows by default; the + on the last visible row reveals the
+// next (up to 3) and drops straight into its picker. Rows collapse again on
+// Randomise; a share link with parts in a slot re-reveals it on load.
+
+let extrasShown = 1;
+
+function syncExtraRows() {
+  EXTRA_SLOTS.forEach((l, i) => { if (state[l] > 0) extrasShown = Math.max(extrasShown, i + 1); });
+  EXTRA_SLOTS.forEach((l, i) => {
+    const row = document.getElementById('row-' + l);
+    if (row) row.style.display = i < extrasShown ? '' : 'none';
+    const add = document.getElementById('add-' + l);
+    if (add) add.style.display =
+      (i === extrasShown - 1 && extrasShown < EXTRA_SLOTS.length) ? '' : 'none';
+  });
+}
+
+function addExtraRow() {
+  if (extrasShown >= EXTRA_SLOTS.length) return;
+  extrasShown++;
+  syncExtraRows();
+  openPicker(EXTRA_SLOTS[extrasShown - 1]);
 }
 
 // ── Select & drag layers ──────────────────────────────────────────────────────
@@ -477,7 +530,7 @@ function encodeState() {
       if (x || y) seg += '_' + x + '_' + y;
     }
     return seg;
-  }).join('.');
+  }).join('.').replace(/\.+$/, '');   // drop empty trailing slots (old links stay valid)
 }
 
 function applyEncoded(str) {
@@ -615,6 +668,7 @@ function init() {
   } else {
     randomise();
   }
+  syncExtraRows();   // reveal any extras slots a share link populated
   registerSW();
 }
 

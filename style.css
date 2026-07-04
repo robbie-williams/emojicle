@@ -170,6 +170,26 @@ body {
 .part-name:hover  { background: #F4E6D4; }
 .part-name:active { transform: translateY(2px); border-bottom-width: 1px; }
 
+/* extras rows: a third column for the + that reveals the next extras slot */
+.layer-row-extras { grid-template-columns: 56px 1fr auto; }
+.add-extra {
+  border: none;
+  background: #FBF2E8;
+  border-bottom: 3px solid #EAD9C4;
+  border-radius: 12px;
+  width: 38px;
+  align-self: stretch;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--clr-label);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.12s ease, transform 0.08s ease, border-width 0.08s ease;
+}
+.add-extra:hover  { background: #F4E6D4; }
+.add-extra:active { transform: translateY(2px); border-bottom-width: 1px; }
+
 /* ── Action buttons (Bulma .button overridden) ────────────────────────────── */
 
 .actions { gap: 0; margin: 0; flex-shrink: 0; }
