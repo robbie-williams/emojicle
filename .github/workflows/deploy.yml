@@ -1,8 +1,15 @@
 name: Deploy to GitHub Pages
 
+# One Pages site serves both environments:
+#   push to main    -> https://<user>.github.io/emojicle/          (production)
+#   push to staging -> https://<user>.github.io/emojicle/staging/  (preview)
+# GitHub Pages only allows one site per repo and every deploy replaces the
+# whole site, so each run builds main at the root AND (if the branch exists)
+# staging under /staging/, then deploys the combined artifact.
+
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
@@ -25,16 +32,32 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
+        with:
+          ref: main
 
-      - name: Build parts bundle + stamp SW cache
-        run: node tools/build-parts.js
-
-      - name: Generate PNG icons
+      - name: Build production site (main)
         run: |
           npm install @resvg/resvg-js
+          node tools/build-parts.js
           node generate-icons.js
+          mkdir -p /tmp/site
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' ./ /tmp/site/
+
+      - name: Build staging site under /staging/ (when the branch exists)
+        run: |
+          if git fetch origin staging 2>/dev/null; then
+            git worktree add /tmp/staging-src FETCH_HEAD
+            cd /tmp/staging-src
+            npm install @resvg/resvg-js
+            node tools/build-parts.js
+            node generate-icons.js
+            mkdir -p /tmp/site/staging
+            rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' ./ /tmp/site/staging/
+          else
+            echo "No staging branch — deploying production only."
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -42,7 +65,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: /tmp/site
 
       - name: Deploy to GitHub Pages
         id: deploy

@@ -1,4 +1,8 @@
-const CACHE = 'emojicle-08e344ee';
+const CACHE = 'emojicle-3b91d5c2';
+// Production and the /staging/ preview share one origin, so cache names are
+// namespaced by SW scope and cleanup only ever touches this scope's caches —
+// otherwise the two workers would delete each other's caches on activate.
+const SCOPED_CACHE = CACHE + '::' + self.registration.scope;
 const ASSETS = [
   './',
   './index.html',
@@ -14,14 +18,17 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(SCOPED_CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      Promise.all(keys
+        .filter(k => (k.endsWith('::' + self.registration.scope) && k !== SCOPED_CACHE) ||
+                     (k.startsWith('emojicle-') && !k.includes('::')))   // pre-scoping caches
+        .map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
