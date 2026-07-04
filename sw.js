@@ -1,4 +1,4 @@
-const CACHE = 'emojicle-42f5cbbf';
+const CACHE = 'emojicle-f793904b';
 // Production and the /staging/ preview share one origin, so cache names are
 // namespaced by SW scope and cleanup only ever touches this scope's caches —
 // otherwise the two workers would delete each other's caches on activate.

@@ -641,6 +641,8 @@ function initDrag() {
   svg.addEventListener('pointermove', onPointerMove);
   svg.addEventListener('pointerup', onPointerUp);
   svg.addEventListener('pointercancel', () => { clearTimeout(pressTimer); drag = null; });
+  // long-press must reach the restack timer, not the browser's context menu
+  svg.addEventListener('contextmenu', e => e.preventDefault());
 }
 
 // ── Stateless share link ──────────────────────────────────────────────────────

@@ -996,6 +996,8 @@ function initClinic() {
   opSvg.addEventListener('pointermove', onMove);
   opSvg.addEventListener('pointerup', onUp);
   opSvg.addEventListener('pointercancel', onUp);
+  // held tools (rub, hold-still) must not pop the browser's long-press menu
+  opSvg.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeClinic(); });
 }
 
