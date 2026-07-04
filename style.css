@@ -498,10 +498,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 14px 18px 10px;
   flex-shrink: 0;
 }
 .picker-title {
+  flex: 1;
+  min-width: 0;
   font-size: 1.05rem;
   font-weight: 900;
   color: var(--clr-partname);
@@ -520,6 +523,23 @@ body {
   touch-action: manipulation;
 }
 .picker-close:active { transform: scale(0.94); }
+
+/* red − in the extras picker: removes this extra from the emoji */
+.picker-remove {
+  border: none;
+  background: var(--clr-brand-dk);
+  color: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+.picker-remove:active { transform: scale(0.94); }
 
 .picker-grid {
   display: grid;

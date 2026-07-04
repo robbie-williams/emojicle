@@ -100,10 +100,16 @@ function swatchSvg(layer, part) {
          guide + part.svg + '</svg>';
 }
 
+let pickerLayer = null;
+
 function openPicker(layer) {
+  pickerLayer = layer;
   const picker = document.getElementById('picker');
   const grid = document.getElementById('picker-grid');
   document.getElementById('picker-title').textContent = LAYER_LABELS[layer];
+  // extras slots get a red − in the header that removes the extra entirely
+  document.getElementById('picker-remove').style.display =
+    EXTRA_SLOTS.includes(layer) ? '' : 'none';
 
   grid.innerHTML = '';
   PARTS[layer].forEach((part, i) => {
@@ -380,6 +386,24 @@ function addExtraSlot() {
   extrasShown++;
   syncExtraSlots();
   openPicker(EXTRA_SLOTS[extrasShown - 1]);
+}
+
+// Remove an extra (the red − in its picker): later slots shift down so the
+// filled extras stay contiguous, and the row shrinks back.
+function removeExtra(slot) {
+  for (let i = EXTRA_SLOTS.indexOf(slot); i < EXTRA_SLOTS.length - 1; i++) {
+    state[EXTRA_SLOTS[i]] = state[EXTRA_SLOTS[i + 1]];
+    offsets[EXTRA_SLOTS[i]] = offsets[EXTRA_SLOTS[i + 1]];
+  }
+  const last = EXTRA_SLOTS[EXTRA_SLOTS.length - 1];
+  state[last] = 0;
+  offsets[last] = { x: 0, y: 0 };
+
+  if (EXTRA_SLOTS.includes(selectedLayer)) deselect();   // content shifted under it
+  extrasShown = 1;
+  EXTRA_SLOTS.forEach(l => { renderLayer(l); applyOffset(l); });
+  syncExtraSlots();
+  updateUrl();
 }
 
 // ── Select & drag layers ──────────────────────────────────────────────────────
@@ -781,6 +805,10 @@ function init() {
   document.getElementById('btn-share').addEventListener('click', shareEmoji);
 
   document.getElementById('picker-close').addEventListener('click', closePicker);
+  document.getElementById('picker-remove').addEventListener('click', () => {
+    if (pickerLayer) removeExtra(pickerLayer);
+    closePicker();
+  });
   document.getElementById('picker').addEventListener('click', e => {
     if (e.target.id === 'picker') closePicker();
   });
