@@ -1,4 +1,4 @@
-const CACHE = 'emojicle-f793904b';
+const CACHE = 'emojicle-a4a4b69c';
 // Production and the /staging/ preview share one origin, so cache names are
 // namespaced by SW scope and cleanup only ever touches this scope's caches —
 // otherwise the two workers would delete each other's caches on activate.
@@ -9,6 +9,7 @@ const ASSETS = [
   './style.css',
   './app.js',
   './minigames.js',
+  './safari.js',
   './parts-data.js',
   './manifest.json',
   './vendor/bulma.min.css',
