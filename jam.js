@@ -8,10 +8,12 @@
 //
 // Record (●) captures one take — every note tagged with its instrument and
 // timestamp — persisted to localStorage; Play (▶) replays it through the
-// synth, and because notes remember their instrument, you can record on Piano,
-// flip to Drums and the playback still sounds right (jamming along live over
-// the top is allowed and never alters the take). A new Record overwrites the
-// old take only once it actually starts.
+// synth on a loop (the recorded length, trailing silence included, is the
+// loop period) until Stop is pressed. Because notes remember their
+// instrument, you can record on Piano, flip to Drums and the playback still
+// sounds right (jamming along live over the top is allowed and never alters
+// the take). A new Record overwrites the old take only once it actually
+// starts.
 //
 // Challenge (🎯) opens a song picker: ten simple public-domain kids' tunes.
 // Each is taught phrase by phrase — the game demonstrates, the player echoes
@@ -343,8 +345,9 @@ const REC_CAP_MS = 30000;
 let open = false;
 let inst = 'drums';
 let take = null;        // [{i, k, t}] — the one persisted recording
+let takeDur = 0;        // the take's length in ms (records the trailing silence too)
 let recording = null;   // {start, notes} while capturing
-let playback = null;    // {start, idx} while replaying the take
+let playback = null;    // {start, idx, loop} while replaying the take on repeat
 let ch = null;          // challenge state
 let bests = {};         // songId → best score
 let raf = 0;
@@ -507,7 +510,8 @@ function setMsg(txt, cls) {
 }
 
 function freeMsg() {
-  setMsg(take ? 'Jam away — press ▶ to hear your song!' : 'Tap away — or press ● to record a song!');
+  if (playback) setMsg('\u{1F501} Playing on a loop — press ■ to stop');
+  else setMsg(take ? 'Jam away — press ▶ to hear your song!' : 'Tap away — or press ● to record a song!');
 }
 
 function flashMsg(txt, cls) {
@@ -572,7 +576,7 @@ function onUp(e) {
 
 function saveTake() {
   try {
-    if (take) localStorage.setItem(TAKE_KEY, JSON.stringify({ v: 1, notes: take }));
+    if (take) localStorage.setItem(TAKE_KEY, JSON.stringify({ v: 1, notes: take, dur: takeDur }));
     else localStorage.removeItem(TAKE_KEY);
   } catch (e) {}
 }
@@ -580,7 +584,10 @@ function saveTake() {
 function loadTake() {
   try {
     const d = JSON.parse(localStorage.getItem(TAKE_KEY));
-    if (d && Array.isArray(d.notes) && d.notes.length) take = d.notes;
+    if (d && Array.isArray(d.notes) && d.notes.length) {
+      take = d.notes;
+      takeDur = d.dur || take[take.length - 1].t + 800;   // pre-dur takes: pad the tail
+    }
   } catch (e) {}
 }
 
@@ -596,6 +603,10 @@ function startRecord() {
 function stopRecord() {
   const got = recording.notes.length > 0;
   take = got ? recording.notes : null;
+  if (got) {
+    takeDur = Math.min(Math.round(performance.now() - recording.start), REC_CAP_MS);
+    takeDur = Math.max(takeDur, take[take.length - 1].t + 50);
+  }
   recording = null;
   saveTake();
   flashMsg(got ? 'Saved! Press ▶ to hear it \u{1F4BE}' : 'All quiet! Press ● and play something');
@@ -609,14 +620,18 @@ function onRecordBtn() {
 }
 
 function startPlayback() {
-  playback = { start: performance.now(), idx: 0 };
-  flashMsg('Here comes your song! \u{1F3A7}');
+  // loop period: the recorded length, but never a machine-gun for tiny takes
+  const loop = Math.max(takeDur, take[take.length - 1].t + 600, 900);
+  playback = { start: performance.now(), idx: 0, loop };
+  clearTimeout(msgTimer);
+  freeMsg();   // shows the "playing on a loop" line while playback is live
   updateButtons();
 }
 
 function stopPlayback() {
   playback = null;
   updateButtons();
+  if (open && !ch) freeMsg();
 }
 
 function onPlayBtn() {
@@ -860,9 +875,10 @@ function tickLoop() {
       bopArm();
       if (ev.i === inst) flashKey(ev.k);
     }
-    if (playback && playback.idx >= take.length) {
-      stopPlayback();
-      flashMsg('That was you! \u{1F3B6}');
+    // loop until the player presses Stop, keeping the recorded tail silence
+    if (playback && playback.idx >= take.length && t >= playback.loop) {
+      playback.start += playback.loop;
+      playback.idx = 0;
     }
   }
 
