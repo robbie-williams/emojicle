@@ -323,6 +323,39 @@
     </div>
   </div>
 
+  <div id="jam" class="jam" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="clinic-top">
+      <button id="jam-close" class="picker-close" aria-label="Close the jam session">&times;</button>
+      <h2 class="clinic-title">&#x1F3B5; Jam Session</h2>
+    </div>
+    <div class="jam-stage-wrap">
+      <svg id="jam-stage" viewBox="0 0 72 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your emoji playing on stage"></svg>
+    </div>
+    <div id="jam-controls" class="jam-controls"></div>
+    <div id="jam-msg" class="clinic-msg jam-msg" aria-live="polite"></div>
+    <div class="jam-surface-wrap">
+      <svg id="jam-surface" viewBox="0 0 72 88" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The instrument — tap to play"></svg>
+    </div>
+
+    <div id="jam-songs" class="clinic-panel">
+      <div class="clinic-card">
+        <h3>&#x1F3AF; Pick a song to learn</h3>
+        <div id="jam-song-list" class="jam-song-list"></div>
+        <button id="jam-songs-close" class="confirm-btn confirm-cancel">Cancel</button>
+      </div>
+    </div>
+    <div id="jam-results" class="clinic-panel">
+      <div class="clinic-card">
+        <div id="jam-score" class="jam-score"></div>
+        <h3 id="jam-result-title"></h3>
+        <p id="jam-result-note"></p>
+        <button id="jam-retry" class="confirm-btn clinic-start">&#x1F501; Try again</button>
+        <button id="jam-pick" class="confirm-btn confirm-top">&#x1F3B5; Pick another song</button>
+        <button id="jam-results-close" class="confirm-btn confirm-cancel">Back to jamming</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="parts-data.js"></script>
@@ -330,5 +363,6 @@
   <script src="minigames.js"></script>
   <script src="safari.js"></script>
   <script src="runner.js"></script>
+  <script src="jam.js"></script>
 </body>
 </html>

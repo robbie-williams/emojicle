@@ -11,6 +11,7 @@ const ASSETS = [
   './minigames.js',
   './safari.js',
   './runner.js',
+  './jam.js',
   './parts-data.js',
   './manifest.json',
   './vendor/bulma.min.css',

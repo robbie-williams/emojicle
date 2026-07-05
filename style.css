@@ -1150,3 +1150,158 @@ body.runner-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .rr-help { animation: none; }
 }
+
+/* ── Jam Session minigame ─────────────────────────────────────────────────────
+   Shares the clinic's chrome classes (top bar, message line, result panels)
+   and the tool-btn look for the instrument/record row; only the overlay, the
+   stage strip, the instrument surface and the song list are jam-specific. */
+
+body.jam-open { overflow: hidden; }
+
+.jam {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  background: var(--clr-bg);
+}
+.jam.show { display: flex; }
+
+/* the stage strip: emoji on its stool, roughly the top quarter */
+.jam-stage-wrap {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 6px 10px 0;
+}
+#jam-stage {
+  width: min(94vw, 30vh * (72 / 34), 440px);
+  aspect-ratio: 72 / 34;
+  border-radius: 14px;
+}
+
+/* instrument selector + record / play / challenge, all in one row */
+.jam-controls {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px 0;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.jam-controls .tool-btn { max-width: 64px; }
+.tool-btn.is-disabled { opacity: 0.4; pointer-events: none; }
+.jam-rec .tool-emoji { color: #FF5A5F; }
+.tool-btn.is-rec {
+  border-color: #FF5A5F;
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+@keyframes rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 95, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(255, 90, 95, 0.45); }
+}
+
+.jam-msg {
+  min-height: 1.7em;
+  padding: 4px 14px 0;
+  font-size: 0.92rem;
+}
+
+/* the playable surface fills whatever's left (~the bottom three quarters) */
+.jam-surface-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+}
+#jam-surface {
+  height: 100%;
+  max-height: 100%;
+  width: auto;
+  max-width: 96vw;
+  aspect-ratio: 72 / 88;
+  touch-action: none;
+  border-radius: 16px;
+}
+#jam-surface.jam-shake { animation: msg-shake 0.3s ease; }
+
+/* key highlight overlays — a transparent shape over every key/pad/bar */
+.jam-glow { pointer-events: none; fill: transparent; }
+.jam-glow.jam-on   { fill: rgba(255, 217, 59, 0.55); }
+.jam-glow.jam-good { fill: rgba(43, 182, 115, 0.55); }
+.jam-glow.jam-bad  { fill: rgba(255, 90, 95, 0.45); }
+.jam-glow.jam-guide {
+  fill: rgba(255, 159, 28, 0.5);
+  animation: guide-pulse 0.9s ease-in-out infinite;
+}
+.jam-glow.jam-guide-soft { fill: rgba(255, 159, 28, 0.25); }
+@keyframes guide-pulse { 50% { opacity: 0.4; } }
+
+/* arm swing on every note — quick and satisfying, it fires constantly */
+.jam-arm {
+  transform-box: fill-box;
+  transform-origin: 50% 10%;
+  transition: transform 80ms ease-out;
+}
+.jam-arm.arm-l.hit { transform: rotate(15deg); }
+.jam-arm.arm-r.hit { transform: rotate(-15deg); }
+
+/* challenge results + song picker */
+.jam-score {
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--clr-partname);
+}
+.jam-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.jam-song {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid var(--clr-card-edge);
+  border-bottom-width: 4px;
+  background: var(--clr-card);
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+.jam-song:hover  { border-color: var(--clr-dance); }
+.jam-song:active { transform: scale(0.97); }
+.jam-song-icon { font-size: 1.3rem; line-height: 1; }
+.jam-song-name {
+  flex: 1;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--clr-partname);
+}
+.jam-song-meta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--clr-label);
+  white-space: nowrap;
+}
+
+/* short (landscape phone) viewports: shrink the stage so the instrument
+   surface keeps a playable share of the height */
+@media (max-height: 520px) {
+  #jam-stage { width: min(50vw, 16vh * (72 / 34), 440px); }
+  .jam-stage-wrap { padding-top: 2px; }
+  .jam-controls { padding-top: 2px; }
+  .jam-msg { min-height: 1.2em; font-size: 0.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jam-glow.jam-guide, .tool-btn.is-rec, #jam-surface.jam-shake { animation: none; }
+  .jam-arm { transition: none; }
+}
