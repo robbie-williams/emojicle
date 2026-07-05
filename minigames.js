@@ -16,8 +16,8 @@
 // Reads the builder's globals (PARTS, state, offsets, zOrder, note,
 // getAudioCtx, pulse); everything else stays inside this IIFE.
 //
-// MINIGAMES at the bottom is the registry: to add another game later, give it
-// a start() entry there and the Play button grows a picker.
+// window.MINIGAMES at the bottom is the shared registry: each game file adds
+// its own entry, and the Games button opens a picker sheet listing them all.
 
 (function () {
 
@@ -940,18 +940,46 @@ function onUp(e) {
   if (h.up) h.up(toOp(e) || { x: game.ptr.x, y: game.ptr.y });
 }
 
-// ── Minigame registry & init ──────────────────────────────────────────────────
-// One game for now, so Play launches it directly; when a second game lands,
-// give this a picker sheet like the dance one.
+// ── Minigame registry & picker ────────────────────────────────────────────────
+// The registry lives on window so later game files (safari.js) can add their
+// own entries before the picker is built on DOMContentLoaded. The Games button
+// opens a picker sheet like the dance one.
 
-const MINIGAMES = {
-  clinic: { name: 'Emoji Doctor', emoji: '\u{1FA7A}', start: openClinic },
-};
+window.MINIGAMES = window.MINIGAMES || {};
+window.MINIGAMES.clinic = { name: 'Emoji Doctor', emoji: '\u{1FA7A}', start: openClinic };
+
+function buildGamePicker() {
+  const grid = document.getElementById('minigame-grid');
+  Object.keys(window.MINIGAMES).forEach(key => {
+    const game = window.MINIGAMES[key];
+    const btn = document.createElement('button');
+    btn.className = 'dance-option';
+    btn.setAttribute('aria-label', 'Play ' + game.name);
+    btn.innerHTML = '<span class="dance-emoji" aria-hidden="true">' + game.emoji + '</span>' +
+                    '<span class="dance-name">' + game.name + '</span>';
+    btn.addEventListener('click', () => {
+      closeGamePicker();
+      game.start();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function openGamePicker() {
+  const el = document.getElementById('minigame-picker');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden', 'false');
+}
+
+function closeGamePicker() {
+  const el = document.getElementById('minigame-picker');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden', 'true');
+}
 
 function onPlayButton() {
   pulse('btn-play');
-  const keys = Object.keys(MINIGAMES);
-  MINIGAMES[keys[0]].start();
+  openGamePicker();
 }
 
 function initClinic() {
@@ -978,7 +1006,12 @@ function initClinic() {
   try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) {}
 
   buildTray();
+  buildGamePicker();
   document.getElementById('btn-play').addEventListener('click', onPlayButton);
+  document.getElementById('minigame-picker-close').addEventListener('click', closeGamePicker);
+  document.getElementById('minigame-picker').addEventListener('click', e => {
+    if (e.target.id === 'minigame-picker') closeGamePicker();
+  });
   document.getElementById('clinic-close').addEventListener('click', closeClinic);
   document.getElementById('intro-start').addEventListener('click', startOp);
   document.getElementById('done-again').addEventListener('click', nextLevel);
@@ -998,7 +1031,9 @@ function initClinic() {
   opSvg.addEventListener('pointercancel', onUp);
   // held tools (rub, hold-still) must not pop the browser's long-press menu
   opSvg.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeClinic(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeGamePicker(); closeClinic(); }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initClinic);

@@ -72,9 +72,9 @@
         </button>
       </div>
       <div class="column">
-        <button id="btn-play" class="button is-rounded btn-action btn-play" aria-label="Play a minigame">
-          <span class="btn-icon" aria-hidden="true">&#x1FA7A;</span>
-          <span>Doctor</span>
+        <button id="btn-play" class="button is-rounded btn-action btn-play" aria-label="Pick a minigame to play">
+          <span class="btn-icon" aria-hidden="true">&#x1F3AE;</span>
+          <span>Games</span>
         </button>
       </div>
       <div class="column">
@@ -120,6 +120,16 @@
         <button id="dance-picker-close" class="picker-close" aria-label="Close dance picker">&times;</button>
       </div>
       <div id="dance-grid" class="dance-grid"></div>
+    </div>
+  </div>
+
+  <div id="minigame-picker" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel dance-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">Pick a game</h2>
+        <button id="minigame-picker-close" class="picker-close" aria-label="Close game picker">&times;</button>
+      </div>
+      <div id="minigame-grid" class="dance-grid"></div>
     </div>
   </div>
 
@@ -189,10 +199,72 @@
     </div>
   </div>
 
+  <div id="safari" class="safari" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="clinic-top">
+      <button id="safari-close" class="picker-close" aria-label="Close the safari">&times;</button>
+      <h2 class="clinic-title">&#x1F4A6; Water Safari</h2>
+      <div class="safari-helped" aria-label="Animals helped">&#x1F49A; <span id="sf-helped">0</span></div>
+    </div>
+    <div id="sf-msg" class="clinic-msg" aria-live="polite"></div>
+    <div id="safari-hud" class="clinic-timer">
+      <span id="sf-level" class="level-chip"></span>
+      <div class="timer-bar"><div id="sf-goal-fill"></div></div>
+      <span id="sf-goal" class="sf-goal" aria-label="Points scored"></span>
+      <span id="sf-time" class="sf-time" aria-label="Seconds left"></span>
+    </div>
+    <div class="safari-stage">
+      <svg id="safari-svg" viewBox="0 0 72 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Thirsty animals crossing the field">
+        <g id="sf-scene"></g>
+        <g id="sf-animals"></g>
+        <g id="sf-player"></g>
+        <g id="sf-fx"></g>
+      </svg>
+    </div>
+
+    <div id="safari-intro" class="clinic-panel">
+      <div class="clinic-card">
+        <div id="sf-intro-level" class="level-badge"></div>
+        <div id="sf-intro-icon" class="intro-icon" aria-hidden="true"></div>
+        <h3 id="sf-intro-name"></h3>
+        <p id="sf-intro-story"></p>
+        <p class="intro-meta"><span id="sf-intro-target"></span><span id="sf-intro-time"></span><span id="sf-intro-best"></span></p>
+        <button id="sf-go" class="confirm-btn clinic-start">&#x1F4A6; Start squirting!</button>
+      </div>
+    </div>
+    <div id="safari-clear" class="clinic-panel">
+      <div class="clinic-card">
+        <div class="intro-icon" aria-hidden="true">&#x1F389;</div>
+        <h3 id="sf-clear-title"></h3>
+        <p id="sf-clear-note"></p>
+        <button id="sf-next" class="confirm-btn clinic-start">&#x27A1;&#xFE0F; Next level</button>
+        <button id="sf-clear-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+    <div id="safari-fail" class="clinic-panel">
+      <div class="clinic-card">
+        <div class="intro-icon" aria-hidden="true">&#x1F49A;</div>
+        <h3>Time's up!</h3>
+        <p id="sf-fail-note"></p>
+        <button id="sf-retry" class="confirm-btn clinic-start">&#x1F501; Try again</button>
+        <button id="sf-fail-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+    <div id="safari-end" class="clinic-panel">
+      <div class="clinic-card">
+        <div class="intro-icon" aria-hidden="true">&#x1F3C6;</div>
+        <h3>You did it!</h3>
+        <p id="sf-end-note"></p>
+        <button id="sf-again" class="confirm-btn clinic-start">&#x1F501; Safari again</button>
+        <button id="sf-end-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="parts-data.js"></script>
   <script src="app.js"></script>
   <script src="minigames.js"></script>
+  <script src="safari.js"></script>
 </body>
 </html>

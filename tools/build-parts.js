@@ -140,7 +140,7 @@ fs.writeFileSync(OUT, out);
 // app.js / style.css / index.html / manifest / vendored CSS / icons), so
 // running the build after ANY of those changes produces a fresh cache name.
 const CACHE_INPUTS = [
-  'index.html', 'style.css', 'app.js', 'minigames.js', 'parts-data.js',
+  'index.html', 'style.css', 'app.js', 'minigames.js', 'safari.js', 'parts-data.js',
   'manifest.json', 'vendor/bulma.min.css',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
