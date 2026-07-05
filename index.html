@@ -260,11 +260,75 @@
     </div>
   </div>
 
+  <div id="runner" class="runner" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="clinic-top">
+      <button id="runner-close" class="picker-close" aria-label="Close the runner">&times;</button>
+      <h2 class="clinic-title">&#x1F9B8; Rescue Runner</h2>
+      <div class="safari-helped" aria-label="Civilians rescued">&#x1F49A; <span id="rr-saved">0</span></div>
+    </div>
+    <div id="rr-msg" class="clinic-msg" aria-live="polite"></div>
+    <div id="runner-hud" class="clinic-timer">
+      <span id="rr-level" class="level-chip"></span>
+      <div class="timer-bar"><div id="rr-prog-fill"></div></div>
+      <span id="rr-lives" class="rr-lives" aria-label="Lives left"></span>
+    </div>
+    <div class="runner-stage">
+      <svg id="runner-svg" viewBox="0 0 72 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your hero running down three sky rails">
+        <g id="rr-scene"></g>
+        <g id="rr-track"></g>
+        <g id="rr-hero"></g>
+        <g id="rr-fx"></g>
+      </svg>
+    </div>
+    <div id="rr-bodies" class="rr-bodies" aria-label="Hero bodies"></div>
+    <div class="rr-moves">
+      <button id="rr-left" class="rr-move-btn" aria-label="Move left">&#x25C0;</button>
+      <button id="rr-jump" class="rr-move-btn rr-jump" aria-label="Jump">&#x2B06;&#xFE0F; Jump</button>
+      <button id="rr-right" class="rr-move-btn" aria-label="Move right">&#x25B6;</button>
+    </div>
+
+    <div id="runner-intro" class="clinic-panel">
+      <div class="clinic-card">
+        <div id="rr-intro-level" class="level-badge"></div>
+        <div class="intro-icon" aria-hidden="true">&#x1F9B8;</div>
+        <h3>Rescue Runner</h3>
+        <p id="rr-intro-story"></p>
+        <div class="rr-legend" aria-label="Which body beats which obstacle">
+          <span>&#x1F4AA; smashes crates</span>
+          <span>&#x1F525; melts ice walls</span>
+          <span>&#x1F47B; slips past lasers</span>
+          <span>&#x1F680; leaps wide gaps</span>
+        </div>
+        <p class="intro-meta"><span id="rr-intro-civs"></span><span id="rr-intro-best"></span></p>
+        <button id="rr-go" class="confirm-btn clinic-start">&#x1F3C3; Run!</button>
+      </div>
+    </div>
+    <div id="runner-clear" class="clinic-panel">
+      <div class="clinic-card">
+        <div class="intro-icon" aria-hidden="true">&#x1F389;</div>
+        <h3 id="rr-clear-title"></h3>
+        <p id="rr-clear-note"></p>
+        <button id="rr-next" class="confirm-btn clinic-start">&#x27A1;&#xFE0F; Next level</button>
+        <button id="rr-clear-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+    <div id="runner-fail" class="clinic-panel">
+      <div class="clinic-card">
+        <div class="intro-icon" aria-hidden="true">&#x1F4A8;</div>
+        <h3>So close!</h3>
+        <p id="rr-fail-note"></p>
+        <button id="rr-retry" class="confirm-btn clinic-start">&#x1F501; Try again</button>
+        <button id="rr-fail-close" class="confirm-btn confirm-cancel">Back to builder</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="parts-data.js"></script>
   <script src="app.js"></script>
   <script src="minigames.js"></script>
   <script src="safari.js"></script>
+  <script src="runner.js"></script>
 </body>
 </html>

@@ -1042,3 +1042,111 @@ body.safari-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   #safari-hud.critical .sf-time { animation: none; }
 }
+
+/* ── Rescue Runner minigame ───────────────────────────────────────────────────
+   Shares the clinic's chrome classes (top bar, message line, HUD row, result
+   panels) and the tool-btn look for the body-swap tray; only the overlay, the
+   portrait stage, the move buttons and the intro legend are runner-specific. */
+
+body.runner-open { overflow: hidden; }
+
+.runner {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  background: var(--clr-bg);
+}
+.runner.show { display: flex; }
+
+.runner-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+}
+#runner-svg {
+  height: 100%;
+  max-height: 100%;
+  width: auto;
+  max-width: 94vw;
+  aspect-ratio: 3 / 4;
+  touch-action: none;
+  border-radius: 20px;
+  background: #6FB2E4;
+}
+
+/* progress toward the stranded civilian */
+#rr-prog-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 5px;
+  background: #2BB673;
+  transition: width 0.15s linear;
+}
+.rr-lives {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  letter-spacing: 1px;
+}
+
+/* body-swap tray (reuses .tool-btn) + rail/jump buttons */
+.rr-bodies {
+  display: flex;
+  gap: 6px;
+  padding: 6px 12px 0;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rr-bodies .tool-btn { max-width: 84px; }
+
+.rr-moves {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px calc(12px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+.rr-move-btn {
+  flex: 1 1 0;
+  border: 2px solid var(--clr-card-edge);
+  border-bottom-width: 4px;
+  background: var(--clr-card);
+  border-radius: 14px;
+  padding: 10px 4px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--clr-partname);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease;
+}
+.rr-move-btn:active { transform: scale(0.93); }
+.rr-jump {
+  flex: 1.6 1 0;
+  background: #FF9F1C;
+  border-color: #E08A00;
+  border-bottom-color: #C77A00;
+  color: #fff;
+}
+
+/* intro card legend: which body beats which obstacle */
+.rr-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--clr-label);
+  text-align: left;
+}
+
+/* the main civilian's bobbing "over here!" mark */
+.rr-help { animation: rr-bob 0.9s ease-in-out infinite; }
+@keyframes rr-bob { 50% { transform: translateY(-1.5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-help { animation: none; }
+}
