@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emojicle — Whole-of-Product Review</title>
+<style>
+  :root {
+    --bg: #FFF7EF; --card: #FFFFFF; --edge: #F0E2D2; --ink: #2B2B2B;
+    --muted: #8a6a4f; --brand: #FF5A5F; --chip: #FBF2E8; --chip-edge: #EAD9C4;
+    --high: #E03E47; --med: #E08A00; --low: #4A90E2; --idea: #2BB673;
+    --done: #9aa7b4; --code-bg: #F6EDE2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #211B16; --card: #2C251E; --edge: #453A2E; --ink: #F2E7D8;
+      --muted: #C9A183; --chip: #3A3128; --chip-edge: #241E18; --code-bg: #362D24;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5; padding-bottom: 60px;
+  }
+  header {
+    background: var(--brand); color: #fff; padding: 22px 20px 18px; text-align: center;
+  }
+  header h1 { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+  header p { font-size: 0.85rem; opacity: 0.92; margin-top: 4px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 16px; }
+
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-bottom: 16px;
+  }
+  .stat {
+    background: var(--card); border: 2px solid var(--edge); border-radius: 14px;
+    padding: 10px 12px; text-align: center;
+  }
+  .stat b { display: block; font-size: 1.5rem; font-weight: 900; }
+  .stat span { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  .stat.s-high b { color: var(--high); } .stat.s-medium b { color: var(--med); }
+  .stat.s-low b { color: var(--low); } .stat.s-idea b { color: var(--idea); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 6px; }
+  .filters .lbl { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--muted); width: 100%; margin-top: 6px; }
+  .fbtn {
+    border: 2px solid var(--chip-edge); background: var(--chip); color: var(--ink);
+    border-radius: 999px; padding: 5px 13px; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: all 0.12s ease;
+  }
+  .fbtn.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .fbtn .n { opacity: 0.65; font-weight: 600; }
+
+  .progress-line { font-size: 0.8rem; color: var(--muted); font-weight: 700; margin: 10px 2px; }
+  .bar { height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; margin-top: 4px; }
+  .bar > div { height: 100%; background: var(--idea); border-radius: 4px; transition: width 0.25s ease; }
+
+  .card {
+    background: var(--card); border: 2px solid var(--edge); border-radius: 16px;
+    margin-bottom: 10px; overflow: hidden;
+  }
+  .card.done { opacity: 0.55; }
+  .card-head {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    cursor: pointer; user-select: none;
+  }
+  .card-head:hover { background: var(--chip); }
+  .card-head input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--idea); cursor: pointer; flex-shrink: 0; }
+  .sev {
+    flex-shrink: 0; font-size: 0.62rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #fff; border-radius: 7px; padding: 3px 8px; min-width: 46px; text-align: center;
+  }
+  .sev-high { background: var(--high); } .sev-medium { background: var(--med); }
+  .sev-low { background: var(--low); } .sev-idea { background: var(--idea); }
+  .card-title { flex: 1; font-size: 0.92rem; font-weight: 800; }
+  .card.done .card-title { text-decoration: line-through; }
+  .cat-tag { flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .chev { flex-shrink: 0; color: var(--muted); transition: transform 0.15s ease; font-size: 0.8rem; }
+  .card.open .chev { transform: rotate(90deg); }
+  .card-body { display: none; padding: 2px 16px 14px 16px; font-size: 0.88rem; }
+  .card.open .card-body { display: block; }
+  .card-body h4 { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin: 12px 0 3px; }
+  .card-body p { margin-bottom: 6px; }
+  .card-body code, .fileref {
+    background: var(--code-bg); border-radius: 5px; padding: 1px 6px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.78rem;
+  }
+  .filerefs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .fileref { color: var(--muted); font-weight: 600; }
+  .section-h { font-size: 1.05rem; font-weight: 900; margin: 22px 4px 10px; display: flex; align-items: center; gap: 8px; }
+  .section-h .cnt { font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); font-weight: 700; padding: 30px 0; display: none; }
+  .praise {
+    background: var(--card); border: 2px solid var(--idea); border-radius: 16px;
+    padding: 14px 16px; margin-bottom: 16px; font-size: 0.86rem;
+  }
+  .praise h3 { font-size: 0.95rem; font-weight: 900; color: var(--idea); margin-bottom: 6px; }
+  .praise ul { margin-left: 18px; }
+  .praise li { margin-bottom: 3px; }
+  footer { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 26px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔍 Emojicle — Whole-of-Product Review</h1>
+  <p>Bugs · accessibility · PWA · performance · UX · minigame design · code health · deploy — July 2026, branch <code style="background:rgba(255,255,255,0.2);border-radius:5px;padding:1px 6px">refactor/product-review</code></p>
+</header>
+<div class="wrap">
+
+  <div class="summary" id="summary"></div>
+
+  <div class="praise">
+    <h3>✅ What's already genuinely good (keep doing this)</h3>
+    <ul>
+      <li><b>Stateless share links with stable IDs + alias map</b> — <code>ID_ALIASES</code> mapping retired parts to visual twins so old links survive pack curation is production-grade thinking.</li>
+      <li><b>Scope-namespaced SW caches</b> so staging and production don't delete each other's caches — a subtle bug most people ship.</li>
+      <li><b>Build-stamped cache names</b> hashed from every runtime asset — cache busting that can't be forgotten.</li>
+      <li><b>Kind-failure tone everywhere</b> — Safari's time-up still celebrates animals helped; Runner's fail is "What a brave run!". Consistent and right for the audience.</li>
+      <li><b><code>prefers-reduced-motion</code> handled in every CSS animation block</b>, and every game exposes <code>__clinic/__safari/__runner/__jam</code> test hooks.</li>
+      <li><b>No framework, no CDN, no build step at runtime</b> — the architecture matches the product's size.</li>
+    </ul>
+  </div>
+
+  <div class="filters" id="sev-filters"><span class="lbl">Severity</span></div>
+  <div class="filters" id="cat-filters"><span class="lbl">Category</span></div>
+
+  <div class="progress-line">
+    <span id="prog-text"></span>
+    <div class="bar"><div id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="list"></div>
+  <div class="empty" id="empty">Nothing matches these filters 🎉</div>
+
+  <footer>Generated by a full read of app.js, minigames.js, safari.js, runner.js, jam.js, style.css, index.html, sw.js, manifest.json, tools/build-parts.js, deploy.yml and both design docs. Tick items off as you triage — progress is saved in this browser.</footer>
+</div>
+
+<script>
+const FINDINGS = [
+// ── BUGS ────────────────────────────────────────────────────────────────────
+{ id:'BUG-1', sev:'high', cat:'Bugs', title:'Offline share links fail: SW cache match ignores query strings',
+  what:'The service worker responds with <code>caches.match(e.request)</code>. A cached entry exists for <code>./</code>, but opening a share link like <code>/?e=yellow.1F600…</code> is a different URL — the match misses, the fetch fails offline, and the installed PWA shows a network error. Any launch with a query string (which is most launches after the first share, since <code>updateUrl()</code> keeps <code>?e=</code> in the address bar and the OS re-opens the last URL) breaks offline.',
+  fix:'For navigation requests, match with <code>{ ignoreSearch: true }</code> or explicitly fall back to the cached <code>./</code>: <code>caches.match(e.request, {ignoreSearch:true}).then(c =&gt; c || fetch(e.request))</code>. One line; test by installing, going airplane-mode, opening a share link.',
+  files:['sw.js:40-44'] },
+
+{ id:'BUG-2', sev:'medium', cat:'Bugs', title:'Share link loses layer restacking — PNG and link can disagree',
+  what:'"Move to top / send to back" mutates <code>zOrder</code>, and the exported PNG honours it (<code>buildExportSvg</code> iterates <code>zOrder</code>). But <code>encodeState()</code> only encodes parts + offsets, so a recipient opening the link gets default stacking. Share an emoji with a hat moved behind the face and the image and the rebuilt emoji look different.',
+  fix:'Either encode z-order in the link (e.g. an extra <code>~z=</code> segment of layer indices, with absent = default so old links stay valid), or accept the gap and note it. Given the encoding already has an alias/versioning story, encoding it is consistent.',
+  files:['app.js:678-688','app.js:723-735','app.js:419-425'] },
+
+{ id:'BUG-3', sev:'medium', cat:'Bugs', title:'Parts can be dragged off-canvas and become unrecoverable',
+  what:'Pointer capture keeps drags alive outside the SVG, and offsets are unbounded. Drag the mouth 100 units off-screen and it can never be tapped again (the SVG hit area ends at the canvas even though <code>overflow: visible</code> paints outside it briefly). The only recovery is Randomise — which destroys the whole creation. A kid will hit this.',
+  fix:'Clamp offsets in <code>onPointerMove</code> to something like ±38 viewBox units (the export box is −8…88), or snap the part back inside bounds on pointer-up if its bbox no longer intersects the 72×72 box.',
+  files:['app.js:609-611','app.js:497-503'] },
+
+{ id:'BUG-4', sev:'low', cat:'Bugs', title:'Random has no undo — replaceState erases the previous emoji',
+  what:'<code>updateUrl()</code> uses <code>history.replaceState</code>, so after a stray tap of Random the old emoji is gone — not even the back button recovers it. For a kids app where a masterpiece takes ten minutes, this is the harshest interaction in the product.',
+  fix:'Cheapest fix: keep the previous encoded state in a variable and show a toast with an Undo action for ~5s after Random. Alternatively <code>pushState</code> on Random specifically so back works.',
+  files:['app.js:710-714','app.js:73-89'] },
+
+{ id:'BUG-5', sev:'low', cat:'Bugs', title:'Escape key handling is all-or-nothing across overlays',
+  what:'Each file registers its own document-level Escape listener. In Jam, Escape while the song-picker panel is open closes the entire Jam overlay instead of just the panel; in the clinic, Escape during the fail/done decision closes the whole game. Every listener also runs on every Escape press regardless of what is open.',
+  fix:'A tiny shared overlay stack (see CODE-2) fixes this for free: Escape pops the topmost layer only (panel → overlay → nothing).',
+  files:['app.js:856-858','minigames.js:1034-1036','jam.js:973'] },
+
+{ id:'BUG-6', sev:'low', cat:'Bugs', title:'Runner swipe state goes stale when the pointer is released off-SVG',
+  what:'<code>onDown</code> stores <code>swipe</code> but <code>pointerup</code> is only listened for on the SVG (no pointer capture here, unlike other games). Release the finger outside the stage and <code>swipe</code> stays set; the next tap-release pair can register as a phantom swipe.',
+  fix:'Call <code>setPointerCapture</code> in <code>onDown</code> (matching the clinic/jam pattern) or also listen for <code>pointerup</code>/<code>pointercancel</code> on <code>document</code>.',
+  files:['runner.js:775-787','runner.js:852-853'] },
+
+{ id:'BUG-7', sev:'low', cat:'Bugs', title:'Manifest colours don\'t match the app (splash flash, wrong theme chrome)',
+  what:'<code>manifest.json</code> says <code>background_color #FFF5E6</code> / <code>theme_color #FF6B6B</code>, but the app uses <code>#FFF7EF</code> / <code>#FF5A5F</code>. Dark-theme users also get a cream splash screen on every launch. Also <code>apple-mobile-web-app-capable</code> is deprecated — add the standard <code>mobile-web-app-capable</code> alongside.',
+  fix:'Sync the two hex values; consider a neutral darker background_color that offends neither theme, and add the non-Apple meta tag.',
+  files:['manifest.json:8-9','index.html:6','style.css:8-10'] },
+
+// ── ACCESSIBILITY ───────────────────────────────────────────────────────────
+{ id:'A11Y-1', sev:'high', cat:'Accessibility', title:'Pinch zoom is blocked (maximum-scale=1, user-scalable=no)',
+  what:'The viewport meta forbids zooming — a WCAG 1.4.4 failure and a real problem for low-vision users (and parents!). iOS ignores it these days, but Android honours it. The drag/game surfaces already set <code>touch-action: none</code> locally, which is the right way to stop accidental zoom during play.',
+  fix:'Drop <code>maximum-scale=1.0, user-scalable=no</code> from the meta. Double-tap zoom misfires are already prevented by <code>touch-action: manipulation</code> on all buttons.',
+  files:['index.html:5'] },
+
+{ id:'A11Y-2', sev:'high', cat:'Accessibility', title:'Dialogs aren\'t real dialogs: no focus management, background not inert',
+  what:'All overlays set <code>aria-modal="true"</code> but never move focus into the dialog, never trap Tab, never restore focus on close, and never mark the page behind as inert. A keyboard or screen-reader user who opens the picker keeps tabbing through the hidden builder underneath.',
+  fix:'One shared helper: on open, save <code>document.activeElement</code>, focus the dialog\'s first control, add <code>inert</code> to the siblings (or a Tab-cycle trap); on close, restore focus. Or migrate the simple pickers to the native <code>&lt;dialog&gt;</code> element which does most of this for free.',
+  files:['index.html:105-357','app.js:130-140','minigames.js:784-788'] },
+
+{ id:'A11Y-3', sev:'medium', cat:'Accessibility', title:'Runner has great keyboard support — the other three games have none',
+  what:'Rescue Runner plays fully from the keyboard (arrows, space, 1–4). Clinic, Safari and Jam are pointer-only: no way to select tools + operate, squirt, or play notes without a pointer. The inconsistency suggests the intent exists; it just wasn\'t carried across. Also <code>ev.currentTarget.blur()</code> in Runner\'s buttons throws away keyboard focus position (understandable — it stops Space re-triggering — but arrow-key users lose their place; prefer <code>e.preventDefault()</code> on Space in the button handler instead).',
+  fix:'Jam is the easiest win (map keys to notes — it makes the game better for everyone). Safari could use arrow-to-cycle-target + Enter. Clinic is legitimately hard with a pointer-centric mechanic; a note in the picker ("needs touch") would at least set expectations.',
+  files:['runner.js:789-799','jam.js:968-973','safari.js:637-639'] },
+
+{ id:'A11Y-4', sev:'medium', cat:'Accessibility', title:'The builder canvas is role="img" but is actually an interactive editor',
+  what:'<code>#emoji-svg</code> is announced as a static image, yet tap-select, drag, long-press-restack all live there. Screen-reader users get no announcement of what\'s selected; there is no non-pointer way to move or restack parts.',
+  fix:'Minimum: an <code>aria-live</code> announcement on select ("Eyes selected"), and expose move/restack as buttons somewhere reachable (e.g. when a part is selected, show nudge arrows + to-top/to-back chips under the canvas — this also fixes BUG-3\'s recoverability and helps motor-impaired kids who can\'t drag precisely).',
+  files:['index.html:39','app.js:528-546'] },
+
+{ id:'A11Y-5', sev:'low', cat:'Accessibility', title:'Label colour is marginally below AA contrast in light mode',
+  what:'<code>--clr-label #9A6A45</code> on the cream background <code>#FFF7EF</code> is ≈4.37:1 — just under the 4.5:1 required for the small text it\'s used on (layer labels at 0.72rem, swatch names at 0.6rem, tool names at 0.58rem). Dark mode\'s <code>#C9A183</code> on <code>#2C251E</code> passes comfortably.',
+  fix:'Darken to about <code>#8E5F3C</code> (≈5:1) — visually near-identical, passes AA.',
+  files:['style.css:15','style.css:633-644'] },
+
+{ id:'A11Y-6', sev:'low', cat:'Accessibility', title:'Reduced-motion users still get full JS-driven motion',
+  what:'CSS animations are diligently disabled under <code>prefers-reduced-motion</code>, but confetti, particles, wandering germs, dizzy stars, cloud parallax and screen shake are all JS-driven and keep running. Screen shake (<code>op-shake</code> is CSS — actually covered) — the rAF particle systems are the gap.',
+  fix:'Check <code>matchMedia("(prefers-reduced-motion: reduce)")</code> once in each game and skip/short-circuit confetti + decorative particles (gameplay-relevant motion like germs can stay — it IS the game).',
+  files:['minigames.js:193-204','safari.js:253-263','runner.js:337-348'] },
+
+{ id:'A11Y-7', sev:'low', cat:'Accessibility', title:'Timed games have no untimed option (WCAG 2.2.1, and it\'s a kids app)',
+  what:'Clinic and Safari are hard-gated by countdowns with no way to extend. Beyond the WCAG angle, younger siblings of the target age get shut out of the two gentlest games. Runner and Jam already prove the untimed model works.',
+  fix:'A "Relax mode" toggle on the intro card (no timer, no fail panel, maybe no best-level either) — small code, big audience widening. See also GAME-1.',
+  files:['minigames.js:663-700','safari.js:420-429'] },
+
+// ── PWA & OFFLINE ──────────────────────────────────────────────────────────
+{ id:'PWA-1', sev:'low', cat:'PWA & Offline', title:'Maskable icon reuses the full-bleed SVG — Android may crop it',
+  what:'The SVG icon declares <code>purpose: "any maskable"</code>. Maskable icons need ~20% safe-zone padding; if the art touches the edges, Android launchers crop it into a circle/squircle and clip the face.',
+  fix:'Add a padded variant (icon centred at 80% scale on the brand background) declared with <code>purpose: "maskable"</code>, and keep the existing one as <code>"any"</code>. Check with maskable.app.',
+  files:['manifest.json:12-17'] },
+
+{ id:'PWA-2', sev:'idea', cat:'PWA & Offline', title:'No "app updated" moment',
+  what:'skipWaiting + clients.claim means a new SW takes over silently; users get the new version on their next visit\'s second load. Fine today, but as the games multiply, a returning kid may wonder where a new game came from (or why a friend has one they don\'t).',
+  fix:'Optional: listen for <code>controllerchange</code> / a version bump and show the existing toast: "✨ New stuff! Reload to see it".',
+  files:['sw.js:23-38','app.js:821-825'] },
+
+// ── PERFORMANCE ────────────────────────────────────────────────────────────
+{ id:'PERF-1', sev:'medium', cat:'Performance', title:'664 KB of Bulma for two classes',
+  what:'Bulma is vendored, render-blocking, and precached for every user — and the app uses essentially <code>.button</code> and <code>.columns is-mobile is-gapless</code> (both then heavily overridden in style.css). That\'s the single largest asset after parts-data, spent on a grid you could write in three lines of flexbox.',
+  fix:'Replace the action row with <code>display:flex</code> on <code>.actions</code> and fold the few Bulma button resets into <code>.btn-action</code>. Delete the vendor file, drop it from sw.js ASSETS and the build hash list. ~35 KB gzipped saved and one less cache entry.',
+  files:['index.html:26','style.css:257-299','sw.js:17'] },
+
+{ id:'PERF-2', sev:'low', cat:'Performance', title:'PACK_ARMS is compiled into parts-data.js but never used',
+  what:'The build extracts 10 arm SVGs into <code>PACK_ARMS</code>; app.js draws its own inline <code>ARMS_SVG</code> instead and nothing references the pack arms (only a comment mentions it). Dead bytes in the biggest file, shipped and cached for everyone.',
+  fix:'Either drop <code>arms</code> from the build output — or better, use them: 10 arm styles is a free "dance arm variety" feature (see GAME-8).',
+  files:['tools/build-parts.js:40','app.js:149-157'] },
+
+{ id:'PERF-3', sev:'idea', cat:'Performance', title:'parts-data.js will keep growing — consider splitting art from boot',
+  what:'191 KB today (≈35 KB gzipped) is fine. But it\'s a synchronous script and every art addition grows it. No action needed now — just a flag that if the pack doubles, moving to a JSON fetch + cache (or defer attribute with a load event) keeps first paint fast.',
+  fix:'Nothing today. Revisit at ~400 KB.',
+  files:['parts-data.js','index.html:361'] },
+
+// ── UX & PRODUCT ───────────────────────────────────────────────────────────
+{ id:'UX-1', sev:'medium', cat:'UX & Product', title:'No mute button — a kids app that always makes noise',
+  what:'Every game and dance produces synth audio with no in-app way to silence it (parents in waiting rooms, classrooms…). All audio funnels through <code>getAudioCtx()</code> / <code>note()</code>, so a global mute is a one-point change.',
+  fix:'A 🔊/🔇 toggle in the header next to the theme button, persisted like the theme. Implement as a master GainNode (created once in getAudioCtx, everything connects to it instead of <code>ctx.destination</code>) so mute is instant and total.',
+  files:['app.js:164-191','index.html:33'] },
+
+{ id:'UX-2', sev:'medium', cat:'UX & Product', title:'Share links unfurl blank — no Open Graph / Twitter meta',
+  what:'For a product whose growth loop is "kid shares link with family", the link preview in WhatsApp/iMessage/Messenger shows no image, no description — just a bare URL. This is the highest-leverage marketing surface the app has and it\'s empty.',
+  fix:'Add <code>og:title</code>, <code>og:description</code>, <code>og:image</code> (a static promo PNG of a fun emoji — dynamic per-link images need a backend, skip that), <code>og:url</code> and <code>twitter:card=summary_large_image</code> to index.html.',
+  files:['index.html:3-13'] },
+
+{ id:'UX-3', sev:'low', cat:'UX & Product', title:'Restack (move to top/back) is undiscoverable',
+  what:'Long-press or double-tap on a canvas part is the only path to the restack modal — nothing in the UI hints it exists. Kids will find it by accident or never.',
+  fix:'When a part is selected, show two small chips near the select box or under the canvas: ⬆️ / ⬇️. This also gives A11Y-4 its keyboard path. Keep the long-press as a shortcut.',
+  files:['app.js:449-491'] },
+
+{ id:'UX-4', sev:'idea', cat:'UX & Product', title:'A "My Emojis" gallery is nearly free',
+  what:'The <code>?e=</code> encoding is already a complete serialization of an emoji. A localStorage array of encoded strings + a strip of thumbnails (render with the existing swatch approach) = save/load multiple creations. This is probably the most-requested feature a real kid would have: "I want my old one back" (see also BUG-4).',
+  fix:'"💾 Save" adds <code>encodeState()</code> to a list; a gallery sheet (reuse the picker chrome) lists thumbnails; tapping one calls <code>applyEncoded()</code>. ~100 lines.',
+  files:['app.js:678-708'] },
+
+{ id:'UX-5', sev:'idea', cat:'UX & Product', title:'Best-level badges belong in the Games picker',
+  what:'Each game persists a best (level/score) but only shows it inside its own intro card. The Games picker is the trophy shelf kids would actually look at — and it nudges them toward games they haven\'t beaten.',
+  fix:'Registry entries could expose a <code>best()</code> getter; the picker renders "🏆 Lv 4" under each name. Jam already does this pattern well inside its song list (⭐ 87).',
+  files:['minigames.js:951-966','jam.js:808-823'] },
+
+{ id:'UX-6', sev:'low', cat:'UX & Product', title:'"Random dance" / "Share with link" toggle row is fragile and cryptic',
+  what:'The two checkboxes are positioned under their buttons with magic margins (<code>margin-left: 13%</code>) that drift at odd widths, and "Share with link" is jargon for the audience — a kid doesn\'t know what it does until after sharing.',
+  fix:'Consider moving each option to its moment of use: the dance choice already has a picker (make the Dance button long-press open it, and retire the checkbox), and the link option could become part of the Send flow (e.g. a two-option mini-sheet: "Just the picture / Picture + magic link"). At minimum, replace the % margins with a grid aligned to the four button columns and rename to something kid-readable like "Send a magic link too".',
+  files:['style.css:301-329','index.html:88-97'] },
+
+// ── MINIGAME DESIGN ────────────────────────────────────────────────────────
+{ id:'GAME-1', sev:'medium', cat:'Minigame design', title:'Three of four games have no ending — difficulty plateaus into an infinite flat ladder',
+  what:'Safari ends at level 8 with a proper "You did it!" trophy. Clinic\'s difficulty params all cap (stitches by L10, germ count by L16, time floors at 50%) and Runner\'s speed/beats cap around L9 — after that, every level is identical, forever, with no acknowledgment. Kids are completionists; "is there an end?" matters.',
+  fix:'Give Clinic and Runner a MAX_LEVEL with a celebration panel (Doctor diploma 🎓, Hero medal 🏅), matching Safari\'s pattern, with "keep playing" continuing endlessly after. Jam\'s completion is per-song scores — fine as is, but a "learned all 10 songs" moment would land.',
+  files:['safari.js:161','minigames.js:288-384','runner.js:214-222'] },
+
+{ id:'GAME-2', sev:'medium', cat:'Minigame design', title:'Clinic: 5 cases are fully seen by level 3 — content, not tuning, is the bottleneck',
+  what:'The case pool only excludes the immediately-previous case, so by the third level a kid has seen everything; from then on difficulty is "same thing, less time". The step engine (spray/tweeze/suture/zap/hold/place) is genuinely good and could carry many more cases without new mechanics.',
+  fix:'Cheap wins from existing handlers: 🦷 wobbly tooth (tweeze + place), 🤧 sneezes (zap dust motes + hold tissue), 🎨 paint splodges (spray zones), 🌡️ chills (hold blanket = reverse fever). One new handler idea with legs: a "rub" step (circular scrub detection) for muddy patients. Also consider tool distinctness: spray currently cleans AND zaps germs — a soap/wand tool would keep "1 tool = 1 job" legible (the game\'s own teaching principle).',
+  files:['minigames.js:284-415','minigames.js:740-743'] },
+
+{ id:'GAME-3', sev:'low', cat:'Minigame design', title:'Clinic: star rating ignores the clock',
+  what:'Stars = mistakes only (0 → ⭐⭐⭐, ≤2 → ⭐⭐). Time remaining is shown off-hand in the note but never rewarded, so the countdown creates stress without payoff for beating it well. Careful+slow and careful+fast are identical.',
+  fix:'Keep mistakes as the primary axis but award the third star only if ≥25% time remains (or show a separate ⚡ bonus). Alternatively per-case best-star tracking to give replay value to earlier levels.',
+  files:['minigames.js:702-720'] },
+
+{ id:'GAME-4', sev:'low', cat:'Minigame design', title:'Safari: every animal is worth the same — no prioritisation decisions',
+  what:'Beyond goldens, there is nothing to weigh: tap whatever is closest. Animals that wander off un-watered carry no cost (right call for the tone!), so the only pressure is the spawn/score race, which turns into uniform tapping at higher levels.',
+  fix:'Tone-safe depth: a streak multiplier (x2 after 5 quick hits — rewards accuracy), big animals needing two squirts (elephant 🐘 shows two 💧), or a brief "everyone at once!" stampede moment per level. Avoid anything punishing — the kindness is the brand.',
+  files:['safari.js:311-345','safari.js:371-394'] },
+
+{ id:'GAME-5', sev:'low', cat:'Minigame design', title:'Runner: failed obstacles vanish as if beaten',
+  what:'On a wrong-body collision the code calls <code>removeEnt(o)</code> — the crate/ice/laser disappears while the hero stumbles, visually indistinguishable from success minus the flourish. The lesson ("you needed Muscle") lands weaker when the wall evaporates either way.',
+  fix:'On stumble, keep the obstacle art for ~0.5s with a shake/tilt (or let the hero visibly bounce back a few units) before removing it. Small change, much clearer cause→effect for a 6-year-old.',
+  files:['runner.js:506-513'] },
+
+{ id:'GAME-6', sev:'low', cat:'Minigame design', title:'Jam: design doc\'s drum challenges and playback-instrument-switching were dropped',
+  what:'The design doc calls for "a couple of simple rhythm-only patterns for Drums" — all 10 songs are piano/xylo, so the drums (the default instrument!) have no challenge content. The doc\'s nice-to-have of auto-switching the visible instrument during playback is also absent: playback of a piano take while drums are shown bops arms but flashes nothing.',
+  fix:'Add 2–3 rhythm patterns ("We Will Rock You"-style stomp-stomp-clap without the melody, a march, a heartbeat) using the same score format with pad names. For playback, switching <code>setInst(ev.i)</code> when the take\'s instrument differs is ~3 lines and makes replay feel like a performance.',
+  files:['jam.js:298-319','jam.js:870-883','docs/minigame-jam-session-design.md:127'] },
+
+{ id:'GAME-7', sev:'idea', cat:'Minigame design', title:'Jam: share a recording as a link',
+  what:'The take is already a compact serializable array. Encoding it into a <code>?j=</code> param (like <code>?e=</code>) would let kids send songs to grandparents — extending the app\'s signature stateless-share trick to its second-most creative artifact.',
+  fix:'Base64 of delta-encoded (instrument, key-index, dt) triples keeps typical 30s takes well under URL limits. Opening a <code>?j=</code> link opens Jam and shows a "▶ Play their song!" panel.',
+  files:['jam.js:577-592','app.js:648-676'] },
+
+{ id:'GAME-8', sev:'idea', cat:'Minigame design', title:'Dance: 3 moves, and the 10 pack arm styles are sitting unused',
+  what:'Dance is the app\'s oldest delight and hasn\'t grown: three moves, one hand-drawn arm style, while <code>PACK_ARMS</code> ships 10 OpenMoji arm variants nobody uses (PERF-2). The registry comment literally says "add more moves here later…".',
+  fix:'2–3 new moves (spin, moonwalk-slide, disco point) are mostly CSS keyframes + a soundbite each. Randomly pairing a pack arm style per dance is nearly free variety once PACK_ARMS is wired in.',
+  files:['app.js:224-229','tools/build-parts.js:40'] },
+
+// ── CODE HEALTH ────────────────────────────────────────────────────────────
+{ id:'CODE-1', sev:'medium', cat:'Code health', title:'~250 lines copy-pasted across the four game files',
+  what:'<code>el()</code>, <code>rnd()</code>, <code>sfx()</code>, <code>puff()</code>, <code>confetti()</code>, <code>tickParts()</code>, <code>floatText()</code>, the emoji-snapshot function (<code>patientSvg</code>/<code>playerSvg</code>/<code>playerHeadSvg</code> ×3 — identical), the best-in-localStorage pattern, and the toStage/toOp/toSurf coordinate converter each exist 3–5 times, already drifting (clinic\'s puff has no gravity, safari\'s does). Every new game re-pastes the kit; this is the branch to extract it.',
+  fix:'A <code>games-common.js</code> loaded before the game files: SVG helpers, particle system, confetti, sfx wrapper, <code>emojiSnapshotSvg()</code>, <code>svgPoint(svg, evt)</code>, <code>loadBest/saveBest</code>. Each game file shrinks ~80 lines and future games start warm.',
+  files:['minigames.js:24-64','safari.js:26-55','runner.js:27-58','jam.js:28-38'] },
+
+{ id:'CODE-2', sev:'medium', cat:'Code health', title:'Six hand-rolled overlays: one dialog helper would fix three findings at once',
+  what:'Every overlay repeats the show/hide + aria-hidden + body-class + Escape-listener dance with small inconsistencies. A single <code>openOverlay(el)/closeOverlay()</code> keeping a stack would centralise: Escape-pops-topmost (BUG-5), focus trap/restore + inert (A11Y-2), and the body scroll-lock classes (currently 4 near-identical CSS rules).',
+  fix:'~40 lines in app.js (or the common file), then mechanical adoption. Highest refactor value-per-line in the codebase.',
+  files:['app.js:105-140','minigames.js:966-983','style.css:738','style.css:982','style.css:1051','style.css:1159'] },
+
+{ id:'CODE-3', sev:'low', cat:'Code health', title:'minigames.js does two jobs: the clinic AND the shared game registry',
+  what:'The Games button, picker, and <code>window.MINIGAMES</code> registry live at the bottom of the clinic\'s file. Every other game registers itself cleanly; the registry\'s host being "also a game" is the one asymmetry, and it forces the script-order dependency documented in three files\' comments.',
+  fix:'Extract the registry + picker (~60 lines) into <code>games.js</code> loaded right after app.js. Each game file (clinic included) then only registers.',
+  files:['minigames.js:943-1014','index.html:361-366'] },
+
+{ id:'CODE-4', sev:'low', cat:'Code health', title:'No automated tests despite purpose-built hooks and a working Playwright env',
+  what:'Every game ships <code>window.__clinic/__safari/__runner/__jam</code> test hooks, there\'s a verify skill, and Playwright is known-working in this environment — but no test file exists. Share-link back-compat (ID_ALIASES, DEFAULT_IDS, trailing-dot trimming) is exactly the kind of logic that regresses silently.',
+  fix:'Two cheap layers: (1) a Node unit test for <code>encodeState/applyEncoded</code> round-trips incl. legacy-id links; (2) a Playwright smoke: load, Random, open each of the 4 games via the picker, assert each <code>__game.state()</code> responds, share-link round-trip. Run in CI before deploy.',
+  files:['minigames.js:1022-1026','safari.js:641-654','runner.js:857-867','jam.js:975-989'] },
+
+// ── BUILD & DEPLOY ─────────────────────────────────────────────────────────
+{ id:'DEPLOY-1', sev:'medium', cat:'Build & Deploy', title:'The Pages deploy ships ~25 MB of source art — twice',
+  what:'The rsync copies the whole repo to the site: <code>icons/openmoji-svg-color/</code> (23 MB, ~4000 files), <code>face-components/</code> (2.3 MB + review PNGs), <code>tools/</code>, design docs — all public on the production URL, duplicated again under <code>/staging/</code>. The runtime needs none of it (parts are inlined in parts-data.js). Deploys upload ~50 MB where ~1.5 MB would do.',
+  fix:'Add rsync excludes: <code>--exclude icons/openmoji-svg-color --exclude face-components --exclude tools --exclude docs --exclude \'*.zip\'</code> (keep icons/icon*.{svg,png}). Deploys get much faster and the site stops exposing its whole art archive.',
+  files:['.github/workflows/deploy.yml:46','.github/workflows/deploy.yml:57'] },
+
+{ id:'DEPLOY-2', sev:'low', cat:'Build & Deploy', title:'23 MB OpenMoji dump is committed to git',
+  what:'<code>icons/openmoji-svg-color/</code> (the entire OpenMoji colour set) is tracked. It\'s presumably the source pool for curating new face parts, but it dominates the repo (clones, CI checkouts). The .zip of the same content is gitignored — the extracted copy snuck in.',
+  fix:'If it\'s a working pool: move it out of the repo (or keep only the zip and unzip locally on demand). If pruning history matters, that\'s a bigger decision (rewrite vs live with it) — at minimum stop the folder growing and exclude it from deploys (DEPLOY-1).',
+  files:['icons/openmoji-svg-color/','.gitignore:2'] },
+
+{ id:'DEPLOY-3', sev:'low', cat:'Build & Deploy', title:'README\'s file map has drifted from reality',
+  what:'The "How it\'s built" tree lists only minigames.js as "the Emoji Clinic minigame" — safari.js, runner.js and jam.js aren\'t mentioned anywhere in the README despite being half the product now. The features list similarly stops at Doctor.',
+  fix:'One-paragraph update: list the four games and the shared registry pattern. Cheap, and it\'s the first thing a contributor (or future you) reads.',
+  files:['README.md:12-55'] },
+];
+
+// ── render ──────────────────────────────────────────────────────────────────
+const CATS = [...new Set(FINDINGS.map(f => f.cat))];
+const SEVS = ['high','medium','low','idea'];
+const SEV_LABEL = { high:'High', medium:'Medium', low:'Low', idea:'Idea' };
+const KEY = 'emojicle-review-v1';
+let doneSet = new Set();
+try { doneSet = new Set(JSON.parse(localStorage.getItem(KEY)) || []); } catch (e) {}
+let sevOn = new Set(SEVS), catOn = new Set(CATS);
+
+function saveDone() { try { localStorage.setItem(KEY, JSON.stringify([...doneSet])); } catch (e) {} }
+
+function summary() {
+  const s = document.getElementById('summary');
+  s.innerHTML = `<div class="stat"><b>${FINDINGS.length}</b><span>findings</span></div>` +
+    SEVS.map(v => `<div class="stat s-${v}"><b>${FINDINGS.filter(f=>f.sev===v).length}</b><span>${SEV_LABEL[v]}</span></div>`).join('');
+}
+
+function filters() {
+  const sf = document.getElementById('sev-filters');
+  SEVS.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'fbtn on';
+    b.innerHTML = `${SEV_LABEL[v]} <span class="n">${FINDINGS.filter(f=>f.sev===v).length}</span>`;
+    b.onclick = () => { sevOn.has(v) ? sevOn.delete(v) : sevOn.add(v); b.classList.toggle('on'); render(); };
+    sf.appendChild(b);
+  });
+  const cf = document.getElementById('cat-filters');
+  CATS.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'fbtn on';
+    b.innerHTML = `${c} <span class="n">${FINDINGS.filter(f=>f.cat===c).length}</span>`;
+    b.onclick = () => { catOn.has(c) ? catOn.delete(c) : catOn.add(c); b.classList.toggle('on'); render(); };
+    cf.appendChild(b);
+  });
+}
+
+function progress() {
+  const total = FINDINGS.length, done = FINDINGS.filter(f => doneSet.has(f.id)).length;
+  document.getElementById('prog-text').textContent = `Triaged ${done} / ${total}`;
+  document.getElementById('prog-fill').style.width = (done / total * 100) + '%';
+}
+
+function card(f) {
+  const d = document.createElement('div');
+  d.className = 'card' + (doneSet.has(f.id) ? ' done' : '');
+  d.innerHTML = `
+    <div class="card-head">
+      <input type="checkbox" ${doneSet.has(f.id) ? 'checked' : ''} aria-label="Mark ${f.id} triaged">
+      <span class="sev sev-${f.sev}">${SEV_LABEL[f.sev]}</span>
+      <span class="card-title">${f.title}</span>
+      <span class="cat-tag">${f.id}</span>
+      <span class="chev">▶</span>
+    </div>
+    <div class="card-body">
+      <h4>What & why</h4><p>${f.what}</p>
+      <h4>Recommendation</h4><p>${f.fix}</p>
+      <div class="filerefs">${f.files.map(x => `<span class="fileref">${x}</span>`).join('')}</div>
+    </div>`;
+  const head = d.querySelector('.card-head');
+  const cb = d.querySelector('input');
+  head.addEventListener('click', e => { if (e.target !== cb) d.classList.toggle('open'); });
+  cb.addEventListener('change', () => {
+    cb.checked ? doneSet.add(f.id) : doneSet.delete(f.id);
+    d.classList.toggle('done', cb.checked);
+    saveDone(); progress();
+  });
+  return d;
+}
+
+function render() {
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  let shown = 0;
+  CATS.forEach(c => {
+    if (!catOn.has(c)) return;
+    const items = FINDINGS.filter(f => f.cat === c && sevOn.has(f.sev));
+    if (!items.length) return;
+    const h = document.createElement('div');
+    h.className = 'section-h';
+    h.innerHTML = `${c} <span class="cnt">${items.length}</span>`;
+    list.appendChild(h);
+    items.forEach(f => { list.appendChild(card(f)); shown++; });
+  });
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+}
+
+summary(); filters(); progress(); render();
+</script>
+</body>
+</html>
