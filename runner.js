@@ -14,36 +14,20 @@
 // Levels are generated as a sequence of beats (breather / obstacle on 1–2
 // rails / gap / chasm / gap+obstacle combo) that get faster and denser with
 // the level number; obstacle RULES never change, only pacing. Mistakes cost a
-// life (3 per level) with a forgiving stumble, not a game over; losing all
-// three offers a retry of the same level. Best level cleared persists in
-// localStorage.
+// life (3 per level) with a forgiving stumble — the failed obstacle visibly
+// wobbles in place for a beat so the cause is clear — not a game over; losing
+// all three offers a retry of the same level. Clearing level 10 earns the
+// Hero Medal (play continues endlessly after). Best level cleared persists
+// in localStorage.
 //
-// Reads the builder's globals (PARTS, state, offsets, zOrder, note,
-// getAudioCtx) like the other minigames, and registers itself in the shared
-// window.MINIGAMES registry so the Games picker lists it.
+// Reads the builder's globals plus GameKit from games-common.js, and registers
+// itself in the shared window.MINIGAMES registry so the Games picker lists it.
 
 (function () {
 
-const NS = 'http://www.w3.org/2000/svg';
-
-// tiny SVG element helper
-function el(tag, attrs, parent) {
-  const n = document.createElementNS(NS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-
-const rnd = (a, b) => a + Math.random() * (b - a);
-const ri = n => Math.floor(Math.random() * n);
-const pick = arr => arr[ri(arr.length)];
+const { el, rnd, ri, pick, sfx } = GameKit;
 
 // ── Sounds (synthesized via note() from app.js — no audio files) ─────────────
-
-function sfx(fn) {
-  const ctx = getAudioCtx();
-  if (ctx) fn(ctx, ctx.currentTime + 0.02);
-}
 
 const SFX = {
   boing:   () => sfx((c, t) => note(c, t, 150, 0.22, { type: 'sine', glide: 440, vol: 0.09 })),
@@ -70,6 +54,7 @@ const GAP_LEN = 7, CHASM_LEN = 20;
 const JUMP_DIST = 18, ROCKET_DIST = 34;
 const SWAP_TIME = 0.45;         // the sparkle flourish before powers go live
 const SKY_DEEP = '#6FB2E4', WOOD = '#D9A45C', WOOD_EDGE = '#B5813E';
+const MAX_LEVEL = 10;           // the medal level; play continues endlessly after
 
 // ── Hero bodies ───────────────────────────────────────────────────────────────
 // The default 'plain' body has no power; each obstacle type is beaten by
@@ -275,7 +260,7 @@ let level = 1;
 let totalSaved = 0;     // civilians rescued across the whole run (incl. mains)
 let best = 0;           // highest level ever cleared (persisted)
 const BEST_KEY = 'emojicle-runner-best';
-let parts = [];         // live particles
+let fx = null;          // GameKit particle system, bound to #rr-fx in init
 let msgTimer = null;
 let swipe = null;
 
@@ -287,20 +272,6 @@ let overlay, svg, sceneG, trackG, heroG, fxG, seamsG,
 const hero = {};        // SVG pieces of the hero (rebuilt per level)
 
 // ── Hero (head from the builder, body from the roster) ───────────────────────
-// Same snapshot recipe as the clinic and safari: current parts in stacking
-// order with drag offsets baked in.
-
-function playerHeadSvg() {
-  let inner = '';
-  zOrder.forEach(layer => {
-    const part = PARTS[layer][state[layer]];
-    if (!part || !part.svg) return;
-    const o = offsets[layer] || { x: 0, y: 0 };
-    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
-    inner += `<g${t}>${part.svg}</g>`;
-  });
-  return inner;
-}
 
 function buildHero() {
   heroG.innerHTML = '';
@@ -308,65 +279,8 @@ function buildHero() {
   hero.inner = el('g', {}, heroG);
   hero.bodyG = el('g', {}, hero.inner);
   hero.headG = el('g', { transform: 'translate(-5.4 -13.9) scale(0.15)' }, hero.inner);
-  hero.headG.innerHTML = playerHeadSvg();
+  hero.headG.innerHTML = GameKit.emojiSnapshotSvg();
   drawBody(hero.bodyG, game.hero.body);
-}
-
-// ── Particles (puffs, sparkles, floating text, confetti) ─────────────────────
-
-function puff(x, y, color, n) {
-  for (let i = 0; i < n; i++) {
-    const a = Math.random() * Math.PI * 2, sp = rnd(4, 12);
-    parts.push({
-      el: el('circle', { cx: x, cy: y, r: rnd(0.6, 1.4), fill: color }, fxG),
-      x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-      life: 1, decay: rnd(1.8, 2.8), grav: 8,
-    });
-  }
-}
-
-function floatText(x, y, str, fill) {
-  const t = el('text', {
-    x, y, 'font-size': 4.6, 'text-anchor': 'middle', 'font-weight': 700,
-    fill, stroke: '#FFFFFF', 'stroke-width': 0.25, 'paint-order': 'stroke',
-  }, fxG);
-  t.textContent = str;
-  parts.push({ el: t, x, y, vx: 0, vy: -7, life: 1, decay: 1.3, grav: 0, isText: true });
-}
-
-function confetti() {
-  const colors = ['#FF5A5F', '#FFD93B', '#2BB673', '#8E6FF7', '#69B7FF', '#FF4FA3'];
-  for (let i = 0; i < 30; i++) {
-    const x = rnd(6, 66);
-    parts.push({
-      el: el('rect', { width: 1.7, height: 1.1, fill: colors[i % colors.length] }, fxG),
-      x, y: -8, vx: rnd(-5, 5), vy: rnd(6, 14),
-      life: 1, decay: 0.35, grav: 16,
-      rot: rnd(0, 360), vr: rnd(-300, 300),
-    });
-  }
-}
-
-function tickParts(dt) {
-  parts = parts.filter(p => {
-    p.life -= dt * p.decay;
-    if (p.life <= 0) { p.el.remove(); return false; }
-    p.vy += p.grav * dt;
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    if (p.vr !== undefined) {
-      p.rot += p.vr * dt;
-      p.el.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.rot.toFixed(0)})`);
-    } else if (p.isText) {
-      p.el.setAttribute('x', p.x.toFixed(1));
-      p.el.setAttribute('y', p.y.toFixed(1));
-    } else {
-      p.el.setAttribute('cx', p.x.toFixed(1));
-      p.el.setAttribute('cy', p.y.toFixed(1));
-    }
-    p.el.setAttribute('opacity', p.life.toFixed(2));
-    return true;
-  });
 }
 
 // ── HUD & messages ───────────────────────────────────────────────────────────
@@ -438,8 +352,8 @@ function requestSwap(id) {
 function beatObstacle(o) {
   const def = OBSTACLES[o.type];
   SFX[def.sfx]();
-  puff(RX[o.rail], HERO_Y - 5, def.puffColor, 9);
-  puff(RX[o.rail], HERO_Y - 5, '#FFF3B0', 4);
+  fx.puff(RX[o.rail], HERO_Y - 5, def.puffColor, 9);
+  fx.puff(RX[o.rail], HERO_Y - 5, '#FFF3B0', 4);
   flashMsg(def.msg);
   removeEnt(o);
 }
@@ -449,14 +363,21 @@ function removeEnt(o) {
   if (o.el) { o.el.remove(); o.el = null; }
 }
 
+// a failed obstacle stays put and wobbles for a beat, so the lesson ("you
+// needed Muscle") reads clearly instead of the wall silently evaporating
+function breakEnt(o) {
+  o.resolved = true;
+  o.wobbleUntil = game.time + 0.55;
+}
+
 function scoop(o) {
   o.resolved = true;
   game.saved++;
   totalSaved++;
   updateSaved();
   SFX.pickup();
-  puff(RX[o.rail], HERO_Y - 8, '#FF9DBB', 8);
-  floatText(RX[o.rail], HERO_Y - 14, '+1 \u{1F49A}', '#2BB673');
+  fx.puff(RX[o.rail], HERO_Y - 8, '#FF9DBB', 8);
+  fx.floatText(RX[o.rail], HERO_Y - 14, '+1 \u{1F49A}', '#2BB673');
   flashMsg('\u{1F49A} Rescued!');
   removeEnt(o);
 }
@@ -469,7 +390,7 @@ function stumble(hint) {
   SFX.stumble();
   stageEl.classList.add('op-shake');
   setTimeout(() => stageEl.classList.remove('op-shake'), 400);
-  puff(g.hero.x, HERO_Y, '#FFD93B', 6);
+  fx.puff(g.hero.x, HERO_Y, '#FFD93B', 6);
   if (g.lives <= 0) { failRun(); return; }
   flashMsg(hint, 'flash');
 }
@@ -507,7 +428,7 @@ function tickCollisions() {
       o.resolved = true;
       const def = OBSTACLES[o.type];
       if (h.body === def.body) beatObstacle(o);
-      else if (!invuln) { removeEnt(o); stumble('Oof! ' + def.hint); }
+      else if (!invuln) { breakEnt(o); stumble('Oof! ' + def.hint); }
       else removeEnt(o);   // dazed hero barrels through, no extra penalty
     }
   }
@@ -566,8 +487,7 @@ function openLevel() {
 
   buildScene();
   trackG.innerHTML = '';
-  fxG.innerHTML = '';
-  parts = [];
+  fx.reset();
   buildHero();
   updateBodyButtons();
 
@@ -598,20 +518,27 @@ function startLevel() {
 
 function levelCleared() {
   SFX.win();
-  confetti();
+  fx.confetti();
   totalSaved++;                       // the big rescue counts too
   updateSaved();
   if (level > best) {
     best = level;
-    try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+    GameKit.saveBest(BEST_KEY, best);
   }
   setMsg('Rescued! Up, up and away! \u{1F389}');
-  document.getElementById('rr-clear-title').textContent = 'Level ' + level + ' cleared! \u{1F389}';
-  document.getElementById('rr-clear-note').textContent =
-    (game.civTotal > 0
-      ? 'You saved the civilian and scooped ' + game.saved + '/' + game.civTotal + ' bonus rescue' +
-        (game.civTotal === 1 ? '' : 's') + ' on the way!'
-      : 'A perfect dash — civilian saved!') + ' Ready for a faster run?';
+  if (level === MAX_LEVEL) {
+    document.getElementById('rr-clear-title').textContent = '\u{1F3C5} Hero of the Sky-Rails!';
+    document.getElementById('rr-clear-note').textContent =
+      `You cleared all ${MAX_LEVEL} levels — that's a Hero Medal! ` +
+      'The rails go on forever for heroes who keep running.';
+  } else {
+    document.getElementById('rr-clear-title').textContent = 'Level ' + level + ' cleared! \u{1F389}';
+    document.getElementById('rr-clear-note').textContent =
+      (game.civTotal > 0
+        ? 'You saved the civilian and scooped ' + game.saved + '/' + game.civTotal + ' bonus rescue' +
+          (game.civTotal === 1 ? '' : 's') + ' on the way!'
+        : 'A perfect dash — civilian saved!') + ' Ready for a faster run?';
+  }
   clearPanel.classList.add('show');
 }
 
@@ -638,18 +565,13 @@ function retryLevel() { endLevel(); openLevel(); }
 function openRunner() {
   level = 1;
   totalSaved = 0;
-  overlay.classList.add('show');
-  overlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('runner-open');
+  openOverlay(overlay, closeRunner);
   openLevel();
 }
 
 function closeRunner() {
-  if (!game) return;
-  endLevel();
-  overlay.classList.remove('show');
-  overlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('runner-open');
+  if (game) endLevel();
+  closeOverlay(overlay);
 }
 
 // ── Per-frame logic ───────────────────────────────────────────────────────────
@@ -666,15 +588,15 @@ function tickHero(dt) {
     g.sparkAcc += dt;
     if (g.sparkAcc > 0.05) {
       g.sparkAcc = 0;
-      puff(h.x + rnd(-4, 4), HERO_Y + rnd(-6, 4), Math.random() < 0.5 ? '#FFD93B' : '#FFF3B0', 1);
+      fx.puff(h.x + rnd(-4, 4), HERO_Y + rnd(-6, 4), Math.random() < 0.5 ? '#FFD93B' : '#FFF3B0', 1);
     }
     if (g.time >= h.swap.until) {
       h.body = h.swap.to;
       h.swap = null;
       drawBody(hero.bodyG, h.body);
       SFX.swap();
-      puff(h.x, HERO_Y - 2, '#FFD93B', 8);
-      puff(h.x, HERO_Y - 2, '#FFFFFF', 5);
+      fx.puff(h.x, HERO_Y - 2, '#FFD93B', 8);
+      fx.puff(h.x, HERO_Y - 2, '#FFFFFF', 5);
       updateBodyButtons();
     }
   }
@@ -690,7 +612,7 @@ function tickFinish() {
   if (g.phase === 'finish' && g.traveled >= g.endD - 3) {
     g.phase = 'rescue';
     SFX.win();
-    confetti();
+    fx.confetti();
   }
 }
 
@@ -699,7 +621,7 @@ function tickRescue(dt) {
   g.rescueT += dt;
   g.rise = Math.min(150, 260 * g.rescueT * g.rescueT);
   if (Math.random() < 0.5) {
-    puff(g.hero.x + rnd(-5, 8), HERO_Y - g.rise + rnd(0, 8), '#FFD93B', 1);
+    fx.puff(g.hero.x + rnd(-5, 8), HERO_Y - g.rise + rnd(0, 8), '#FFD93B', 1);
   }
   if (g.rescueT > 1 && g.phase === 'rescue') {
     g.phase = 'clear';
@@ -710,12 +632,16 @@ function tickRescue(dt) {
 function renderWorld() {
   const g = game, h = g.hero, T = g.traveled;
   seamsG.setAttribute('transform', `translate(0 ${(T % 9).toFixed(2)})`);
-  g.clouds.forEach(c => {
-    const y = (c.y0 + T * 0.35) % 116 - 10;
-    c.el.setAttribute('transform', `translate(${c.x.toFixed(1)} ${y.toFixed(1)})`);
-  });
+  // cloud parallax is decoration — hold the clouds still for reduced motion
+  if (!GameKit.reducedMotion()) {
+    g.clouds.forEach(c => {
+      const y = (c.y0 + T * 0.35) % 116 - 10;
+      c.el.setAttribute('transform', `translate(${c.x.toFixed(1)} ${y.toFixed(1)})`);
+    });
+  }
   for (const o of g.ents) {
     if (o.dead) continue;
+    if (o.wobbleUntil && g.time > o.wobbleUntil) { removeEnt(o); continue; }
     const sy = HERO_Y - (o.d - T);
     if (sy > 118) { removeEnt(o); continue; }
     const vis = sy > -24;
@@ -723,7 +649,8 @@ function renderWorld() {
     if (o.el) {
       const oy = (o.type === 'main' && (g.phase === 'rescue' || g.phase === 'clear')) ? sy - g.rise : sy;
       const ox = o.type === 'main' ? RX[o.rail] + 2.5 : RX[o.rail];
-      o.el.setAttribute('transform', `translate(${ox} ${oy.toFixed(2)})`);
+      const wobble = o.wobbleUntil ? ` rotate(${(Math.sin(g.time * 34) * 7).toFixed(1)})` : '';
+      o.el.setAttribute('transform', `translate(${ox} ${oy.toFixed(2)})${wobble}`);
     }
   }
   // hero: jump arc, run bob, rescue leap, invulnerability blink
@@ -763,18 +690,20 @@ function tickLoop(t) {
   }
   if (game) {
     renderWorld();
-    tickParts(dt);
+    fx.tick(dt);
     game.raf = requestAnimationFrame(tickLoop);
   }
 }
 
 // ── Pointer & keyboard input ──────────────────────────────────────────────────
 // Swipe left/right to change rail, swipe up to jump; the on-screen buttons do
-// the same. Keys: arrows + space, 1–4 for bodies.
+// the same. Keys: arrows + space, 1–4 for bodies. Pointer capture keeps the
+// swipe alive when the finger is released off the stage.
 
 function onDown(e) {
   if (!game || game.phase !== 'play') return;
   swipe = { x: e.clientX, y: e.clientY };
+  if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
   e.preventDefault();
 }
 
@@ -788,7 +717,6 @@ function onUp(e) {
 
 function onKey(e) {
   if (!game) return;
-  if (e.key === 'Escape') { closeRunner(); return; }
   if (e.key === 'ArrowLeft') move(-1);
   else if (e.key === 'ArrowRight') move(1);
   else if (e.key === 'ArrowUp' || e.key === ' ') { doJump(); e.preventDefault(); }
@@ -808,7 +736,7 @@ function buildBodyTray() {
     btn.setAttribute('aria-label', 'Swap to ' + b.name + ' body');
     btn.innerHTML = `<span class="tool-emoji" aria-hidden="true">${b.emoji}</span>` +
                     `<span class="tool-name">${b.name}</span>`;
-    btn.addEventListener('click', ev => { requestSwap(b.id); ev.currentTarget.blur(); });
+    btn.addEventListener('click', () => requestSwap(b.id));
     bodiesEl.appendChild(btn);
   });
 }
@@ -830,8 +758,9 @@ function initRunner() {
   introPanel = document.getElementById('runner-intro');
   clearPanel = document.getElementById('runner-clear');
   failPanel = document.getElementById('runner-fail');
+  fx = GameKit.particles(fxG);
 
-  try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) {}
+  best = GameKit.loadBest(BEST_KEY);
 
   buildBodyTray();
   document.getElementById('runner-close').addEventListener('click', closeRunner);
@@ -842,15 +771,15 @@ function initRunner() {
   document.getElementById('rr-fail-close').addEventListener('click', closeRunner);
   ['rr-left', 'rr-right', 'rr-jump'].forEach(id => {
     const btn = document.getElementById(id);
-    btn.addEventListener('click', ev => {
+    btn.addEventListener('click', () => {
       if (id === 'rr-jump') doJump();
       else move(id === 'rr-left' ? -1 : 1);
-      ev.currentTarget.blur();
     });
   });
 
   svg.addEventListener('pointerdown', onDown);
   svg.addEventListener('pointerup', onUp);
+  svg.addEventListener('pointercancel', () => { swipe = null; });
   svg.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', onKey);
 
@@ -867,9 +796,12 @@ function initRunner() {
   };
 }
 
-// register before minigames.js builds the Games picker on DOMContentLoaded
+// register before games.js builds the Games picker on DOMContentLoaded
 window.MINIGAMES = window.MINIGAMES || {};
-window.MINIGAMES.runner = { name: 'Rescue Runner', emoji: '\u{1F9B8}', start: openRunner };
+window.MINIGAMES.runner = {
+  name: 'Rescue Runner', emoji: '\u{1F9B8}', start: openRunner,
+  best: () => best > 0 ? 'Lv ' + best : '',
+};
 
 document.addEventListener('DOMContentLoaded', initRunner);
 

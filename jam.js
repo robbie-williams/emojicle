@@ -9,33 +9,26 @@
 // Record (●) captures one take — every note tagged with its instrument and
 // timestamp — persisted to localStorage; Play (▶) replays it through the
 // synth on a loop (the recorded length, trailing silence included, is the
-// loop period) until Stop is pressed. Because notes remember their
-// instrument, you can record on Piano, flip to Drums and the playback still
-// sounds right (jamming along live over the top is allowed and never alters
-// the take). A new Record overwrites the old take only once it actually
-// starts.
+// loop period) until Stop is pressed, switching the visible instrument to
+// follow the take. Share (📤) turns the take into a stateless ?j= link (same
+// trick as the builder's ?e=) so kids can send songs to grandparents; opening
+// such a link opens the Jam with the song loaded and ready to play.
 //
-// Challenge (🎯) opens a song picker: ten simple public-domain kids' tunes.
-// Each is taught phrase by phrase — the game demonstrates, the player echoes
-// with a glowing guide — then the whole song is performed with subtle guides
-// and scored out of 100 (notes hit + timing). Best score per song persists.
+// Challenge (🎯) opens a song picker: simple public-domain kids' tunes plus
+// rhythm-only drum patterns. Each is taught phrase by phrase — the game
+// demonstrates, the player echoes with a glowing guide — then the whole song
+// is performed with subtle guides and scored out of 100 (notes hit + timing).
+// Best score per song persists.
 //
-// Reads the builder's globals (PARTS, state, offsets, zOrder, note,
-// getAudioCtx) like the other minigames, and registers in window.MINIGAMES.
+// Keyboard play: 1–9/0/-/= strike the current instrument's keys in order
+// (piano white keys), and Q–I reach the piano's black keys.
+//
+// Reads the builder's globals plus GameKit from games-common.js, and registers
+// in window.MINIGAMES.
 
 (function () {
 
-const NS = 'http://www.w3.org/2000/svg';
-
-// tiny SVG element helper
-function el(tag, attrs, parent) {
-  const n = document.createElementNS(NS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const { el, clamp, sfx } = GameKit;
 
 // ── Pitch helpers ─────────────────────────────────────────────────────────────
 
@@ -67,7 +60,7 @@ function env(ctx, t, peak, dur) {
   g.gain.setValueAtTime(0, t);
   g.gain.linearRampToValueAtTime(peak, t + 0.008);
   g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  g.connect(ctx.destination);
+  g.connect(audioBus(ctx));   // the app-wide master bus, so mute is total
   return g;
 }
 
@@ -159,12 +152,6 @@ function playKey(instId, key, vol) {
   if (instId === 'drums') drumNote(ctx, t, key, v);
   else if (instId === 'xylo') xyloNote(ctx, t, freqOf(key), v);
   else pianoNote(ctx, t, freqOf(key), v);
-}
-
-// UI chimes (reuse note() from app.js)
-function sfx(fn) {
-  const ctx = getAudioCtx();
-  if (ctx) fn(ctx, ctx.currentTime + 0.02);
 }
 
 const SFX = {
@@ -288,24 +275,39 @@ function buildDrums(svg, keys) {
 
 const BUILDERS = { piano: buildPiano, xylo: buildXylo, drums: buildDrums };
 
+// keyboard rows: digits strike the instrument's keys in order (piano white
+// keys); QWERTY's top row reaches the piano's black keys
+const KEY_LISTS = {
+  drums: DRUM_PADS.map(p => p.k),
+  xylo: XYLO_NOTES,
+  piano: PIANO_WHITES,
+};
+const DIGIT_ROW = '1234567890-=';
+const BLACK_ROW = 'qwertyui';
+
 // ── Songs ─────────────────────────────────────────────────────────────────────
-// Simple public-domain kids' tunes, written for the melodic instruments'
-// ranges (piano C4–G5 white keys, xylophone C5–E6). `score` is a compact
-// string: notes separated by spaces, `:n` = length in beats (default 1),
-// `|` splits the teaching phrases. Keys off C are transposed to stay on
-// white keys / xylophone bars.
+// Simple public-domain kids' tunes for the melodic instruments (piano C4–G5
+// white keys, xylophone C5–E6) plus rhythm-only patterns for the drums.
+// `score` is a compact string: notes/pads separated by spaces, `:n` = length
+// in beats (default 1), `|` splits the teaching phrases.
 
 const SONG_DEFS = [
   { id: 'hotcross', name: 'Hot Cross Buns', icon: '\u{1F950}', inst: 'xylo', beat: 500,
     score: 'E5 D5 C5:2 E5 D5 C5:2 | C5:0.5 C5:0.5 C5:0.5 C5:0.5 D5:0.5 D5:0.5 D5:0.5 D5:0.5 | E5 D5 C5:2' },
+  { id: 'stomp', name: 'Stomp Stomp Clap', icon: '\u{1F4A5}', inst: 'drums', beat: 520,
+    score: 'kick kick snare:2 kick kick snare:2 | kick kick snare:2 kick kick snare:2 | kick kick snare kick kick snare cymbal:2' },
   { id: 'twinkle', name: 'Twinkle Twinkle', icon: '⭐', inst: 'piano', beat: 480,
     score: 'C4 C4 G4 G4 A4 A4 G4:2 | F4 F4 E4 E4 D4 D4 C4:2 | G4 G4 F4 F4 E4 E4 D4:2 | G4 G4 F4 F4 E4 E4 D4:2 | C4 C4 G4 G4 A4 A4 G4:2 | F4 F4 E4 E4 D4 D4 C4:2' },
   { id: 'mary', name: 'Mary Had a Little Lamb', icon: '\u{1F411}', inst: 'xylo', beat: 450,
     score: 'E5 D5 C5 D5 E5 E5 E5:2 | D5 D5 D5:2 E5 G5 G5:2 | E5 D5 C5 D5 E5 E5 E5 E5 | D5 D5 E5 D5 C5:2' },
+  { id: 'march', name: 'Marching Band', icon: '\u{1F3BA}', inst: 'drums', beat: 450,
+    score: 'kick snare kick snare | kick kick snare:2 kick kick snare:2 | kick snare kick snare hihat hihat snare:2 | kick kick snare hihat kick kick cymbal:2' },
   { id: 'row', name: 'Row Your Boat', icon: '\u{1F6A3}', inst: 'xylo', beat: 420,
     score: 'C5 C5 C5 D5 E5:2 | E5 D5 E5 F5 G5:2 | C6 C6 C6 G5 G5 G5 E5 E5 E5 C5 C5 C5 | G5 F5 E5 D5 C5:2' },
   { id: 'oldmac', name: 'Old MacDonald', icon: '\u{1F69C}', inst: 'piano', beat: 430,
     score: 'F4 F4 F4 C4 D4 D4 C4:2 | A4 A4 G4 G4 F4:2 | C4 F4 F4 F4 C4 D4 D4 C4:2 | A4 A4 G4 G4 F4:2' },
+  { id: 'heartbeat', name: 'Heartbeat Drum', icon: '\u{1F493}', inst: 'drums', beat: 400,
+    score: 'kick:0.5 kick:1.5 kick:0.5 kick:1.5 | tom:0.5 tom:1.5 tom:0.5 tom:1.5 | kick:0.5 kick:1.5 tom:0.5 tom:1.5 kick:0.5 kick:1.5 cymbal:2' },
   { id: 'london', name: 'London Bridge', icon: '\u{1F309}', inst: 'xylo', beat: 430,
     score: 'G5 A5 G5 F5 E5 F5 G5:2 | D5 E5 F5:2 E5 F5 G5:2 | G5 A5 G5 F5 E5 F5 G5:2 | D5:2 G5:2 E5 C5:2' },
   { id: 'frere', name: 'Frère Jacques', icon: '\u{1F514}', inst: 'piano', beat: 430,
@@ -359,24 +361,10 @@ let msgTimer = null;
 const activePtrs = new Map();   // pointerId → last key (glissando + multi-touch)
 
 // DOM refs, resolved once in initJam
-let overlay, stageSvg, surfSvg, msgEl, instRow, btnRec, btnPlay, btnChal,
+let overlay, stageSvg, surfSvg, msgEl, instRow, btnRec, btnPlay, btnShare, btnChal,
     songsPanel, songListEl, resultsPanel, arms;
 
 const PRAISE = ['Nice! \u{1F31F}', 'Lovely! \u{1F3B6}', 'You got it! \u{1F44F}', 'Sounding great! \u{1F3A7}'];
-
-// ── Emoji snapshot (same recipe as the other minigames) ──────────────────────
-
-function playerHeadSvg() {
-  let inner = '';
-  zOrder.forEach(layer => {
-    const part = PARTS[layer][state[layer]];
-    if (!part || !part.svg) return;
-    const o = offsets[layer] || { x: 0, y: 0 };
-    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
-    inner += `<g${t}>${part.svg}</g>`;
-  });
-  return inner;
-}
 
 // ── The stage (top quarter): curtains, spotlight, stool, emoji + arms ─────────
 
@@ -459,7 +447,7 @@ function drawStage() {
   el('ellipse', { cx: 36, cy: 20.6, rx: 5.2, ry: 1.7, fill: '#C98A4B', stroke: '#8B5A2B', 'stroke-width': 0.5 }, s);
   // the musician (face centred at 36,13 → scale 0.24 of the 72-box snapshot)
   const head = el('g', { transform: 'translate(27.36 4.36) scale(0.24)' }, s);
-  head.innerHTML = playerHeadSvg();
+  head.innerHTML = GameKit.emojiSnapshotSvg();
   // instrument in front, then arms on top so the hands hold it
   MINI[inst](s);
   arms = [armGroup(-1, PROPS[inst]), armGroup(1, PROPS[inst])];
@@ -534,18 +522,9 @@ function onKey(k) {
   if (ch) challengeInput(k);
 }
 
-function toSurf(evt) {
-  const m = surfSvg.getScreenCTM();
-  if (!m) return null;
-  const pt = surfSvg.createSVGPoint();
-  pt.x = evt.clientX;
-  pt.y = evt.clientY;
-  return pt.matrixTransform(m.inverse());
-}
-
 function onDown(e) {
   if (!open) return;
-  const p = toSurf(e);
+  const p = GameKit.svgPoint(surfSvg, e);
   if (!p) return;
   const k = hitTest(p);
   if (k) {
@@ -558,7 +537,7 @@ function onDown(e) {
 
 function onMove(e) {
   if (!open || !activePtrs.has(e.pointerId)) return;
-  const p = toSurf(e);
+  const p = GameKit.svgPoint(surfSvg, e);
   if (!p) return;
   const k = hitTest(p);
   if (k && k !== activePtrs.get(e.pointerId)) {   // glissando!
@@ -570,6 +549,24 @@ function onMove(e) {
 
 function onUp(e) {
   activePtrs.delete(e.pointerId);
+}
+
+// digits (and QWERTY for piano black keys) play the current instrument
+function onKeyboard(e) {
+  if (!open || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  let k = null;
+  const di = DIGIT_ROW.indexOf(e.key);
+  if (di >= 0) {
+    const list = KEY_LISTS[inst];
+    if (di < list.length) k = list[di];
+  } else if (inst === 'piano') {
+    const bi = BLACK_ROW.indexOf(e.key.toLowerCase());
+    if (bi >= 0) k = PIANO_BLACKS[bi].k;
+  }
+  if (k) {
+    onKey(k);
+    e.preventDefault();
+  }
 }
 
 // ── Recording & playback ──────────────────────────────────────────────────────
@@ -639,6 +636,65 @@ function onPlayBtn() {
   if (playback) { stopPlayback(); return; }
   if (recording) stopRecord();
   if (take) startPlayback();
+}
+
+// ── Share a take as a stateless ?j= link ──────────────────────────────────────
+// Same trick as the builder's ?e=: the whole recording is encoded into the
+// URL, no backend. Format: 1~<dur36>~<note>-<note>-…  where each note is
+// <instrument letter><key index base36>.<delta ms/10 base36>. Keys are
+// addressed by index into the instrument's stable key list.
+
+const INST_CHAR = { drums: 'd', xylo: 'x', piano: 'p' };
+const CHAR_INST = { d: 'drums', x: 'xylo', p: 'piano' };
+const SHARE_KEYS = {
+  drums: KEY_LISTS.drums,
+  xylo: XYLO_NOTES,
+  piano: PIANO_WHITES.concat(PIANO_BLACKS.map(b => b.k)),
+};
+
+function encodeTake() {
+  let prev = 0;
+  const toks = take.map(n => {
+    const ki = SHARE_KEYS[n.i].indexOf(n.k);
+    const dt = Math.max(0, Math.round((n.t - prev) / 10));
+    prev = n.t;
+    return INST_CHAR[n.i] + ki.toString(36) + '.' + dt.toString(36);
+  });
+  return '1~' + Math.round(takeDur / 10).toString(36) + '~' + toks.join('-');
+}
+
+function decodeTake(str) {
+  const m = /^1~([0-9a-z]+)~(.+)$/.exec(str || '');
+  if (!m) return null;
+  const notes = [];
+  let t = 0;
+  for (const tok of m[2].split('-')) {
+    const f = /^([dxp])([0-9a-z])\.([0-9a-z]+)$/.exec(tok);
+    if (!f) return null;
+    const i = CHAR_INST[f[1]];
+    const k = SHARE_KEYS[i][parseInt(f[2], 36)];
+    if (!k) return null;
+    t += parseInt(f[3], 36) * 10;
+    notes.push({ i, k, t });
+  }
+  return notes.length ? { notes, dur: parseInt(m[1], 36) * 10 } : null;
+}
+
+async function onShareBtn() {
+  if (!take || ch) return;
+  const u = new URL(location.href);
+  u.searchParams.set('j', encodeTake());
+  const url = u.toString();
+  if (navigator.share) {
+    try { await navigator.share({ title: 'A song for you!', url }); } catch (e) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+      flashMsg('Song link copied! \u{1F4E4}');
+    } catch (e) {
+      flashMsg('Could not copy the link');
+    }
+  }
 }
 
 // ── Challenge mode ────────────────────────────────────────────────────────────
@@ -779,12 +835,14 @@ function finishChallenge() {
     score >= 90 ? 'Superstar! \u{1F31F}' :
     score >= 75 ? 'Amazing! \u{1F3B6}' :
     score >= 50 ? 'Great jamming! \u{1F3B5}' : 'Good practice! \u{1F3A7}';
+  const learnedAll = Object.keys(bests).length >= SONGS.length;
   document.getElementById('jam-result-note').textContent =
     song.name + (score > prev
       ? (prev ? ` — a new best (was ${prev})!` : ' — your first score, nice!')
-      : ` — best so far: ${Math.max(prev, score)}.`);
+      : ` — best so far: ${Math.max(prev, score)}.`) +
+    (learnedAll ? ' \u{1F3C6} You’ve played every song in the book!' : '');
   setMsg('What a performance! \u{1F389}', 'praise');
-  showPanel(resultsPanel);
+  showPanel(resultsPanel, quitChallenge);
 }
 
 function quitChallenge() {
@@ -819,11 +877,22 @@ function openSongs() {
     b.addEventListener('click', () => startChallenge(song));
     songListEl.appendChild(b);
   });
-  showPanel(songsPanel);
+  showPanel(songsPanel, () => {
+    hidePanel(songsPanel);
+    if (!ch) freeMsg();
+  });
 }
 
-function showPanel(p) { p.classList.add('show'); }
-function hidePanel(p) { p.classList.remove('show'); }
+// Panels register an Escape layer so Escape closes the panel, not the Jam.
+function showPanel(p, esc) {
+  if (!p._layer) p._layer = pushEscLayer(esc || (() => hidePanel(p)));
+  p.classList.add('show');
+}
+
+function hidePanel(p) {
+  if (p._layer) { removeEscLayer(p._layer); p._layer = null; }
+  p.classList.remove('show');
+}
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 
@@ -845,6 +914,7 @@ function updateButtons() {
   btnPlay.classList.toggle('is-disabled', busy || (!take && !playback));
   btnPlay.querySelector('.tool-emoji').textContent = playback ? '■' : '▶';
   btnPlay.querySelector('.tool-name').textContent = playback ? 'Stop' : 'Play';
+  btnShare.classList.toggle('is-disabled', busy || !take);
   btnChal.querySelector('.tool-emoji').textContent = busy ? '✕' : '\u{1F3AF}';
   btnChal.querySelector('.tool-name').textContent = busy ? 'Quit' : 'Challenge';
 }
@@ -871,9 +941,10 @@ function tickLoop() {
     const t = now - playback.start;
     while (playback && playback.idx < take.length && take[playback.idx].t <= t) {
       const ev = take[playback.idx++];
+      if (ev.i !== inst) setInst(ev.i);   // replay feels like a performance
       playKey(ev.i, ev.k);
       bopArm();
-      if (ev.i === inst) flashKey(ev.k);
+      flashKey(ev.k);
     }
     // loop until the player presses Stop, keeping the recorded tail silence
     if (playback && playback.idx >= take.length && t >= playback.loop) {
@@ -910,9 +981,7 @@ function openJam() {
   freeMsg();
   hidePanel(songsPanel);
   hidePanel(resultsPanel);
-  overlay.classList.add('show');
-  overlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('jam-open');
+  openOverlay(overlay, closeJam);
   raf = requestAnimationFrame(tickLoop);
 }
 
@@ -922,12 +991,12 @@ function closeJam() {
   if (recording) stopRecord();
   playback = null;
   ch = null;
+  hidePanel(songsPanel);
+  hidePanel(resultsPanel);
   cancelAnimationFrame(raf);
   clearTimeout(msgTimer);
   activePtrs.clear();
-  overlay.classList.remove('show');
-  overlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('jam-open');
+  closeOverlay(overlay);
 }
 
 // ── Init & registry ───────────────────────────────────────────────────────────
@@ -946,6 +1015,7 @@ function initJam() {
     INSTRUMENTS[id].name, 'jam-inst', () => { if (!ch) setInst(id); }));
   btnRec = makeBtn('jam-rec', '●', 'Record', 'jam-ctl jam-rec', onRecordBtn);
   btnPlay = makeBtn('jam-playbtn', '▶', 'Play', 'jam-ctl', onPlayBtn);
+  btnShare = makeBtn('jam-share', '\u{1F4E4}', 'Share', 'jam-ctl', onShareBtn);
   btnChal = makeBtn('jam-challenge', '\u{1F3AF}', 'Challenge', 'jam-ctl', onChallengeBtn);
 
   loadTake();
@@ -970,7 +1040,7 @@ function initJam() {
   surfSvg.addEventListener('pointerup', onUp);
   surfSvg.addEventListener('pointercancel', onUp);
   surfSvg.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeJam(); });
+  document.addEventListener('keydown', onKeyboard);
 
   // tiny hook for automated tests: tap keys and peek at the state
   window.__jam = {
@@ -987,11 +1057,26 @@ function initJam() {
       ch: ch && { mode: ch.mode, sec: ch.sec, pos: ch.pos, hits: ch.hits, wrong: ch.wrong },
     },
   };
+
+  // a ?j= link opens the Jam with the sender's song loaded, ready to play
+  const shared = decodeTake(new URLSearchParams(location.search).get('j'));
+  if (shared) {
+    take = shared.notes;
+    takeDur = shared.dur;
+    openJam();
+    setMsg('\u{1F381} Someone sent you a song! Press ▶ to hear it', 'praise');
+  }
 }
 
-// register before minigames.js builds the Games picker on DOMContentLoaded
+// register before games.js builds the Games picker on DOMContentLoaded
 window.MINIGAMES = window.MINIGAMES || {};
-window.MINIGAMES.jam = { name: 'Jam Session', emoji: '\u{1F3B5}', start: openJam };
+window.MINIGAMES.jam = {
+  name: 'Jam Session', emoji: '\u{1F3B5}', start: openJam,
+  best: () => {
+    const n = Object.keys(bests).length;
+    return n ? n + '/' + SONGS.length + ' songs' : '';
+  },
+};
 
 document.addEventListener('DOMContentLoaded', initJam);
 

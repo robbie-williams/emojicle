@@ -10,45 +10,30 @@
 // Levels rotate through four biomes (savannah → jungle → meadow → city), each
 // with its own painted SVG backdrop and animal cast. Difficulty climbs per
 // level: more points needed in the same 30 seconds, faster animals, quicker
-// spawns. Each level hides 1–2 golden animals worth triple points. Clearing
-// level 8 is "the end"; the best level cleared is kept in localStorage.
+// spawns. Each level hides 1–2 golden animals worth triple points; the
+// biggest animals (elephant, horse) are extra thirsty and need TWO squirts;
+// five quick hits in a row light a 🔥 double-points streak. Clearing level 8
+// is "the end"; the best level cleared is kept in localStorage. "Relax mode"
+// on the intro card removes the countdown entirely — squirt at your own pace.
 //
-// Animal casts follow the issue where emoji exist; tapirs, cardinals, field
-// sparrows and guinea pigs have no glyph, so a monkey, a red-tinted bird
-// (SVG filter), a plain bird and a hamster stand in.
+// Fully keyboard-playable too: ←/→ picks a target animal, Enter/Space squirts.
 //
-// Reads the builder's globals (PARTS, state, offsets, zOrder, note,
-// getAudioCtx) like minigames.js does, and registers itself in the shared
-// window.MINIGAMES registry so the Games picker lists it.
+// Reads the builder's globals plus GameKit from games-common.js, and registers
+// itself in the shared window.MINIGAMES registry so the Games picker lists it.
 
 (function () {
 
-const NS = 'http://www.w3.org/2000/svg';
-
-// tiny SVG element helper
-function el(tag, attrs, parent) {
-  const n = document.createElementNS(NS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-
-const rnd = (a, b) => a + Math.random() * (b - a);
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const { el, rnd, pick, dist, sfx } = GameKit;
 const animalCount = n => n + ' animal' + (n === 1 ? '' : 's');
 
 // ── Sounds (synthesized via note() from app.js — no audio files) ─────────────
-
-function sfx(fn) {
-  const ctx = getAudioCtx();
-  if (ctx) fn(ctx, ctx.currentTime + 0.02);
-}
 
 const SFX = {
   squirt: () => sfx((c, t) => note(c, t, 1400 + Math.random() * 300, 0.1, { type: 'sine', glide: 480, vol: 0.05 })),
   splash: () => sfx((c, t) => { note(c, t, 300, 0.1, { type: 'sine', glide: 130, vol: 0.07 }); note(c, t + 0.05, 950, 0.06, { type: 'sine', vol: 0.03 }); }),
   happy:  () => sfx((c, t) => { note(c, t, 659.25, 0.09, { vol: 0.08 }); note(c, t + 0.1, 880, 0.15, { vol: 0.08 }); }),
   golden: () => sfx((c, t) => [783.99, 987.77, 1318.5].forEach((f, i) => note(c, t + i * 0.09, f, 0.15, { vol: 0.09 }))),
+  streak: () => sfx((c, t) => [659.25, 880, 1174.7].forEach((f, i) => note(c, t + i * 0.07, f, 0.12, { vol: 0.08 }))),
   tick:   () => sfx((c, t) => note(c, t, 1050, 0.05, { type: 'square', vol: 0.03 })),
   win:    () => sfx((c, t) => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(c, t + i * 0.13, f, 0.18, { vol: 0.09 }))),
   gentle: () => sfx((c, t) => { note(c, t, 523.25, 0.2, { vol: 0.08 }); note(c, t + 0.22, 659.25, 0.3, { vol: 0.08 }); }),
@@ -58,7 +43,8 @@ const SFX = {
 // The stage viewBox is 0 0 72 96: y 0–72 is the animals' world (sky + field),
 // y 72–96 the ground the player stands on. Each biome paints sky/field/ground
 // bands plus its own deco, and brings its animal cast (glyph + base size;
-// fly = bird that flutters along the top, tint = colour filter id).
+// fly = bird that flutters along the top, tint = colour filter id, two =
+// extra-thirsty big animal that needs two squirts).
 
 const BIOMES = [
   {
@@ -66,7 +52,7 @@ const BIOMES = [
     story: 'The savannah sun is scorching! Squirt the thirsty animals a cool drink as they pass.',
     sky: '#FFE2AC', field: '#EFD189', ground: '#E0B368',
     animals: [
-      { e: '\u{1F418}', size: 10.5 },   // elephant
+      { e: '\u{1F418}', size: 10.5, two: true },   // elephant — big drinker!
       { e: '\u{1F993}', size: 9 },      // zebra
       { e: '\u{1F981}', size: 9 },      // lion
     ],
@@ -136,7 +122,7 @@ const BIOMES = [
     animals: [
       { e: '\u{1F415}', size: 8 },      // dog
       { e: '\u{1F408}', size: 7 },      // cat
-      { e: '\u{1F40E}', size: 10 },     // horse
+      { e: '\u{1F40E}', size: 10, two: true },     // horse — big drinker!
       { e: '\u{1F439}', size: 5.5 },    // hamster (no guinea pig emoji)
     ],
     deco(g) {
@@ -159,6 +145,8 @@ const BIOMES = [
 // ── Difficulty ────────────────────────────────────────────────────────────────
 
 const MAX_LEVEL = 8;    // two laps of the biomes = "the end"
+const STREAK_GAP = 2.5; // max seconds between hits to keep a streak alive
+const STREAK_AT = 5;    // hits in a row that light the double-points fire
 
 function levelParams(L) {
   return {
@@ -176,9 +164,11 @@ function levelParams(L) {
 let game = null;        // null when the safari is closed
 let level = 1;
 let helped = 0;         // animals helped across the whole run (the kind number)
-let best = 0;           // highest level ever cleared (persisted)
+let best = 0;           // highest level ever cleared (persisted, timed runs only)
 const BEST_KEY = 'emojicle-safari-best';
-let parts = [];         // live particles
+const RELAX_KEY = 'emojicle-safari-relax';
+let relax = false;      // "no timer" mode, toggled on the intro card
+let fx = null;          // GameKit particle system, bound to #sf-fx in init
 let msgTimer = null;
 let aimTimer = null;
 
@@ -196,25 +186,11 @@ const PISTOL = { x: 24, y: 81 };
 const REGULAR_PTS = 10, GOLDEN_PTS = 30;
 
 // ── Player (the emoji from the builder, plus its water pistol) ───────────────
-// Same snapshot recipe as the clinic: current parts in stacking order with
-// drag offsets baked in, scaled into the bottom quarter of the stage.
-
-function playerSvg() {
-  let inner = '';
-  zOrder.forEach(layer => {
-    const part = PARTS[layer][state[layer]];
-    if (!part || !part.svg) return;
-    const o = offsets[layer] || { x: 0, y: 0 };
-    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
-    inner += `<g${t}>${part.svg}</g>`;
-  });
-  return inner;
-}
 
 function drawPlayer() {
   playerG.innerHTML = '';
   const body = el('g', { transform: 'translate(25.5 74) scale(0.29)' }, playerG);
-  body.innerHTML = playerSvg();
+  body.innerHTML = GameKit.emojiSnapshotSvg();
   pistolG = el('g', {}, playerG);
   const t = el('text', { 'font-size': 8, 'text-anchor': 'middle', y: 2.8 }, pistolG);
   t.textContent = '\u{1F52B}';
@@ -225,63 +201,6 @@ function drawPlayer() {
 function aimPistol(tx, ty) {
   const a = Math.atan2(ty - PISTOL.y, tx - PISTOL.x) * 180 / Math.PI;
   pistolG.setAttribute('transform', `translate(${PISTOL.x} ${PISTOL.y}) rotate(${(a + 180).toFixed(1)})`);
-}
-
-// ── Particles (water, sparkles, floating scores, confetti) ───────────────────
-
-function puff(x, y, color, n) {
-  for (let i = 0; i < n; i++) {
-    const a = Math.random() * Math.PI * 2, sp = rnd(4, 12);
-    parts.push({
-      el: el('circle', { cx: x, cy: y, r: rnd(0.6, 1.4), fill: color }, fxG),
-      x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-      life: 1, decay: rnd(1.8, 2.8), grav: 8,
-    });
-  }
-}
-
-function floatText(x, y, str, fill) {
-  const t = el('text', {
-    x, y, 'font-size': 4.6, 'text-anchor': 'middle', 'font-weight': 700,
-    fill, stroke: '#FFFFFF', 'stroke-width': 0.25, 'paint-order': 'stroke',
-  }, fxG);
-  t.textContent = str;
-  parts.push({ el: t, x, y, vx: 0, vy: -7, life: 1, decay: 1.3, grav: 0, isText: true });
-}
-
-function confetti() {
-  const colors = ['#FF5A5F', '#FFD93B', '#2BB673', '#8E6FF7', '#69B7FF', '#FF4FA3'];
-  for (let i = 0; i < 30; i++) {
-    const x = rnd(6, 66);
-    parts.push({
-      el: el('rect', { width: 1.7, height: 1.1, fill: colors[i % colors.length] }, fxG),
-      x, y: -8, vx: rnd(-5, 5), vy: rnd(6, 14),
-      life: 1, decay: 0.35, grav: 16,
-      rot: rnd(0, 360), vr: rnd(-300, 300),
-    });
-  }
-}
-
-function tickParts(dt) {
-  parts = parts.filter(p => {
-    p.life -= dt * p.decay;
-    if (p.life <= 0) { p.el.remove(); return false; }
-    p.vy += p.grav * dt;
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    if (p.vr !== undefined) {
-      p.rot += p.vr * dt;
-      p.el.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.rot.toFixed(0)})`);
-    } else if (p.isText) {
-      p.el.setAttribute('x', p.x.toFixed(1));
-      p.el.setAttribute('y', p.y.toFixed(1));
-    } else {
-      p.el.setAttribute('cx', p.x.toFixed(1));
-      p.el.setAttribute('cy', p.y.toFixed(1));
-    }
-    p.el.setAttribute('opacity', p.life.toFixed(2));
-    return true;
-  });
 }
 
 // a quick arc of droplets from the pistol tip to the tap point, plus a splash
@@ -296,13 +215,13 @@ function squirt(tx, ty) {
     const t = i / 10, u = 1 - t;
     const x = u * u * tip.x + 2 * u * t * mx + t * t * tx;
     const y = u * u * tip.y + 2 * u * t * my + t * t * ty;
-    parts.push({
+    fx.add({
       el: el('circle', { cx: x, cy: y, r: rnd(0.5, 0.9), fill: '#69B7FF' }, fxG),
       x, y, vx: rnd(-2, 2), vy: rnd(-2, 2),
       life: 0.55 + t * 0.3, decay: 2.6, grav: 10,
     });
   }
-  puff(tx, ty, '#BFE7FF', 6);
+  fx.puff(tx, ty, '#BFE7FF', 6);
   SFX.squirt();
 }
 
@@ -326,17 +245,18 @@ function spawnAnimal(golden) {
   if (dir > 0) glyph.setAttribute('transform', 'scale(-1 1)');
   const tint = golden ? 'sf-gold' : def.tint;
   if (tint) glyph.setAttribute('filter', `url(#${tint})`);
+  const hp = def.two && !golden ? 2 : 1;   // the biggest animals drink twice
   const drop = el('text', {
     'font-size': size * 0.5, 'text-anchor': 'middle', y: -size * 0.55,
   }, g);
-  drop.textContent = '\u{1F4A7}';
+  drop.textContent = hp === 2 ? '\u{1F4A7}\u{1F4A7}' : '\u{1F4A7}';
   if (golden) {
     const spark = el('text', { 'font-size': size * 0.45, x: size * 0.7, y: -size * 0.45 }, g);
     spark.textContent = '✨';
   }
 
   game.animals.push({
-    g, drop, golden, size,
+    g, drop, golden, size, hp,
     pts: golden ? GOLDEN_PTS : REGULAR_PTS,
     x: dir > 0 ? -10 : 82, y: laneY,
     vx: speed * dir, fly: !!def.fly,
@@ -369,23 +289,45 @@ function tickAnimals(dt) {
 }
 
 function hitAnimal(a, px, py) {
+  // the extra-thirsty big animals want a second squirt before they're happy
+  if (a.hp > 1) {
+    a.hp--;
+    a.drop.textContent = '\u{1F4A7}';
+    SFX.splash();
+    fx.puff(px, py, '#BFE7FF', 5);
+    fx.floatText(a.x, a.y - a.size, 'One more!', '#4A90E2');
+    return;
+  }
+
   a.state = 'happy';
   a.t = 0;
   a.drop.textContent = '❤️';   // thirst quenched → love
   helped++;
-  game.score += a.pts;
+
+  // quick consecutive hits build a streak; five in a row doubles the points
+  if (game.elapsed - game.lastHit <= STREAK_GAP) game.streak++;
+  else game.streak = 1;
+  game.lastHit = game.elapsed;
+  if (game.streak === STREAK_AT) {
+    SFX.streak();
+    flashMsg('\u{1F525} On fire! Double points!');
+  }
+  const mult = game.streak >= STREAK_AT ? 2 : 1;
+  const pts = a.pts * mult;
+
+  game.score += pts;
   helpedEl.textContent = String(helped);
   if (a.golden) {
     SFX.golden();
-    puff(a.x, a.y, '#FFD93B', 10);
-    floatText(a.x, a.y - a.size, '+' + a.pts + ' ✨', '#DB8E00');
-    flashMsg('✨ A golden friend! +' + a.pts + '!');
+    fx.puff(a.x, a.y, '#FFD93B', 10);
+    fx.floatText(a.x, a.y - a.size, '+' + pts + ' ✨', '#DB8E00');
+    flashMsg('✨ A golden friend! +' + pts + '!');
   } else {
     SFX.happy();
-    floatText(a.x, a.y - a.size, '+' + a.pts, '#2BB673');
+    fx.floatText(a.x, a.y - a.size, '+' + pts + (mult > 1 ? ' \u{1F525}' : ''), '#2BB673');
   }
   SFX.splash();
-  puff(px, py, '#BFE7FF', 5);
+  fx.puff(px, py, '#BFE7FF', 5);
   updateHud();
   if (game.score >= game.params.target) {
     game.phase = 'won';
@@ -412,9 +354,15 @@ function updateHud() {
   const p = game.params;
   goalFill.style.width = Math.min(100, game.score / p.target * 100) + '%';
   document.getElementById('sf-goal').textContent = game.score + '/' + p.target;
-  document.getElementById('sf-time').textContent = Math.ceil(game.timeLeft) + 's';
-  hudEl.classList.toggle('low', game.timeLeft <= 10 && game.timeLeft > 5);
-  hudEl.classList.toggle('critical', game.timeLeft <= 5);
+  const timeEl = document.getElementById('sf-time');
+  if (game.relax) {
+    timeEl.textContent = '\u{1F324}\u{FE0F}';
+    hudEl.classList.remove('low', 'critical');
+  } else {
+    timeEl.textContent = Math.ceil(game.timeLeft) + 's';
+    hudEl.classList.toggle('low', game.timeLeft <= 10 && game.timeLeft > 5);
+    hudEl.classList.toggle('critical', game.timeLeft <= 5);
+  }
 }
 
 function tickTimer(dt) {
@@ -436,8 +384,7 @@ function tickSpawns(dt) {
     game.nextSpawn = game.params.interval * rnd(0.75, 1.25);
     spawnAnimal(false);
   }
-  const elapsed = game.params.time - game.timeLeft;
-  while (game.goldenTimes.length && elapsed >= game.goldenTimes[0]) {
+  while (game.goldenTimes.length && game.elapsed >= game.goldenTimes[0]) {
     game.goldenTimes.shift();
     spawnAnimal(true);
   }
@@ -448,11 +395,12 @@ function tickSpawns(dt) {
 function openLevel() {
   const params = levelParams(level);
   game = {
-    params, phase: 'intro', score: 0,
-    timeLeft: params.time, animals: [],
+    params, phase: 'intro', score: 0, relax,
+    timeLeft: params.time, elapsed: 0, animals: [],
+    streak: 0, lastHit: -99,
     spawnAcc: 0, nextSpawn: 0.3,
     goldenTimes: Array.from({ length: params.goldens }, () => rnd(4, params.time - 6)).sort((a, b) => a - b),
-    lastT: 0, timer: null,
+    lastT: 0, timer: null, kbSel: null,
   };
 
   sceneG.innerHTML = '';
@@ -461,8 +409,12 @@ function openLevel() {
   el('rect', { x: 0, y: 72, width: 72, height: 24, fill: params.biome.ground }, sceneG);
   params.biome.deco(sceneG);
   animalsG.innerHTML = '';
-  fxG.innerHTML = '';
-  parts = [];
+  fx.reset();
+  // dashed ring that marks the keyboard-selected animal
+  game.kbMarker = el('circle', {
+    r: 6, fill: 'none', stroke: '#FF5A5F', 'stroke-width': 0.8,
+    'stroke-dasharray': '2 1.5', visibility: 'hidden',
+  }, fxG);
   drawPlayer();
 
   document.getElementById('sf-level').textContent = 'Lv ' + level;
@@ -471,7 +423,8 @@ function openLevel() {
   document.getElementById('sf-intro-name').textContent = params.biome.name;
   document.getElementById('sf-intro-story').textContent = params.biome.story;
   document.getElementById('sf-intro-target').textContent = '\u{1F3AF} ' + params.target + ' points';
-  document.getElementById('sf-intro-time').textContent = '⏱ ' + params.time + ' seconds';
+  document.getElementById('sf-intro-time').textContent =
+    relax ? '\u{1F324}\u{FE0F} No timer' : '⏱ ' + params.time + ' seconds';
   document.getElementById('sf-intro-best').textContent = best > 0 ? '\u{1F3C6} Best: level ' + best : '';
   helpedEl.textContent = String(helped);
   hudEl.classList.remove('low', 'critical');
@@ -493,10 +446,10 @@ function startLevel() {
 
 function levelCleared() {
   SFX.win();
-  confetti();
-  if (level > best) {
+  fx.confetti();
+  if (!game.relax && level > best) {
     best = level;
-    try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+    GameKit.saveBest(BEST_KEY, best);
   }
   setMsg('Everyone got a drink! \u{1F389}');
   if (level >= MAX_LEVEL) {
@@ -539,18 +492,13 @@ function restartRun() { endLevel(); level = 1; helped = 0; openLevel(); }
 function openSafari() {
   level = 1;
   helped = 0;
-  overlay.classList.add('show');
-  overlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('safari-open');
+  openOverlay(overlay, closeSafari);
   openLevel();
 }
 
 function closeSafari() {
-  if (!game) return;
-  endLevel();
-  overlay.classList.remove('show');
-  overlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('safari-open');
+  if (game) endLevel();
+  closeOverlay(overlay);
 }
 
 function tickLoop(t) {
@@ -558,30 +506,23 @@ function tickLoop(t) {
   const dt = game.lastT ? Math.min(0.05, (t - game.lastT) / 1000) : 0.016;
   game.lastT = t;
   if (game.phase === 'play') {
-    tickTimer(dt);
+    game.elapsed += dt;
+    if (!game.relax) tickTimer(dt);
     if (game && game.phase === 'play') tickSpawns(dt);
   }
   if (game) {
     tickAnimals(dt);
-    tickParts(dt);
+    tickKbMarker();
+    fx.tick(dt);
     game.raf = requestAnimationFrame(tickLoop);
   }
 }
 
 // ── Pointer input ─────────────────────────────────────────────────────────────
 
-function toStage(evt) {
-  const m = svg.getScreenCTM();
-  if (!m) return null;
-  const pt = svg.createSVGPoint();
-  pt.x = evt.clientX;
-  pt.y = evt.clientY;
-  return pt.matrixTransform(m.inverse());
-}
-
 function onDown(e) {
   if (!game || (game.phase !== 'play' && game.phase !== 'won')) return;
-  const p = toStage(e);
+  const p = GameKit.svgPoint(svg, e);
   if (!p || p.y > 74) return;      // taps on the player aren't shots
   squirt(p.x, p.y);
   if (game.phase !== 'play') return;   // celebration squirts don't score
@@ -593,6 +534,47 @@ function onDown(e) {
   });
   if (hit) hitAnimal(hit, p.x, p.y);
   e.preventDefault();
+}
+
+// ── Keyboard input: ←/→ picks an animal, Enter/Space squirts it ──────────────
+
+function tickKbMarker() {
+  const a = game.kbSel;
+  if (!a || a.state !== 'walk' || !game.animals.includes(a)) {
+    game.kbSel = null;
+    game.kbMarker.setAttribute('visibility', 'hidden');
+    return;
+  }
+  game.kbMarker.setAttribute('cx', a.x.toFixed(1));
+  game.kbMarker.setAttribute('cy', a.y.toFixed(1));
+  game.kbMarker.setAttribute('r', (a.size * 0.8 + 2).toFixed(1));
+  game.kbMarker.setAttribute('visibility', 'visible');
+}
+
+function cycleTarget(dir) {
+  const walkers = game.animals.filter(a => a.state === 'walk').sort((a, b) => a.x - b.x);
+  if (!walkers.length) return;
+  const i = walkers.indexOf(game.kbSel);
+  game.kbSel = i < 0
+    ? walkers[dir > 0 ? 0 : walkers.length - 1]
+    : walkers[(i + dir + walkers.length) % walkers.length];
+  tickKbMarker();
+}
+
+function onKey(e) {
+  if (!game || game.phase !== 'play') return;
+  if (e.key === 'ArrowLeft') { cycleTarget(-1); e.preventDefault(); }
+  else if (e.key === 'ArrowRight') { cycleTarget(1); e.preventDefault(); }
+  else if (e.key === 'Enter' || e.key === ' ') {
+    const a = game.kbSel;
+    if (a && a.state === 'walk') {
+      squirt(a.x, a.y);
+      hitAnimal(a, a.x, a.y);
+    } else {
+      cycleTarget(1);
+    }
+    e.preventDefault();
+  }
 }
 
 // ── Init & registry ───────────────────────────────────────────────────────────
@@ -612,6 +594,7 @@ function initSafari() {
   clearPanel = document.getElementById('safari-clear');
   failPanel = document.getElementById('safari-fail');
   endPanel = document.getElementById('safari-end');
+  fx = GameKit.particles(fxG);
 
   // colour filters: golden animals, and the meadow's red cardinal — both map
   // the glyph to luminance and re-colour it
@@ -623,7 +606,20 @@ function initSafari() {
     '0.287 0.966 0.097 0 0.12  0.085 0.286 0.029 0 0  0.085 0.286 0.029 0 0.02  0 0 0 1 0',
   }, el('filter', { id: 'sf-red' }, defs));
 
-  try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) {}
+  best = GameKit.loadBest(BEST_KEY);
+  try { relax = localStorage.getItem(RELAX_KEY) === '1'; } catch (e) {}
+  const relaxBox = document.getElementById('safari-relax');
+  relaxBox.checked = relax;
+  relaxBox.addEventListener('change', () => {
+    relax = relaxBox.checked;
+    try { localStorage.setItem(RELAX_KEY, relax ? '1' : '0'); } catch (e) {}
+    if (game && game.phase === 'intro') {
+      game.relax = relax;
+      document.getElementById('sf-intro-time').textContent =
+        relax ? '\u{1F324}\u{FE0F} No timer' : '⏱ ' + game.params.time + ' seconds';
+      updateHud();
+    }
+  });
 
   document.getElementById('safari-close').addEventListener('click', closeSafari);
   document.getElementById('sf-go').addEventListener('click', startLevel);
@@ -636,7 +632,7 @@ function initSafari() {
 
   svg.addEventListener('pointerdown', onDown);
   svg.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSafari(); });
+  document.addEventListener('keydown', onKey);
 
   // tiny hook for automated tests: shrink the clock / boost the score
   window.__safari = {
@@ -648,15 +644,18 @@ function initSafari() {
       if (n >= game.params.target) { game.phase = 'won'; levelCleared(); }
     },
     state: () => game && {
-      phase: game.phase, level, helped, score: game.score,
-      timeLeft: game.timeLeft, animals: game.animals.length,
+      phase: game.phase, level, helped, score: game.score, streak: game.streak,
+      timeLeft: game.timeLeft, animals: game.animals.length, relax: game.relax,
     },
   };
 }
 
-// register before minigames.js builds the Games picker on DOMContentLoaded
+// register before games.js builds the Games picker on DOMContentLoaded
 window.MINIGAMES = window.MINIGAMES || {};
-window.MINIGAMES.safari = { name: 'Water Safari', emoji: '\u{1F4A6}', start: openSafari };
+window.MINIGAMES.safari = {
+  name: 'Water Safari', emoji: '\u{1F4A6}', start: openSafari,
+  best: () => best > 0 ? 'Lv ' + best : '',
+};
 
 document.addEventListener('DOMContentLoaded', initSafari);
 

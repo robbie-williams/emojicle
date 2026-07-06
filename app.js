@@ -70,7 +70,13 @@ function renderAll() {
 
 // ── Randomise ─────────────────────────────────────────────────────────────────
 
+let booted = false;   // set once init has produced the first emoji
+
 function randomise() {
+  // a stray tap of Random shouldn't destroy a ten-minute masterpiece — keep
+  // the outgoing emoji and offer an Undo on the toast
+  const prev = booted ? encodeState() : null;
+
   LAYERS.forEach(layer => {
     state[layer] = Math.floor(Math.random() * PARTS[layer].length);
   });
@@ -86,7 +92,84 @@ function randomise() {
   renderAll();
   updateUrl();
   pulse('btn-random');
+  if (prev !== null) {
+    showToast('\u{1F3B2} New emoji!', 'Undo', () => restoreEncoded(prev));
+  }
 }
+
+// rebuild the whole builder from an encoded string (undo, gallery loads)
+function restoreEncoded(encoded) {
+  applyEncoded(encoded);
+  extrasShown = 1;
+  deselect();
+  renderAll();
+  MOVABLE.forEach(applyOffset);
+  syncExtraSlots();
+  updateUrl();
+}
+
+// ── Overlay / dialog stack ────────────────────────────────────────────────────
+// One stack for every overlay in the app (pickers, restack modal, the four
+// game screens) plus lightweight "Escape layers" for panels inside a game.
+// Opening an overlay records the previously-focused element, focuses the
+// dialog's first control and marks the rest of the page inert (which also
+// traps Tab); closing restores both. A single document-level Escape handler
+// pops only the topmost layer, so Escape in a song picker closes the panel,
+// not the whole game.
+
+const OVERLAY_STACK = [];   // top last: { el|null, close, prevFocus }
+
+function openOverlay(el, close) {
+  if (OVERLAY_STACK.some(o => o.el === el)) return;
+  el.classList.add('show');
+  el.setAttribute('aria-hidden', 'false');
+  OVERLAY_STACK.push({ el, close, prevFocus: document.activeElement });
+  syncOverlayState();
+  const first = el.querySelector(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (first) first.focus({ preventScroll: true });
+}
+
+function closeOverlay(el) {
+  const i = OVERLAY_STACK.findIndex(o => o.el === el);
+  if (i < 0) return;
+  const [o] = OVERLAY_STACK.splice(i, 1);
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden', 'true');
+  syncOverlayState();
+  if (o.prevFocus && document.contains(o.prevFocus)) {
+    try { o.prevFocus.focus({ preventScroll: true }); } catch (e) {}
+  }
+}
+
+// a panel inside an overlay that Escape should dismiss first (no el of its own)
+function pushEscLayer(close) {
+  const layer = { el: null, close, prevFocus: null };
+  OVERLAY_STACK.push(layer);
+  return layer;
+}
+
+function removeEscLayer(layer) {
+  const i = OVERLAY_STACK.indexOf(layer);
+  if (i >= 0) OVERLAY_STACK.splice(i, 1);
+}
+
+function syncOverlayState() {
+  const els = OVERLAY_STACK.filter(o => o.el).map(o => o.el);
+  const top = els[els.length - 1] || null;
+  [...document.body.children].forEach(c => {
+    if (c.tagName === 'SCRIPT' || c.id === 'toast') return;
+    if (top && c !== top) c.setAttribute('inert', '');
+    else c.removeAttribute('inert');
+  });
+  document.body.classList.toggle('overlay-open', !!top);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || !OVERLAY_STACK.length) return;
+  e.preventDefault();
+  OVERLAY_STACK[OVERLAY_STACK.length - 1].close();
+});
 
 // ── Tap picker ──────────────────────────────────────────────────────────────
 // A grid of every option for one layer — far friendlier than arrowing through
@@ -127,16 +210,13 @@ function openPicker(layer) {
     grid.appendChild(cell);
   });
 
-  picker.classList.add('show');
-  picker.setAttribute('aria-hidden', 'false');
+  openOverlay(picker, closePicker);
   const sel = grid.querySelector('.is-selected');
   if (sel) sel.scrollIntoView({ block: 'center' });
 }
 
 function closePicker() {
-  const picker = document.getElementById('picker');
-  picker.classList.remove('show');
-  picker.setAttribute('aria-hidden', 'true');
+  closeOverlay(document.getElementById('picker'));
 }
 
 // ── Dance ─────────────────────────────────────────────────────────────────────
@@ -162,15 +242,26 @@ const ARMS_SVG = `
 // the rhythms are written to line up with that move's CSS keyframe cycle.
 
 let audioCtx = null;
+let masterGain = null;   // app-wide output bus — the header mute flips its gain
+let muted = false;
 
 function getAudioCtx() {
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return null;
   if (!audioCtx) {
     try { audioCtx = new AC(); } catch (e) { return null; }
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = muted ? 0 : 1;
+    masterGain.connect(audioCtx.destination);
   }
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
+}
+
+// Every sound in the app (builder AND games) connects here instead of
+// ctx.destination, so the 🔊/🔇 toggle is instant and total.
+function audioBus(ctx) {
+  return masterGain || ctx.destination;
 }
 
 // one enveloped note; `glide` slides the pitch over the note for boings/wobbles
@@ -185,7 +276,7 @@ function note(ctx, at, freq, dur, opts) {
   gain.gain.linearRampToValueAtTime(vol, at + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.001, at + dur);
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(audioBus(ctx));
   osc.start(at);
   osc.stop(at + dur + 0.05);
 }
@@ -221,10 +312,54 @@ function soundWiggle(ctx, t0) {
   note(ctx, t0 + 4.75, 659.25, 0.22, { vol: 0.1 });  // E5 — finishing chirp
 }
 
+// Spin: a rising swirl on every turn (one rotation per 1.25s)
+function soundSpin(ctx, t0) {
+  for (let turn = 0; turn < 4; turn++) {
+    const t = t0 + turn * 1.25;
+    note(ctx, t, 220, 1.0, { type: 'sine', glide: 880, vol: 0.07 });
+    note(ctx, t + 1.0, 880, 0.2, { type: 'triangle', vol: 0.06 });
+  }
+  note(ctx, t0 + 4.75, 1046.5, 0.25, { vol: 0.1 });
+}
+
+// Moonwalk: a smooth funky bass slide on each glide (1s cycle)
+function soundMoonwalk(ctx, t0) {
+  for (let i = 0; i < 5; i++) {
+    const t = t0 + i * 1.0;
+    note(ctx, t,        98,     0.35, { type: 'triangle', glide: 73.42, vol: 0.12 });
+    note(ctx, t + 0.5,  130.81, 0.18, { type: 'triangle', vol: 0.09 });
+    note(ctx, t + 0.75, 146.83, 0.15, { type: 'triangle', vol: 0.08 });
+  }
+}
+
+// Disco: four-on-the-floor thump with off-beat stabs (0.5s beat)
+function soundDisco(ctx, t0) {
+  for (let i = 0; i < 9; i++) {
+    const t = t0 + i * 0.5;
+    note(ctx, t, 120, 0.18, { type: 'sine', glide: 50, vol: 0.13 });
+    if (i % 2 === 1) note(ctx, t, 523.25, 0.12, { type: 'square', vol: 0.035 });
+    if (i % 4 === 2) note(ctx, t + 0.25, 783.99, 0.1, { type: 'square', vol: 0.03 });
+  }
+  note(ctx, t0 + 4.6, 1046.5, 0.3, { vol: 0.1 });
+}
+
+// The build pack ships 10 OpenMoji arm styles (PACK_ARMS in parts-data.js);
+// moves whose choreography doesn't swing the arms independently draw a random
+// one for variety. Swinging moves keep the hand-drawn ARMS_SVG, whose
+// .arm-left/.arm-right groups the keyframes animate.
+function packArmsSvg() {
+  if (typeof PACK_ARMS === 'undefined' || !PACK_ARMS.length) return ARMS_SVG;
+  const p = PACK_ARMS[Math.floor(Math.random() * PACK_ARMS.length)];
+  return '<g>' + p.svg + '</g>';
+}
+
 const DANCES = {
-  tango:  { name: 'Tango',  emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',  arms: ARMS_SVG, sound: soundTango },
-  bounce: { name: 'Bounce', emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce', arms: ARMS_SVG, sound: soundBounce },
-  wiggle: { name: 'Wiggle', emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle', arms: ARMS_SVG, sound: soundWiggle },
+  tango:    { name: 'Tango',    emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',    arms: ARMS_SVG, sound: soundTango },
+  bounce:   { name: 'Bounce',   emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce',   arms: ARMS_SVG, sound: soundBounce },
+  wiggle:   { name: 'Wiggle',   emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle',   arms: ARMS_SVG, sound: soundWiggle },
+  spin:     { name: 'Spin',     emoji: '\u{1F300}', duration: 5000, cssClass: 'dance-spin',     arms: packArmsSvg, sound: soundSpin },
+  moonwalk: { name: 'Moonwalk', emoji: '\u{1F576}\u{FE0F}', duration: 5000, cssClass: 'dance-moonwalk', arms: packArmsSvg, sound: soundMoonwalk },
+  disco:    { name: 'Disco',    emoji: '\u{2728}', duration: 5000, cssClass: 'dance-disco', arms: ARMS_SVG, sound: soundDisco },
   // add more moves here later…
 };
 
@@ -239,7 +374,7 @@ function dance(key) {
   deselect();
   const group = document.getElementById('dance-group');
   const arms = document.getElementById('layer-arms');
-  arms.innerHTML = move.arms;
+  arms.innerHTML = typeof move.arms === 'function' ? move.arms() : move.arms;
   group.classList.add('dancing', move.cssClass);
   pulse('btn-dance');
   showToast(move.emoji + ' ' + move.name + '!');
@@ -276,15 +411,11 @@ function buildDancePicker() {
 }
 
 function openDancePicker() {
-  const el = document.getElementById('dance-picker');
-  el.classList.add('show');
-  el.setAttribute('aria-hidden', 'false');
+  openOverlay(document.getElementById('dance-picker'), closeDancePicker);
 }
 
 function closeDancePicker() {
-  const el = document.getElementById('dance-picker');
-  el.classList.remove('show');
-  el.setAttribute('aria-hidden', 'true');
+  closeOverlay(document.getElementById('dance-picker'));
 }
 
 function onDanceButton() {
@@ -297,12 +428,25 @@ function onDanceButton() {
 
 let toastTimer = null;
 
-function showToast(msg) {
+// Optional action button (e.g. Undo after Random) — the toast then accepts
+// taps and hangs around a little longer.
+function showToast(msg, actionLabel, onAction) {
   const el = document.getElementById('toast');
   el.textContent = msg;
+  el.classList.toggle('has-action', !!actionLabel);
+  if (actionLabel) {
+    const b = document.createElement('button');
+    b.className = 'toast-action';
+    b.textContent = actionLabel;
+    b.addEventListener('click', () => {
+      el.classList.remove('show');
+      onAction();
+    });
+    el.appendChild(b);
+  }
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  toastTimer = setTimeout(() => el.classList.remove('show'), actionLabel ? 5000 : 2500);
 }
 
 // ── Button pulse ──────────────────────────────────────────────────────────────
@@ -441,9 +585,14 @@ function moveLayerToBack(layer) {
 }
 
 function resetZOrder() {
-  zOrder = LAYERS.slice();
+  applyZOrder(LAYERS);
+}
+
+// set the stacking wholesale and sync the DOM group order (share links, undo)
+function applyZOrder(order) {
+  zOrder = order.slice();
   const box = document.getElementById('select-box');
-  LAYERS.forEach(l => box.parentNode.insertBefore(document.getElementById('layer-' + l), box));
+  zOrder.forEach(l => box.parentNode.insertBefore(document.getElementById('layer-' + l), box));
 }
 
 // ── Layer-order modal ─────────────────────────────────────────────────────────
@@ -459,22 +608,19 @@ function openMoveTop(layer) {
   moveTopLayer = layer;
   selectLayer(layer);
   document.getElementById('move-top-name').textContent = PARTS[layer][state[layer]].name;
-  const el = document.getElementById('move-top');
-  el.classList.add('show');
-  el.setAttribute('aria-hidden', 'false');
+  openOverlay(document.getElementById('move-top'), closeMoveTop);
 }
 
 function closeMoveTop() {
   moveTopLayer = null;
-  const el = document.getElementById('move-top');
-  el.classList.remove('show');
-  el.setAttribute('aria-hidden', 'true');
+  closeOverlay(document.getElementById('move-top'));
 }
 
 function confirmMoveTop() {
   if (moveTopLayer) {
     const layer = moveTopLayer;
     moveLayerToTop(layer);
+    updateUrl();   // stacking is part of the share link now
     showToast('⬆️ ' + PARTS[layer][state[layer]].name + ' is on top!');
   }
   closeMoveTop();
@@ -484,6 +630,7 @@ function confirmMoveBack() {
   if (moveTopLayer) {
     const layer = moveTopLayer;
     moveLayerToBack(layer);
+    updateUrl();
     showToast('⬇️ ' + PARTS[layer][state[layer]].name + ' went to the back!');
   }
   closeMoveTop();
@@ -533,6 +680,8 @@ function selectLayer(layer) {
   selectedLayer = layer;
   if (layer) document.getElementById('layer-' + layer).classList.add('layer-selected');
   updateSelectBox();
+  updatePartTools();
+  if (layer) announce(PARTS[layer][state[layer]].name + ' selected');
 }
 
 function deselect() {
@@ -543,6 +692,82 @@ function deselect() {
   selectedLayer = null;
   const box = document.getElementById('select-box');
   if (box) box.setAttribute('visibility', 'hidden');
+  updatePartTools();
+  announce('');
+}
+
+// ── Selected-part tools & announcements ──────────────────────────────────────
+// When a part is selected, a chip row appears under the canvas: nudge arrows
+// plus to-top/to-back. This is the keyboard/motor-friendly path to moving and
+// restacking (drag and long-press stay as shortcuts), and it announces the
+// selection to screen readers via the visually-hidden live region.
+
+function announce(txt) {
+  const el = document.getElementById('sr-status');
+  if (el) el.textContent = txt;
+}
+
+function updatePartTools() {
+  const bar = document.getElementById('part-tools');
+  if (!bar) return;
+  bar.hidden = !selectedLayer;
+  if (selectedLayer) {
+    document.getElementById('part-tools-name').textContent =
+      PARTS[selectedLayer][state[selectedLayer]].name;
+  }
+}
+
+function nudgeSelected(dx, dy) {
+  if (!selectedLayer) return;
+  const o = offsets[selectedLayer];
+  o.x = Math.max(-38, Math.min(38, o.x + dx));
+  o.y = Math.max(-38, Math.min(38, o.y + dy));
+  applyOffset(selectedLayer);
+  updateSelectBox();
+  updateUrl();
+}
+
+// ←/→ on the (focusable) canvas cycles through the movable parts, Enter opens
+// the restack modal — selection itself no longer needs a pointer.
+function cycleSelection(dir) {
+  const avail = MOVABLE.filter(layerHasContent);
+  if (!avail.length) return;
+  const i = avail.indexOf(selectedLayer);
+  const next = i < 0
+    ? avail[dir > 0 ? 0 : avail.length - 1]
+    : avail[(i + dir + avail.length) % avail.length];
+  selectLayer(next);
+}
+
+function initPartTools() {
+  const acts = {
+    'pt-left':  () => nudgeSelected(-2, 0),
+    'pt-right': () => nudgeSelected(2, 0),
+    'pt-up':    () => nudgeSelected(0, -2),
+    'pt-down':  () => nudgeSelected(0, 2),
+    'pt-top':   () => {
+      if (!selectedLayer) return;
+      moveLayerToTop(selectedLayer);
+      updateUrl();
+      showToast('⬆️ ' + PARTS[selectedLayer][state[selectedLayer]].name + ' is on top!');
+    },
+    'pt-back':  () => {
+      if (!selectedLayer) return;
+      moveLayerToBack(selectedLayer);
+      updateUrl();
+      showToast('⬇️ ' + PARTS[selectedLayer][state[selectedLayer]].name + ' went to the back!');
+    },
+  };
+  Object.keys(acts).forEach(id =>
+    document.getElementById(id).addEventListener('click', acts[id]));
+
+  const svg = document.getElementById('emoji-svg');
+  svg.addEventListener('keydown', e => {
+    if (dancing) return;
+    if (e.key === 'ArrowLeft') { cycleSelection(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { cycleSelection(1); e.preventDefault(); }
+    else if (e.key === 'Enter' && selectedLayer) { openMoveTop(selectedLayer); e.preventDefault(); }
+  });
 }
 
 // client coords → viewBox units (identity with dance-group while not dancing)
@@ -606,11 +831,28 @@ function onPointerMove(e) {
     if (!drag.layer) { drag = null; return; }   // started on empty space
     if (selectedLayer !== drag.layer) selectLayer(drag.layer);
   }
-  offsets[drag.layer].x = drag.baseX + dx;
-  offsets[drag.layer].y = drag.baseY + dy;
+  // offsets are bounded so a part can never be flung out of reach entirely
+  offsets[drag.layer].x = Math.max(-38, Math.min(38, drag.baseX + dx));
+  offsets[drag.layer].y = Math.max(-38, Math.min(38, drag.baseY + dy));
   applyOffset(drag.layer);
   updateSelectBox();
   e.preventDefault();
+}
+
+// If a drag left the part's art entirely outside the canvas, pull it back in
+// so a sliver stays tappable — the alternative is a part that can only be
+// recovered by Randomise, which destroys the whole creation.
+function keepInReach(layer) {
+  const b = layerBox(layer);
+  if (!b) return;
+  const o = offsets[layer];
+  const MIN = 5;   // at least this many viewBox units stay inside the canvas
+  if (b.x + b.w < MIN) o.x += MIN - (b.x + b.w);
+  if (b.x > 72 - MIN) o.x -= b.x - (72 - MIN);
+  if (b.y + b.h < MIN) o.y += MIN - (b.y + b.h);
+  if (b.y > 72 - MIN) o.y -= b.y - (72 - MIN);
+  applyOffset(layer);
+  updateSelectBox();
 }
 
 function onPointerUp() {
@@ -618,7 +860,7 @@ function onPointerUp() {
   if (!drag || dancing) { drag = null; return; }
   const { layer, moved } = drag;
   drag = null;
-  if (moved) { updateUrl(); return; }   // a drag — keep the layer selected where it landed
+  if (moved) { keepInReach(layer); updateUrl(); return; }   // a drag — keep the layer selected where it landed
   // a second tap on the same part in quick succession → restack modal
   if (layer) {
     const now = Date.now();
@@ -676,7 +918,7 @@ const ID_ALIASES = {
 const DEFAULT_IDS = { face: 'yellow', eyes: '1F600', mouth: '1F60A' };
 
 function encodeState() {
-  return LAYERS.map(layer => {
+  const segs = LAYERS.map(layer => {
     let seg = PARTS[layer][state[layer]].id || '';
     if (seg && MOVABLE.includes(layer)) {
       const o = offsets[layer];
@@ -684,13 +926,25 @@ function encodeState() {
       if (x || y) seg += '_' + x + '_' + y;
     }
     return seg;
-  }).join('.').replace(/\.+$/, '');   // drop empty trailing slots (old links stay valid)
+  });
+  // restacked layers ride along as a 9th "~z" segment of layer indices; when
+  // stacking is default it's omitted (and trailing empty slots dropped) so
+  // old links — and old apps opening new links — stay valid
+  if (zOrder.join() !== LAYERS.join()) {
+    return segs.join('.') + '.~z' + zOrder.map(l => LAYERS.indexOf(l)).join('');
+  }
+  return segs.join('.').replace(/\.+$/, '');
 }
 
-function applyEncoded(str) {
+// pure decode — no DOM, no globals mutated (unit tests and gallery thumbnails
+// use it too); applyEncoded() below writes the result into the builder state
+function decodeState(str) {
   const segs = str.split('.');
+  const st = {}, off = {};
   LAYERS.forEach((layer, i) => {
-    const f = (segs[i] || '').split('_');
+    let seg = segs[i] || '';
+    if (seg.startsWith('~')) seg = '';   // a misplaced control segment, not an id
+    const f = seg.split('_');
     let id = f[0];
     if (id && ID_INDEX[layer][id] === undefined && ID_ALIASES[layer]) {
       id = ID_ALIASES[layer][id] || id;           // retired id → surviving twin
@@ -700,11 +954,30 @@ function applyEncoded(str) {
       // unknown id: None on optional layers, a neutral part on mandatory ones
       idx = OPTIONAL.has(layer) ? 0 : (ID_INDEX[layer][DEFAULT_IDS[layer]] || 0);
     }
-    state[layer] = idx;
+    st[layer] = idx;
     if (MOVABLE.includes(layer)) {
-      offsets[layer] = { x: parseFloat(f[1]) || 0, y: parseFloat(f[2]) || 0 };
+      off[layer] = { x: parseFloat(f[1]) || 0, y: parseFloat(f[2]) || 0 };
     }
   });
+  // the optional ~z segment restores the stacking order (must be a complete
+  // permutation, otherwise it's ignored and the default order stands)
+  let z = LAYERS.slice();
+  const zseg = segs.find(s => s.startsWith('~z'));
+  if (zseg) {
+    const idx = zseg.slice(2).split('').map(c => parseInt(c, 10));
+    if (idx.length === LAYERS.length && new Set(idx).size === LAYERS.length &&
+        idx.every(i => i >= 0 && i < LAYERS.length)) {
+      z = idx.map(i => LAYERS[i]);
+    }
+  }
+  return { state: st, offsets: off, zOrder: z };
+}
+
+function applyEncoded(str) {
+  const d = decodeState(str);
+  LAYERS.forEach(layer => { state[layer] = d.state[layer]; });
+  MOVABLE.forEach(layer => { offsets[layer] = d.offsets[layer]; });
+  applyZOrder(d.zOrder);
 }
 
 function updateUrl() {
@@ -788,6 +1061,118 @@ async function shareEmoji() {
   }
 }
 
+// ── My Emojis gallery ─────────────────────────────────────────────────────────
+// The ?e= encoding is already a complete serialization of an emoji, so the
+// gallery is just a localStorage list of encoded strings with thumbnails
+// rendered from the same decode used by share links. 💾 saves the current
+// creation; tapping a thumbnail rebuilds it; ✕ forgets it.
+
+const GALLERY_KEY = 'emojicle-gallery';
+const GALLERY_MAX = 24;
+
+function loadGallery() {
+  try { return JSON.parse(localStorage.getItem(GALLERY_KEY)) || []; } catch (e) { return []; }
+}
+
+function saveGallery(list) {
+  try { localStorage.setItem(GALLERY_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function galleryThumbSvg(encoded) {
+  const d = decodeState(encoded);
+  let inner = '';
+  d.zOrder.forEach(layer => {
+    const part = PARTS[layer][d.state[layer]];
+    if (!part || !part.svg) return;
+    const o = d.offsets[layer] || { x: 0, y: 0 };
+    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
+    inner += `<g${t}>${part.svg}</g>`;
+  });
+  return '<svg viewBox="-8 -8 88 88" class="swatch-svg" aria-hidden="true">' + inner + '</svg>';
+}
+
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = '';
+  const list = loadGallery();
+  if (!list.length) {
+    const p = document.createElement('p');
+    p.className = 'gallery-empty';
+    p.textContent = 'No saved emojis yet — press 💾 Save to keep this one!';
+    grid.appendChild(p);
+    return;
+  }
+  list.forEach((encoded, i) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    const open = document.createElement('button');
+    open.className = 'swatch';
+    open.setAttribute('aria-label', 'Load saved emoji ' + (i + 1));
+    open.innerHTML = galleryThumbSvg(encoded);
+    open.addEventListener('click', () => {
+      restoreEncoded(encoded);
+      closeGallery();
+      showToast('\u{1F60A} Welcome back!');
+    });
+    const del = document.createElement('button');
+    del.className = 'gallery-del';
+    del.textContent = '✕';
+    del.setAttribute('aria-label', 'Forget saved emoji ' + (i + 1));
+    del.addEventListener('click', () => {
+      const l = loadGallery();
+      l.splice(i, 1);
+      saveGallery(l);
+      renderGallery();
+    });
+    item.appendChild(open);
+    item.appendChild(del);
+    grid.appendChild(item);
+  });
+}
+
+function saveCurrentToGallery() {
+  const list = loadGallery();
+  const enc = encodeState();
+  if (!list.includes(enc)) {
+    list.unshift(enc);
+    if (list.length > GALLERY_MAX) list.pop();
+    saveGallery(list);
+  }
+  renderGallery();
+  showToast('\u{1F4BE} Saved to My Emojis!');
+}
+
+function openGallery() {
+  renderGallery();
+  openOverlay(document.getElementById('gallery'), closeGallery);
+}
+
+function closeGallery() {
+  closeOverlay(document.getElementById('gallery'));
+}
+
+// ── Sound toggle (mute) ───────────────────────────────────────────────────────
+// A kids app that always makes noise is a parents problem — the header 🔊/🔇
+// flips the master GainNode every sound routes through, persisted like the
+// theme choice.
+
+function applyMuted() {
+  const btn = document.getElementById('btn-sound');
+  btn.textContent = muted ? '\u{1F507}' : '\u{1F50A}';
+  btn.setAttribute('aria-label', muted ? 'Turn sound on' : 'Turn sound off');
+  if (masterGain) masterGain.gain.value = muted ? 0 : 1;
+}
+
+function initSound() {
+  try { muted = localStorage.getItem('emojicle-muted') === '1'; } catch (e) {}
+  applyMuted();
+  document.getElementById('btn-sound').addEventListener('click', () => {
+    muted = !muted;
+    try { localStorage.setItem('emojicle-muted', muted ? '1' : '0'); } catch (e) {}
+    applyMuted();
+  });
+}
+
 // ── Theme (dark mode) ─────────────────────────────────────────────────────────
 // The head script in index.html stamps data-theme before first paint (saved
 // choice, else system preference). The header moon/sun button flips and saves
@@ -819,9 +1204,20 @@ function initTheme() {
 // ── Service Worker ────────────────────────────────────────────────────────────
 
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // a new version installing behind an existing one → offer a reload, so
+    // "where did this new game come from?" has an answer
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      if (!w) return;
+      w.addEventListener('statechange', () => {
+        if (w.state === 'installed' && navigator.serviceWorker.controller) {
+          showToast('✨ New stuff!', 'Reload', () => location.reload());
+        }
+      });
+    });
+  }).catch(() => {});
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -831,9 +1227,17 @@ function init() {
   buildDancePicker();
   initDrag();
   initTheme();
+  initSound();
+  initPartTools();
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', onDanceButton);
   document.getElementById('btn-share').addEventListener('click', shareEmoji);
+  document.getElementById('btn-gallery').addEventListener('click', openGallery);
+  document.getElementById('gallery-save').addEventListener('click', saveCurrentToGallery);
+  document.getElementById('gallery-close').addEventListener('click', closeGallery);
+  document.getElementById('gallery').addEventListener('click', e => {
+    if (e.target.id === 'gallery') closeGallery();
+  });
 
   document.getElementById('picker-close').addEventListener('click', closePicker);
   document.getElementById('picker-remove').addEventListener('click', () => {
@@ -853,9 +1257,6 @@ function init() {
   document.getElementById('move-top').addEventListener('click', e => {
     if (e.target.id === 'move-top') closeMoveTop();
   });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePicker(); closeDancePicker(); closeMoveTop(); }
-  });
 
   // rebuild from a share link if present, otherwise start random
   const e = new URLSearchParams(location.search).get('e');
@@ -868,6 +1269,7 @@ function init() {
     randomise();
   }
   syncExtraSlots();   // reveal any extras slots a share link populated
+  booted = true;      // from here on, Random offers an Undo
   registerSW();
 }
 

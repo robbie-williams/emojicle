@@ -2,12 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- zooming stays enabled (WCAG 1.4.4) — accidental zoom during play is
+       already prevented locally by touch-action on the game surfaces -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Emojicle">
   <meta name="theme-color" content="#FF5A5F">
   <title>Emojicle</title>
+  <meta name="description" content="Make your own emoji face! Mix and match eyes, mouths and accessories, make it dance, play minigames and share it — free, no ads, works offline.">
+  <!-- link previews: the growth loop is "kid shares link with family" -->
+  <meta property="og:title" content="Emojicle — Make your emoji!">
+  <meta property="og:description" content="Mix and match eyes, mouths and accessories, make it dance, play minigames and share it. Free, no ads, works offline.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://robbie-williams.github.io/emojicle/">
+  <meta property="og:image" content="https://robbie-williams.github.io/emojicle/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -23,20 +34,22 @@
       document.documentElement.dataset.theme = t;
     })();
   </script>
-  <link rel="stylesheet" href="vendor/bulma.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="app-header">
     <h1 class="app-title">Emojicle</h1>
     <p class="app-tagline">Make your emoji!</p>
+    <button id="btn-gallery" class="theme-toggle gallery-toggle" aria-label="My saved emojis">&#x1F5BC;&#xFE0F;</button>
+    <button id="btn-sound" class="theme-toggle sound-toggle" aria-label="Turn sound off"></button>
     <button id="btn-theme" class="theme-toggle" aria-label="Toggle dark mode"></button>
   </header>
 
   <main class="app-main">
     <section class="canvas-card">
       <div class="canvas-wrap">
-        <svg id="emoji-svg" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your custom emoji">
+        <svg id="emoji-svg" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" tabindex="0"
+             aria-label="Your custom emoji. Press left and right arrows to pick a part, Enter to restack it.">
           <g id="dance-group">
             <g id="layer-arms"></g>
             <g id="layer-face"></g>
@@ -52,37 +65,38 @@
           </g>
         </svg>
       </div>
+      <div id="part-tools" class="part-tools" hidden>
+        <span id="part-tools-name" class="part-tools-name"></span>
+        <button id="pt-left" class="pt-btn" aria-label="Nudge left">&#x25C0;</button>
+        <button id="pt-up" class="pt-btn" aria-label="Nudge up">&#x25B2;</button>
+        <button id="pt-down" class="pt-btn" aria-label="Nudge down">&#x25BC;</button>
+        <button id="pt-right" class="pt-btn" aria-label="Nudge right">&#x25B6;</button>
+        <button id="pt-top" class="pt-btn pt-stack" aria-label="Move to top">&#x2B06;&#xFE0F;</button>
+        <button id="pt-back" class="pt-btn pt-stack" aria-label="Send to back">&#x2B07;&#xFE0F;</button>
+      </div>
     </section>
 
     <section class="controls-card">
       <div class="controls" id="controls"></div>
     </section>
 
-    <div class="actions columns is-mobile is-gapless">
-      <div class="column">
-        <button id="btn-random" class="button is-rounded btn-action btn-random" aria-label="Randomise emoji">
-          <span class="btn-icon" aria-hidden="true">&#x1F3B2;</span>
-          <span>Random</span>
-        </button>
-      </div>
-      <div class="column">
-        <button id="btn-dance" class="button is-rounded btn-action btn-dance" aria-label="Make the emoji dance">
-          <span class="btn-icon" aria-hidden="true">&#x1F483;</span>
-          <span>Dance</span>
-        </button>
-      </div>
-      <div class="column">
-        <button id="btn-play" class="button is-rounded btn-action btn-play" aria-label="Pick a minigame to play">
-          <span class="btn-icon" aria-hidden="true">&#x1F3AE;</span>
-          <span>Games</span>
-        </button>
-      </div>
-      <div class="column">
-        <button id="btn-share" class="button is-rounded btn-action btn-share" aria-label="Share or save your emoji">
-          <span class="btn-icon" aria-hidden="true">&#x1F4E4;</span>
-          <span>Send</span>
-        </button>
-      </div>
+    <div class="actions">
+      <button id="btn-random" class="btn-action btn-random" aria-label="Randomise emoji">
+        <span class="btn-icon" aria-hidden="true">&#x1F3B2;</span>
+        <span>Random</span>
+      </button>
+      <button id="btn-dance" class="btn-action btn-dance" aria-label="Make the emoji dance">
+        <span class="btn-icon" aria-hidden="true">&#x1F483;</span>
+        <span>Dance</span>
+      </button>
+      <button id="btn-play" class="btn-action btn-play" aria-label="Pick a minigame to play">
+        <span class="btn-icon" aria-hidden="true">&#x1F3AE;</span>
+        <span>Games</span>
+      </button>
+      <button id="btn-share" class="btn-action btn-share" aria-label="Share or save your emoji">
+        <span class="btn-icon" aria-hidden="true">&#x1F4E4;</span>
+        <span>Send</span>
+      </button>
     </div>
 
     <div class="share-opts">
@@ -92,7 +106,7 @@
       </label>
       <label class="link-toggle">
         <input type="checkbox" id="opt-link">
-        <span>Share with link</span>
+        <span>Send a magic link too</span>
       </label>
     </div>
   </main>
@@ -101,6 +115,19 @@
     Emoji art by <a href="https://openmoji.org" target="_blank" rel="noopener">OpenMoji</a>
     &middot; licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
   </footer>
+
+  <div id="sr-status" class="visually-hidden" aria-live="polite"></div>
+
+  <div id="gallery" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">&#x1F5BC;&#xFE0F; My Emojis</h2>
+        <button id="gallery-save" class="gallery-save">&#x1F4BE; Save this one</button>
+        <button id="gallery-close" class="picker-close" aria-label="Close gallery">&times;</button>
+      </div>
+      <div id="gallery-grid" class="picker-grid"></div>
+    </div>
+  </div>
 
   <div id="picker" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="picker-panel">
@@ -176,6 +203,11 @@
         <h3 id="intro-name"></h3>
         <p id="intro-story"></p>
         <p class="intro-meta"><span id="intro-time"></span><span id="intro-best"></span></p>
+        <label class="link-toggle relax-toggle">
+          <input type="checkbox" id="clinic-relax">
+          <span>&#x1F324;&#xFE0F; Relax mode &mdash; no timer</span>
+        </label>
+        <p class="intro-hint">&#x1F446; Played with touch or a mouse</p>
         <button id="intro-start" class="confirm-btn clinic-start">&#x1F691; Start the operation!</button>
       </div>
     </div>
@@ -228,6 +260,10 @@
         <h3 id="sf-intro-name"></h3>
         <p id="sf-intro-story"></p>
         <p class="intro-meta"><span id="sf-intro-target"></span><span id="sf-intro-time"></span><span id="sf-intro-best"></span></p>
+        <label class="link-toggle relax-toggle">
+          <input type="checkbox" id="safari-relax">
+          <span>&#x1F324;&#xFE0F; Relax mode &mdash; no timer</span>
+        </label>
         <button id="sf-go" class="confirm-btn clinic-start">&#x1F4A6; Start squirting!</button>
       </div>
     </div>
@@ -360,6 +396,8 @@
 
   <script src="parts-data.js"></script>
   <script src="app.js"></script>
+  <script src="games-common.js"></script>
+  <script src="games.js"></script>
   <script src="minigames.js"></script>
   <script src="safari.js"></script>
   <script src="runner.js"></script>
