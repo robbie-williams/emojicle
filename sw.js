@@ -8,14 +8,16 @@ const ASSETS = [
   './index.html',
   './style.css',
   './app.js',
+  './games-common.js',
+  './games.js',
   './minigames.js',
   './safari.js',
   './runner.js',
   './jam.js',
   './parts-data.js',
   './manifest.json',
-  './vendor/bulma.min.css',
   './icons/icon.svg',
+  './icons/icon-maskable.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
 ];
@@ -38,7 +40,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Navigations carry share params (?e=…&d=…, ?j=…) that aren't part of the
+  // cache key for './' — without ignoreSearch a shared link misses the cache
+  // and dies offline.
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request, { ignoreSearch: e.request.mode === 'navigate' })
+      .then(cached => cached || fetch(e.request))
   );
 });

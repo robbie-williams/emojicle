@@ -5,15 +5,21 @@
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#FFF5E6",
-  "theme_color": "#FF6B6B",
+  "background_color": "#FFF7EF",
+  "theme_color": "#FF5A5F",
   "categories": ["games", "kids"],
   "icons": [
     {
       "src": "icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     },
     {
       "src": "icons/icon-192.png",

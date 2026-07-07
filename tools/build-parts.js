@@ -140,9 +140,10 @@ fs.writeFileSync(OUT, out);
 // app.js / style.css / index.html / manifest / vendored CSS / icons), so
 // running the build after ANY of those changes produces a fresh cache name.
 const CACHE_INPUTS = [
-  'index.html', 'style.css', 'app.js', 'minigames.js', 'safari.js', 'runner.js',
-  'jam.js', 'parts-data.js', 'manifest.json', 'vendor/bulma.min.css',
-  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
+  'index.html', 'style.css', 'app.js', 'games-common.js', 'games.js',
+  'minigames.js', 'safari.js', 'runner.js', 'jam.js', 'parts-data.js',
+  'manifest.json', 'icons/icon.svg', 'icons/icon-maskable.svg',
+  'icons/icon-192.png', 'icons/icon-512.png',
 ];
 const h = crypto.createHash('md5');
 for (const rel of CACHE_INPUTS) {
