@@ -15,17 +15,28 @@ free, no ads, no accounts, works offline.
 - **Random** — roll a whole new emoji in one tap.
 - **Drag to move** — tap a part on the canvas to select it, press-and-drag to
   move it anywhere (the face stays put as the anchor).
-- **Dance** — grows a pair of arms and busts a move, each with its own little
-  soundbite (synthesized in the browser — no audio files). Random by default;
-  untick "Random dance" to pick the move yourself.
-- **Doctor** — a Trauma Center-style minigame: your emoji becomes the patient
-  in the Emoji Clinic. Five cases (scrapes, splinters, germs, fever, bumps)
-  treated with the right tools — spray, tweezers, stitches, bandage,
-  thermometer, ice, vitamins. Wrong tools dent the happy meter, which sets
-  the star rating. Each case is a level played against a countdown; levels
-  get harder (less time, more/faster germs, extra prickles and stitches) and
-  the best level reached is remembered. Run out of time and you can retry
-  the same patient.
+- **Dance** — grows a pair of arms and busts one of six moves (tango, bounce,
+  wiggle, spin, moonwalk, disco), each with its own little soundbite
+  (synthesized in the browser — no audio files). Random by default; untick
+  "Random dance" to pick the move yourself.
+- **Games** — four minigames starring your emoji, launched from one picker
+  that shows a 🏆 badge for your best run in each:
+  - **Emoji Clinic** — Trauma Center-style: treat cases (scrapes, splinters,
+    germs, fever, a sore tooth, paint, the chills…) with the right tools
+    against the clock, through 12 levels to a diploma.
+  - **Water Safari** — squirt drifting animals before time runs out; streaks
+    score double, big animals take two squirts.
+  - **Rescue Runner** — swap bodies to beat obstacles on the way to a
+    stranded civilian, 10 levels to a medal.
+  - **Jam Session** — a free-play piano/drums/xylophone stage with a
+    recorder; learn songs in challenge mode, or share a recording as a
+    `?j=` link.
+  - Every game has a **relax mode** checkbox (no timers) and full keyboard
+    controls.
+- **Gallery** — save the current emoji on-device (🖼 in the header) and
+  reload or delete saves later; nothing leaves the browser.
+- **Mute** — a header toggle silences every game and dance sound at the
+  audio bus (remembered across visits).
 - **Dark mode** — follows the system preference, with a moon/sun toggle in
   the header to override (remembered across visits).
 - **Send** — shares a transparent PNG through the native share sheet (or
@@ -37,22 +48,33 @@ free, no ads, no accounts, works offline.
 
 ## How it's built
 
-Pure static HTML/CSS/JS — no framework, no build step at runtime, no CDN
-dependencies (Bulma is vendored at `vendor/bulma.min.css`). The art is the
+Pure static HTML/CSS/JS — no framework, no CSS library, no build step at
+runtime, no CDN dependencies. The art is the
 [OpenMoji](https://openmoji.org) face-component pack (SVG, viewBox `0 0 72 72`),
 compiled by `tools/build-parts.js` into the generated `parts-data.js` so the
 app makes zero per-part fetches.
 
 ```
 index.html        app shell
-app.js            all behaviour (rendering, picker, drag, dance, share)
-minigames.js      the Emoji Clinic minigame (cases, tools, step engine)
-style.css         flat-modern theme on top of Bulma
+app.js            builder behaviour (rendering, picker, drag, dance, share,
+                  gallery, overlay stack, audio bus)
+games-common.js   GameKit — helpers shared by every minigame (SFX, particles,
+                  emoji snapshots, best-score storage, reduced-motion)
+games.js          minigame registry + the Games picker
+minigames.js      Emoji Clinic (cases, tools, step engine)
+safari.js         Water Safari
+runner.js         Rescue Runner
+jam.js            Jam Session (instruments, recorder, songs, ?j= links)
+style.css         flat-modern theme (self-contained, incl. its own mini reset)
 parts-data.js     GENERATED — the whole art pack, inline (npm run build)
 sw.js             cache-first service worker (cache name stamped by the build)
 tools/build-parts.js   compiles face-components/svg/ → parts-data.js
 face-components/  OpenMoji SVG pack (scanned — see "Adding art")
+tests/            unit tests for the share codec + a Playwright smoke test
 ```
+
+New minigames register themselves in `window.MINIGAMES` at script-eval time
+(`{ name, emoji, start, best? }`) and appear in the Games picker automatically.
 
 ## Development
 
@@ -78,10 +100,20 @@ python3 -m http.server 8000
 # http://localhost:8000/
 ```
 
+### Tests
+
+```sh
+npm test                            # share-codec unit tests (no dependencies)
+npm install && npx playwright install chromium
+npm run test:e2e                    # browser smoke test (boot, share links, all 4 games)
+```
+
+CI runs the unit tests on every deploy; a failing test blocks the deploy.
+
 ### Adding art
 
 Drop a file named `<token>_<type>.svg` into `face-components/svg/` (`type` is
-one of face/eyes/brows/nose/mouth/extras/ears/arms; `token` is usually the
+one of face/eyes/brows/nose/mouth/extras/ears; `token` is usually the
 OpenMoji hexcode, optionally suffixed like `1F4A9-hat`) and run:
 
 ```sh

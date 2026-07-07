@@ -4,6 +4,11 @@
   "private": true,
   "description": "A mobile-first PWA emoji face builder for kids — pure static, offline-first.",
   "scripts": {
-    "build": "node tools/build-parts.js"
+    "build": "node tools/build-parts.js",
+    "test": "node --test tests/*.test.js",
+    "test:e2e": "node tests/smoke.e2e.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1"
   }
 }

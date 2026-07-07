@@ -343,22 +343,15 @@ function soundDisco(ctx, t0) {
   note(ctx, t0 + 4.6, 1046.5, 0.3, { vol: 0.1 });
 }
 
-// The build pack ships 10 OpenMoji arm styles (PACK_ARMS in parts-data.js);
-// moves whose choreography doesn't swing the arms independently draw a random
-// one for variety. Swinging moves keep the hand-drawn ARMS_SVG, whose
-// .arm-left/.arm-right groups the keyframes animate.
-function packArmsSvg() {
-  if (typeof PACK_ARMS === 'undefined' || !PACK_ARMS.length) return ARMS_SVG;
-  const p = PACK_ARMS[Math.floor(Math.random() * PACK_ARMS.length)];
-  return '<g>' + p.svg + '</g>';
-}
-
+// Every move uses the hand-drawn ARMS_SVG — its .arm-left/.arm-right groups
+// are what the arm keyframes animate. (The OpenMoji pack's "arms" art turned
+// out to be tiny hand fragments, not usable arms, so it isn't shipped.)
 const DANCES = {
   tango:    { name: 'Tango',    emoji: '\u{1F483}', duration: 5000, cssClass: 'dance-tango',    arms: ARMS_SVG, sound: soundTango },
   bounce:   { name: 'Bounce',   emoji: '\u{1F57A}', duration: 5000, cssClass: 'dance-bounce',   arms: ARMS_SVG, sound: soundBounce },
   wiggle:   { name: 'Wiggle',   emoji: '\u{1FAA9}', duration: 5000, cssClass: 'dance-wiggle',   arms: ARMS_SVG, sound: soundWiggle },
-  spin:     { name: 'Spin',     emoji: '\u{1F300}', duration: 5000, cssClass: 'dance-spin',     arms: packArmsSvg, sound: soundSpin },
-  moonwalk: { name: 'Moonwalk', emoji: '\u{1F576}\u{FE0F}', duration: 5000, cssClass: 'dance-moonwalk', arms: packArmsSvg, sound: soundMoonwalk },
+  spin:     { name: 'Spin',     emoji: '\u{1F300}', duration: 5000, cssClass: 'dance-spin',     arms: ARMS_SVG, sound: soundSpin },
+  moonwalk: { name: 'Moonwalk', emoji: '\u{1F576}\u{FE0F}', duration: 5000, cssClass: 'dance-moonwalk', arms: ARMS_SVG, sound: soundMoonwalk },
   disco:    { name: 'Disco',    emoji: '\u{2728}', duration: 5000, cssClass: 'dance-disco', arms: ARMS_SVG, sound: soundDisco },
   // add more moves here later…
 };

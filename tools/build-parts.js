@@ -37,7 +37,8 @@ const TYPE_TO_LAYER = {
   mouth: 'mouth',
   extras: 'extras',
   ears: 'extras',   // fold the lone ears part into extras
-  arms: 'arms',     // pulled out for the dance system, not a pickable layer
+  // NOTE: the pack's "arms" files are skipped — the art is tiny hand
+  // fragments, not arms; the dance system draws its own ARMS_SVG (app.js)
 };
 
 // layers that should offer a "None" (blank) option at the front
@@ -90,7 +91,6 @@ function innerSvg(raw) {
 
 const names = loadNames();
 const layers = { face: [], eyes: [], eyebrows: [], nose: [], mouth: [], extras: [] };
-const arms = [];
 let skipped = 0;
 
 const files = fs.readdirSync(SVG_DIR).filter(f => f.endsWith('.svg')).sort();
@@ -108,8 +108,7 @@ for (const file of files) {
   // `id` is the filename token (e.g. yellow, 1F602, 1F4A9-hat) — a STABLE
   // handle used by share links, so they survive pack re-curation (indices don't).
   const entry = { id: token, name: displayName(token, type.toLowerCase(), names), svg };
-  if (layer === 'arms') arms.push(entry);
-  else layers[layer].push(entry);
+  layers[layer].push(entry);
 }
 
 // prepend the blank option where a layer is optional
@@ -117,7 +116,7 @@ for (const l of Object.keys(layers)) {
   if (OPTIONAL.has(l)) layers[l].unshift({ id: '', name: 'None', svg: '' });
 }
 
-const total = Object.values(layers).reduce((n, a) => n + a.length, 0) + arms.length;
+const total = Object.values(layers).reduce((n, a) => n + a.length, 0);
 
 const banner =
 `'use strict';
@@ -129,7 +128,6 @@ const banner =
 
 const body =
 `const PARTS = ${JSON.stringify(layers)};
-const PACK_ARMS = ${JSON.stringify(arms)};
 `;
 
 const out = banner + body + '\n';
@@ -158,5 +156,5 @@ fs.writeFileSync(SW, sw);
 
 const counts = Object.entries(layers).map(([k, v]) => `${k}:${v.length}`).join('  ');
 console.log(`Wrote ${path.relative(ROOT, OUT)}  (${(out.length / 1024).toFixed(0)} KB)`);
-console.log(`  ${counts}  arms:${arms.length}  (skipped ${skipped})`);
+console.log(`  ${counts}  (skipped ${skipped})`);
 console.log(`  sw.js cache -> ${cacheName}`);

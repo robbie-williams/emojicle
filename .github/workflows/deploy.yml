@@ -22,7 +22,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        run: |
+          node tools/build-parts.js
+          npm test
+
   build-and-deploy:
+    needs: test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -43,7 +53,10 @@ jobs:
           node tools/build-parts.js
           node generate-icons.js
           mkdir -p /tmp/site
-          rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' ./ /tmp/site/
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' \
+                --exclude 'icons/openmoji-svg-color' --exclude 'face-components' \
+                --exclude 'tools' --exclude 'docs' --exclude 'tests' --exclude '*.zip' \
+                ./ /tmp/site/
 
       - name: Build staging site under /staging/ (when the branch exists)
         run: |
@@ -54,7 +67,10 @@ jobs:
             node tools/build-parts.js
             node generate-icons.js
             mkdir -p /tmp/site/staging
-            rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' ./ /tmp/site/staging/
+            rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' \
+                  --exclude 'icons/openmoji-svg-color' --exclude 'face-components' \
+                  --exclude 'tools' --exclude 'docs' --exclude 'tests' --exclude '*.zip' \
+                  ./ /tmp/site/staging/
           else
             echo "No staging branch — deploying production only."
           fi

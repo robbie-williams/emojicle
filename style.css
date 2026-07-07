@@ -522,11 +522,12 @@ body {
   50%      { transform: rotate(8deg); }
 }
 
-/* Spin: whole body pirouettes around its middle, arms trail out wide */
-.dance-spin {
+/* Spin: whole body pirouettes around its middle, arms trail out wide.
+   (id in the selector so the origin beats #dance-group's feet-level default) */
+#dance-group.dance-spin {
   transform-origin: 50% 60%;   /* spin about the middle, not the feet */
-  animation: spin-body 1.25s linear infinite;
 }
+.dance-spin { animation: spin-body 1.25s linear infinite; }
 @keyframes spin-body {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
