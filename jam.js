@@ -6,11 +6,13 @@
 // Drums, Xylophone or Piano — filling the bottom of the screen. Every hit is
 // synthesized (Web Audio, no samples) and swings the emoji's arms up on stage.
 //
-// Record (●) captures one take — every note tagged with its instrument and
-// timestamp — persisted to localStorage; Play (▶) replays it through the
-// synth on a loop (the recorded length, trailing silence included, is the
-// loop period) until Stop is pressed, switching the visible instrument to
-// follow the take. Share (📤) turns the take into a stateless ?j= link (same
+// Record (●) arms the recorder: the button blinks red/black until the first
+// note, which starts the take at t=0 (pressing ● again while armed starts it
+// immediately). Every note is tagged with its instrument and timestamp and
+// persisted to localStorage; Play (▶) replays it through the synth on a loop
+// (the recorded length, trailing silence included, is the loop period) until
+// Stop is pressed — the visible instrument stays whatever the player picked,
+// so they can jam along over the take. Share (📤) turns it into a ?j= link (same
 // trick as the builder's ?e=) so kids can send songs to grandparents; opening
 // such a link opens the Jam with the song loaded and ready to play.
 //
@@ -348,6 +350,7 @@ let open = false;
 let inst = 'drums';
 let take = null;        // [{i, k, t}] — the one persisted recording
 let takeDur = 0;        // the take's length in ms (records the trailing silence too)
+let armed = false;      // ● pressed, blinking, waiting for the first note
 let recording = null;   // {start, notes} while capturing
 let playback = null;    // {start, idx, loop} while replaying the take on repeat
 let ch = null;          // challenge state
@@ -498,7 +501,8 @@ function setMsg(txt, cls) {
 }
 
 function freeMsg() {
-  if (playback) setMsg('\u{1F501} Playing on a loop — press ■ to stop');
+  if (armed) setMsg('Ready! Your first note starts the recording \u{1F534}', 'flash');
+  else if (playback) setMsg('\u{1F501} Playing on a loop — press ■ to stop');
   else setMsg(take ? 'Jam away — press ▶ to hear your song!' : 'Tap away — or press ● to record a song!');
 }
 
@@ -515,10 +519,12 @@ function flashMsg(txt, cls) {
 // ── Live input ────────────────────────────────────────────────────────────────
 
 function onKey(k) {
+  if (armed) startRecord();   // the first note begins the take, at t=0
+  // stamp before synthesis — creating the AudioContext can eat ~50ms
+  if (recording) recording.notes.push({ i: inst, k, t: Math.round(performance.now() - recording.start) });
   playKey(inst, k);
   flashKey(k);
   bopArm();
-  if (recording) recording.notes.push({ i: inst, k, t: Math.round(performance.now() - recording.start) });
   if (ch) challengeInput(k);
 }
 
@@ -588,7 +594,15 @@ function loadTake() {
   } catch (e) {}
 }
 
+function armRecord() {
+  if (playback) stopPlayback();
+  armed = true;
+  freeMsg();
+  updateButtons();
+}
+
 function startRecord() {
+  armed = false;
   if (playback) stopPlayback();
   take = null;            // the old take is gone once a new recording starts
   saveTake();
@@ -613,7 +627,8 @@ function stopRecord() {
 function onRecordBtn() {
   if (ch) return;
   if (recording) stopRecord();
-  else startRecord();
+  else if (armed) startRecord();   // pressed again while blinking: go right now
+  else armRecord();
 }
 
 function startPlayback() {
@@ -633,6 +648,7 @@ function stopPlayback() {
 
 function onPlayBtn() {
   if (ch) return;
+  armed = false;
   if (playback) { stopPlayback(); return; }
   if (recording) stopRecord();
   if (take) startPlayback();
@@ -707,6 +723,7 @@ function chMsg() {
 }
 
 function startChallenge(song) {
+  armed = false;
   if (recording) stopRecord();
   if (playback) stopPlayback();
   hidePanel(songsPanel);
@@ -856,8 +873,10 @@ function quitChallenge() {
 
 function onChallengeBtn() {
   if (ch) { quitChallenge(); return; }
+  armed = false;
   if (recording) stopRecord();
   if (playback) stopPlayback();
+  updateButtons();
   openSongs();
 }
 
@@ -909,8 +928,9 @@ function updateButtons() {
   instRow.querySelectorAll('.jam-inst').forEach(b => b.classList.toggle('is-disabled', busy));
   btnRec.classList.toggle('is-disabled', busy);
   btnRec.classList.toggle('is-rec', !!recording);
+  btnRec.classList.toggle('is-armed', armed);
   btnRec.querySelector('.tool-emoji').textContent = recording ? '■' : '●';
-  btnRec.querySelector('.tool-name').textContent = recording ? 'Stop' : 'Record';
+  btnRec.querySelector('.tool-name').textContent = recording ? 'Stop' : armed ? 'Ready…' : 'Record';
   btnPlay.classList.toggle('is-disabled', busy || (!take && !playback));
   btnPlay.querySelector('.tool-emoji').textContent = playback ? '■' : '▶';
   btnPlay.querySelector('.tool-name').textContent = playback ? 'Stop' : 'Play';
@@ -941,10 +961,11 @@ function tickLoop() {
     const t = now - playback.start;
     while (playback && playback.idx < take.length && take[playback.idx].t <= t) {
       const ev = take[playback.idx++];
-      if (ev.i !== inst) setInst(ev.i);   // replay feels like a performance
       playKey(ev.i, ev.k);
       bopArm();
-      flashKey(ev.k);
+      // the instrument on screen is the player's choice — they're free to jam
+      // along over the take — so only flash keys that belong to it
+      if (ev.i === inst) flashKey(ev.k);
     }
     // loop until the player presses Stop, keeping the recorded tail silence
     if (playback && playback.idx >= take.length && t >= playback.loop) {
@@ -988,6 +1009,7 @@ function openJam() {
 function closeJam() {
   if (!open) return;
   open = false;
+  armed = false;
   if (recording) stopRecord();
   playback = null;
   ch = null;
@@ -1051,6 +1073,7 @@ function initJam() {
     },
     state: () => open && {
       inst,
+      armed,
       recording: !!recording,
       playing: !!playback,
       takeLen: take ? take.length : 0,

@@ -58,7 +58,13 @@ a { text-decoration: none; }
 
 *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
 
-html, body { height: 100%; overflow-x: hidden; }
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  /* no double-tap-to-zoom anywhere (kids double-tap constantly and iOS zooms
+     the whole app); pinch-zoom still works, keeping WCAG 1.4.4 happy */
+  touch-action: manipulation;
+}
 
 body {
   /* the app is all buttons, drags and long-presses — there's no text worth
@@ -1380,6 +1386,13 @@ body.overlay-open { overflow: hidden; }
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 95, 0); }
   50%      { box-shadow: 0 0 0 4px rgba(255, 90, 95, 0.45); }
 }
+/* armed: ● blinks red/black until the first note starts the take */
+.tool-btn.is-armed { border-color: #FF5A5F; }
+.tool-btn.is-armed .tool-emoji { animation: rec-armed 0.4s steps(1) infinite; }
+@keyframes rec-armed {
+  0%, 100% { color: #FF5A5F; }
+  50%      { color: #2B2B2B; }
+}
 
 .jam-msg {
   min-height: 1.7em;
@@ -1407,8 +1420,17 @@ body.overlay-open { overflow: hidden; }
 }
 #jam-surface.jam-shake { animation: msg-shake 0.3s ease; }
 
-/* key highlight overlays — a transparent shape over every key/pad/bar */
+/* key highlight overlays — a transparent shape over every key/pad/bar.
+   The fills alone vanish on the xylophone's and drums' saturated art, so any
+   lit state also wears a white ring with a dark shadow — visible on every
+   surface, which matters most when a challenge is showing where to tap */
 .jam-glow { pointer-events: none; fill: transparent; }
+.jam-glow.jam-on, .jam-glow.jam-good, .jam-glow.jam-bad,
+.jam-glow.jam-guide, .jam-glow.jam-guide-soft {
+  stroke: #FFFFFF;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 1px rgba(43, 43, 43, 0.9));
+}
 .jam-glow.jam-on   { fill: rgba(255, 217, 59, 0.55); }
 .jam-glow.jam-good { fill: rgba(43, 182, 115, 0.55); }
 .jam-glow.jam-bad  { fill: rgba(255, 90, 95, 0.45); }
@@ -1483,5 +1505,6 @@ body.overlay-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .jam-glow.jam-guide, .tool-btn.is-rec, #jam-surface.jam-shake { animation: none; }
+  .tool-btn.is-armed .tool-emoji { animation: none; }   /* stays steady red */
   .jam-arm { transition: none; }
 }
