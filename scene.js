@@ -21,11 +21,79 @@ const SCENE_STEP = 1.3;        // grow/shrink factor per size step
 const SCENE_S_MIN = -2;
 const SCENE_S_MAX = 3;
 
+// ── Doodle motifs ─────────────────────────────────────────────────────────────
+// Simplified, emoji-esque decorations (pizza, fruit, stars…) drawn around the
+// origin at roughly ±14 units. One source of art for two uses: scattered
+// full-strength on the "Emoji doodles" scene background, and tiled at low
+// opacity as the app's backdrop (see applyDoodleBackdrop) — soft enough to
+// stay decorative and keep the foreground UI fully legible.
+const DOODLES = [
+  /* pizza      */ '<path d="M-11 -10 L11 -10 L0 16 Z" fill="#FFC24B"/><path d="M-12 -10 Q0 -17 12 -10 L10 -5 Q0 -11 -10 -5 Z" fill="#E8853C"/><circle cx="-3" cy="-4" r="2.4" fill="#E8534A"/><circle cx="4" cy="0" r="2.4" fill="#E8534A"/><circle cx="-1" cy="7" r="2.2" fill="#E8534A"/>',
+  /* star       */ '<path d="M0 -14 L4 -4 L14 -4 L6 3 L9 13 L0 7 L-9 13 L-6 3 L-14 -4 L-4 -4 Z" fill="#FFD93B"/>',
+  /* cherries   */ '<path d="M-5 -1 Q-3 -11 6 -14 M5 -2 Q4 -9 6 -14" stroke="#7BAE5A" stroke-width="2" fill="none"/><circle cx="-6" cy="5" r="6" fill="#E8534A"/><circle cx="6" cy="4" r="6" fill="#D64545"/>',
+  /* heart      */ '<path d="M0 12 C-14 2 -10 -12 0 -6 C10 -12 14 2 0 12 Z" fill="#FF8FB3"/>',
+  /* ice cream  */ '<path d="M-7 -1 L7 -1 L0 16 Z" fill="#E8A863"/><circle cx="0" cy="-7" r="8" fill="#FFB3C7"/>',
+  /* balloon    */ '<ellipse cx="0" cy="-5" rx="8" ry="10" fill="#8FC7F2"/><path d="M0 5 q-3 6 2 11" stroke="#8FC7F2" stroke-width="1.5" fill="none"/>',
+  /* flower     */ '<circle cx="0" cy="-8" r="4.5" fill="#C9A6F2"/><circle cx="7.6" cy="-2.5" r="4.5" fill="#C9A6F2"/><circle cx="4.7" cy="6.5" r="4.5" fill="#C9A6F2"/><circle cx="-4.7" cy="6.5" r="4.5" fill="#C9A6F2"/><circle cx="-7.6" cy="-2.5" r="4.5" fill="#C9A6F2"/><circle cx="0" cy="0" r="4" fill="#FFD93B"/>',
+  /* cloud      */ '<ellipse cx="-5" cy="2" rx="8" ry="5.5" fill="#BFE3F7"/><ellipse cx="5" cy="0" rx="9" ry="6.5" fill="#D4EDFB"/>',
+  /* bolt       */ '<path d="M2 -14 L-8 2 L-1 2 L-4 14 L8 -2 L1 -2 Z" fill="#FFC24B"/>',
+  /* watermelon */ '<path d="M-14 0 A14 14 0 0 0 14 0 L12 0 A12 12 0 0 1 -12 0 Z" fill="#7ECC5B"/><path d="M-12 0 A12 12 0 0 0 12 0 Z" fill="#FF8A99"/><circle cx="-5" cy="4" r="1.2" fill="#5B3B2E"/><circle cx="1" cy="6.5" r="1.2" fill="#5B3B2E"/><circle cx="6" cy="3.5" r="1.2" fill="#5B3B2E"/>',
+  /* orange     */ '<circle r="8.5" fill="#FFAD5C"/><ellipse cx="3.5" cy="-8" rx="3.5" ry="2" fill="#7BAE5A"/>',
+];
+
+function doodleAt(i, x, y, rot, scale) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${scale})">${DOODLES[i % DOODLES.length]}</g>`;
+}
+
+// one repeatable 320×320 tile for the app backdrop
+function doodleTile(opacity) {
+  const spots = [
+    [0, 48, 44, -12, 1], [1, 152, 30, 8, 0.9], [2, 258, 58, -6, 1],
+    [3, 62, 142, 12, 0.9], [4, 168, 122, -8, 1], [5, 272, 156, 10, 0.95],
+    [6, 44, 244, 0, 1], [7, 146, 218, -10, 1], [8, 240, 246, 9, 0.9],
+    [9, 96, 302, -8, 0.8], [10, 300, 300, 6, 0.8],
+  ].map(([i, x, y, r, s]) => doodleAt(i, x, y, r, s)).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">' +
+         `<g opacity="${opacity}">${spots}</g></svg>`;
+}
+
+// Kid-friendly app backdrop (issue #14): the doodle tile behind the whole
+// page, in a light and a dark strength, handed to CSS as custom properties
+// so the theme toggle just works. Cards/overlays are opaque, so contrast of
+// the real UI is untouched; the pattern is static (reduced-motion safe).
+function applyDoodleBackdrop() {
+  if (!document.documentElement || !document.documentElement.style) return;
+  const enc = svg => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+  const root = document.documentElement.style;
+  root.setProperty('--doodle-bg-light', enc(doodleTile(0.5)));
+  root.setProperty('--doodle-bg-dark', enc(doodleTile(0.16)));
+}
+
 // ── Background library ────────────────────────────────────────────────────────
 // Each background draws itself for an arbitrary w×h box (viewBox units) from
 // flat shapes and gradients — lightweight, crisp at any size, offline by
-// construction. The first entry is the default.
+// construction. The first entry is the default (and doubles as the app's
+// backdrop pattern — issue #14).
 const SCENE_BGS = [
+  {
+    id: 'doodles', name: 'Emoji doodles',
+    draw(w, h) {
+      // small sprinkles on a jittered grid so any aspect stays evenly covered
+      // and the doodles read as wallpaper, not as placed stickers
+      let bits = '';
+      const step = 15;
+      let n = 0;
+      for (let gy = step / 2; gy < h; gy += step) {
+        for (let gx = (gy / step % 2 ? step / 2 : step) - step / 4; gx < w; gx += step) {
+          const i = n++;
+          const jx = ((i * 7) % 10 - 5) * 0.4;
+          const jy = ((i * 13) % 10 - 5) * 0.4;
+          bits += doodleAt(i, (gx + jx).toFixed(1), (gy + jy).toFixed(1), ((i * 47) % 40) - 20, 0.17);
+        }
+      }
+      return `<rect width="${w}" height="${h}" fill="#FFF7EF"/><g opacity="0.8">${bits}</g>`;
+    },
+  },
   {
     id: 'meadow', name: 'Sunny meadow',
     draw(w, h) {
@@ -539,6 +607,8 @@ function buildSceneBgPicker() {
 }
 
 function initScene() {
+  applyDoodleBackdrop();
+
   const el = document.getElementById('scene');
   if (!el) return;
 

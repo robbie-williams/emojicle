@@ -1612,12 +1612,15 @@ body.overlay-open { overflow: hidden; }
 .scene-bgs {
   display: flex;
   gap: 8px;
-  justify-content: center;
   align-items: center;
   padding: 8px 10px 6px;
   overflow-x: auto;
   flex-shrink: 0;
 }
+/* centre the row when it fits, scroll (without clipping the first swatch)
+   when it doesn't — auto margins collapse to 0 under overflow */
+.scene-bg-btn:first-child { margin-left: auto; }
+.scene-bg-btn:last-child  { margin-right: auto; }
 .scene-bg-btn {
   padding: 0;
   border: 2px solid var(--clr-card-edge);
@@ -1695,4 +1698,17 @@ body.overlay-open { overflow: hidden; }
   line-height: 18px;
   text-align: center;
   pointer-events: none;
+}
+
+/* ── Kid-friendly doodle backdrop ─────────────────────────────────────────────
+   A soft tiled pattern of emoji-esque doodles (pizza, fruit, stars — built
+   and handed over as data-URI custom properties by scene.js) behind the whole
+   app. Cards and overlays are opaque, so UI contrast is unaffected; the
+   pattern is static, so there's nothing for prefers-reduced-motion to pause. */
+body {
+  background-image: var(--doodle-bg-light, none);
+  background-size: 320px 320px;
+}
+:root[data-theme="dark"] body {
+  background-image: var(--doodle-bg-dark, none);
 }

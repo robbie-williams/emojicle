@@ -68,9 +68,10 @@ test('scene codec is URL-safe end to end', () => {
 });
 
 test('junk decodes to a safe default scene', () => {
-  eq(api.decodeScene(''), { bg: 'meadow', items: [] });
-  eq(api.decodeScene(null), { bg: 'meadow', items: [] });
-  eq(api.decodeScene('nonsense*not_an_item*1_2'), { bg: 'meadow', items: [] });
+  const def = api.SCENE_BGS[0].id;
+  eq(api.decodeScene(''), { bg: def, items: [] });
+  eq(api.decodeScene(null), { bg: def, items: [] });
+  eq(api.decodeScene('nonsense*not_an_item*1_2'), { bg: def, items: [] });
 });
 
 test('items are clamped and capped on decode', () => {
@@ -93,6 +94,16 @@ test('items referencing missing pack members are shed', () => {
   const valid = api.sceneValidItems();
   assert.strictEqual(valid.length, 1);
   assert.strictEqual(valid[0].m, 0);
+});
+
+test('the kid-friendly doodle background is the library default (#14)', () => {
+  assert.strictEqual(api.SCENE_BGS[0].id, 'doodles');
+  // and the app-backdrop tile built from the same motifs is clean SVG
+  const tile = vm.runInContext('doodleTile(0.5)', context);
+  assert.ok(tile.startsWith('<svg') && tile.includes('opacity="0.5"'));
+  assert.ok(!tile.includes('NaN') && !tile.includes('undefined'));
+  const doodles = vm.runInContext('DOODLES.length', context);
+  assert.ok(doodles >= 8, 'a real variety of motifs');
 });
 
 test('the background library is well-formed at any aspect', () => {

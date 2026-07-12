@@ -54,6 +54,10 @@ free, no ads, no accounts, works offline.
   audio bus (remembered across visits).
 - **Dark mode** — follows the system preference, with a moon/sun toggle in
   the header to override (remembered across visits).
+- **Doodle backdrop** — a soft tiled pattern of emoji-esque doodles (pizza,
+  fruit, stars…) behind the app in both themes; the same motifs power the
+  default "Emoji doodles" scene background. Pure inline SVG, static, and
+  behind opaque cards so UI contrast is untouched.
 - **Send** — shares a transparent PNG through the native share sheet (or
   downloads it on desktop). Tick "Share with link" to include a link that
   rebuilds the exact emoji.
