@@ -37,6 +37,11 @@ free, no ads, no accounts, works offline.
     `?j=` link.
   - Every game has a **relax mode** checkbox (no timers) and full keyboard
     controls.
+- **Emoji packs** — build a little cast of up to 7 emojis that lives around
+  the canvas (thumbnails flanking it on wide screens, a row beneath on
+  phones). Tap a thumbnail to switch which one you're editing, + to add the
+  current emoji, ✕ to remove one. A whole pack shares as a `?p=` link —
+  still no backend — and comes back on the next visit.
 - **Gallery** — save the current emoji on-device (🖼 in the header) and
   reload or delete saves later; nothing leaves the browser.
 - **Mute** — a header toggle silences every game and dance sound at the
@@ -47,7 +52,7 @@ free, no ads, no accounts, works offline.
   downloads it on desktop). Tick "Share with link" to include a link that
   rebuilds the exact emoji.
 - **Stateless share links** — the whole emoji is encoded in the `?e=` query
-  param; no backend, no storage.
+  param (a pack is those encodings joined in `?p=`); no backend, no storage.
 - **Installable PWA** — cache-first service worker; fully usable offline.
 
 ## How it's built

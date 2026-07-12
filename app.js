@@ -92,6 +92,10 @@ function randomise() {
   // a stray tap of Random shouldn't destroy a ten-minute masterpiece — keep
   // the outgoing emoji and offer an Undo on the toast
   const prev = booted ? encodeState() : null;
+  const prevActive = packActive;
+
+  // Random makes a NEW emoji — the member being edited stays safe in the rail
+  detachFromPack();
 
   LAYERS.forEach(layer => {
     const n = layer.startsWith('extras') ? CLASSIC_EXTRAS : PARTS[layer].length;
@@ -110,7 +114,11 @@ function randomise() {
   updateUrl();
   pulse('btn-random');
   if (prev !== null) {
-    showToast('\u{1F3B2} New emoji!', 'Undo', () => restoreEncoded(prev));
+    showToast('\u{1F3B2} New emoji!', 'Undo', () => {
+      packActive = prevActive;   // reattach if a pack member was being edited
+      renderPackRail();
+      restoreEncoded(prev);
+    });
   }
 }
 
@@ -442,6 +450,7 @@ let toastTimer = null;
 // taps and hangs around a little longer.
 function showToast(msg, actionLabel, onAction) {
   const el = document.getElementById('toast');
+  if (!el) return;
   el.textContent = msg;
   el.classList.toggle('has-action', !!actionLabel);
   if (actionLabel) {
@@ -602,6 +611,7 @@ function resetZOrder() {
 function applyZOrder(order) {
   zOrder = order.slice();
   const box = document.getElementById('select-box');
+  if (!box) return;   // headless (tests) — the state is what matters
   zOrder.forEach(l => box.parentNode.insertBefore(document.getElementById('layer-' + l), box));
 }
 
@@ -991,8 +1001,21 @@ function applyEncoded(str) {
 }
 
 function updateUrl() {
+  // editing a pack member → every change flows straight into its slot
+  if (packActive >= 0) {
+    pack[packActive] = encodeState();
+    persistPack();
+  }
   const u = new URL(location.href);
   u.searchParams.set('e', encodeState());
+  if (pack.length) {
+    u.searchParams.set('p', packToParam(pack));
+    if (packActive >= 0) u.searchParams.set('pi', String(packActive));
+    else u.searchParams.delete('pi');
+  } else {
+    u.searchParams.delete('p');
+    u.searchParams.delete('pi');
+  }
   history.replaceState(null, '', u);
 }
 
@@ -1120,6 +1143,7 @@ function renderGallery() {
     open.setAttribute('aria-label', 'Load saved emoji ' + (i + 1));
     open.innerHTML = galleryThumbSvg(encoded);
     open.addEventListener('click', () => {
+      detachFromPack();   // a gallery load is a standalone emoji, not a member edit
       restoreEncoded(encoded);
       closeGallery();
       showToast('\u{1F60A} Welcome back!');
@@ -1159,6 +1183,126 @@ function openGallery() {
 
 function closeGallery() {
   closeOverlay(document.getElementById('gallery'));
+}
+
+// ── Emoji pack ────────────────────────────────────────────────────────────────
+// A pack is a little cast of up to 7 emojis that lives around the canvas:
+// thumbnails 3-down-the-left / 3-down-the-right (collapsing to a row under the
+// canvas on phones) with the active member in the centre being edited. Each
+// member is one ?e= encoding, so a whole pack shares as ?p= — the encodings
+// joined by '*' (URL-safe, and never appears inside the codec's charset) —
+// plus ?pi= for which member is on the canvas. Persisted like the gallery.
+//
+// packActive is the member the canvas is editing; -1 means the canvas is a
+// standalone emoji (fresh Random, a plain ?e= link, a gallery load) and every
+// pack member shows in the rail.
+
+const PACK_KEY = 'emojicle-pack';
+const PACK_MAX = 7;
+
+let pack = [];        // encoded members, oldest first
+let packActive = -1;
+
+const packToParam = members => members.join('*');
+
+function packFromParam(str) {
+  if (!str) return [];
+  return str.split('*').map(s => s.trim()).filter(Boolean).slice(0, PACK_MAX);
+}
+
+function persistPack() {
+  try {
+    localStorage.setItem(PACK_KEY, JSON.stringify({ members: pack, active: packActive }));
+  } catch (e) {}
+}
+
+function loadStoredPack() {
+  try {
+    const d = JSON.parse(localStorage.getItem(PACK_KEY));
+    if (d && Array.isArray(d.members)) {
+      const members = d.members.filter(m => typeof m === 'string' && m).slice(0, PACK_MAX);
+      const active = Number.isInteger(d.active) && d.active >= 0 && d.active < members.length
+        ? d.active : -1;
+      return { members, active };
+    }
+  } catch (e) {}
+  return null;
+}
+
+function renderPackRail() {
+  const L = document.getElementById('pack-rail-l');
+  const R = document.getElementById('pack-rail-r');
+  if (!L || !R) return;
+  L.innerHTML = '';
+  R.innerHTML = '';
+
+  const shown = pack.map((_, i) => i).filter(i => i !== packActive);
+  // balance the two rails (3+3 when full; the odd one goes left)
+  const leftCount = Math.min(Math.max(Math.ceil(shown.length / 2), shown.length - 3), 4);
+  shown.forEach((mi, pos) => {
+    const item = document.createElement('div');
+    item.className = 'pack-item';
+    const thumb = document.createElement('button');
+    thumb.className = 'pack-thumb';
+    thumb.setAttribute('aria-label', 'Switch to pack emoji ' + (mi + 1));
+    thumb.innerHTML = galleryThumbSvg(pack[mi]);
+    thumb.addEventListener('click', () => selectPackMember(mi));
+    const del = document.createElement('button');
+    del.className = 'pack-del';
+    del.textContent = '✕';
+    del.setAttribute('aria-label', 'Remove pack emoji ' + (mi + 1));
+    del.addEventListener('click', () => removePackMember(mi));
+    item.appendChild(thumb);
+    item.appendChild(del);
+    (pos < leftCount ? L : R).appendChild(item);
+  });
+
+  if (pack.length < PACK_MAX) {
+    const add = document.createElement('button');
+    add.className = 'pack-add';
+    add.id = 'pack-add';
+    add.textContent = '+';
+    add.setAttribute('aria-label', 'Add this emoji to your pack');
+    add.addEventListener('click', addCurrentToPack);
+    R.appendChild(add);
+  }
+}
+
+function addCurrentToPack() {
+  if (pack.length >= PACK_MAX) {
+    showToast('\u{1F4E6} Pack is full — remove one first!');
+    return;
+  }
+  pack.push(encodeState());
+  packActive = pack.length - 1;
+  persistPack();
+  renderPackRail();
+  updateUrl();
+  showToast('\u{1F4E6} Added to your pack!');
+}
+
+function removePackMember(i) {
+  pack.splice(i, 1);
+  if (packActive === i) packActive = -1;        // canvas keeps the art, detached
+  else if (packActive > i) packActive--;
+  persistPack();
+  renderPackRail();
+  updateUrl();
+}
+
+function selectPackMember(i) {
+  if (i === packActive || !pack[i]) return;
+  packActive = i;
+  restoreEncoded(pack[i]);
+  renderPackRail();
+}
+
+// the canvas stops tracking a member (Random, gallery load, plain ?e= link)
+function detachFromPack() {
+  if (packActive === -1) return;
+  packActive = -1;
+  persistPack();
+  renderPackRail();
 }
 
 // ── Sound toggle (mute) ───────────────────────────────────────────────────────
@@ -1268,16 +1412,46 @@ function init() {
     if (e.target.id === 'move-top') closeMoveTop();
   });
 
-  // rebuild from a share link if present, otherwise start random
-  const e = new URLSearchParams(location.search).get('e');
-  if (e) {
-    applyEncoded(e);
+  // Pack first: a ?p= link brings a whole pack (replacing the stored one,
+  // with an Undo); otherwise the on-device pack comes back. Then the canvas:
+  // an explicit ?e= wins, else the pack's active member, else random.
+  const q = new URLSearchParams(location.search);
+  const linkPack = packFromParam(q.get('p'));
+  const stored = loadStoredPack();
+  if (linkPack.length) {
+    pack = linkPack;
+    const pi = parseInt(q.get('pi'), 10);
+    packActive = Number.isInteger(pi) && pi >= 0 && pi < pack.length ? pi : -1;
+    const replaced = stored && stored.members.length &&
+      packToParam(stored.members) !== packToParam(linkPack);
+    persistPack();
+    if (replaced) {
+      showToast('\u{1F4E6} New pack loaded!', 'Undo', () => {
+        pack = stored.members;
+        packActive = stored.active;
+        persistPack();
+        renderPackRail();
+        if (packActive >= 0) restoreEncoded(pack[packActive]);
+        else updateUrl();
+      });
+    }
+  } else if (stored) {
+    pack = stored.members;
+    packActive = stored.active;
+  }
+
+  const e = q.get('e');
+  if (e && !linkPack.length) packActive = -1;   // a plain emoji link is standalone
+  const enc = e || (packActive >= 0 ? pack[packActive] : null);
+  if (enc) {
+    applyEncoded(enc);
     renderAll();
     MOVABLE.forEach(applyOffset);
     updateUrl();   // normalise the URL to the canonical encoding
   } else {
     randomise();
   }
+  renderPackRail();
   syncExtraSlots();   // reveal any extras slots a share link populated
   booted = true;      // from here on, Random offers an Undo
   registerSW();

@@ -168,10 +168,17 @@ body {
   border-radius: var(--radius-card);
 }
 
+/* Grid so the pack rail can flank the canvas on wide screens and collapse to
+   a row underneath on phones (canvas → rail → part-tools, top to bottom). */
 .canvas-card {
-  display: flex;
-  flex-direction: column;   /* canvas on top, part-tools chip row below */
+  display: grid;
+  grid-template-areas:
+    'canvas canvas'
+    'rail-l rail-r'
+    'tools  tools';
+  grid-template-columns: 1fr 1fr;
   justify-content: center;
+  justify-items: center;
   align-items: center;
   gap: 8px;
   padding: 10px;
@@ -179,6 +186,7 @@ body {
 }
 
 .canvas-wrap {
+  grid-area: canvas;
   background: var(--clr-canvas);
   border-radius: 18px;
   padding: 10px;
@@ -189,9 +197,74 @@ body {
 
 .canvas-wrap svg { width: 100%; height: 100%; display: block; }
 
+/* ── Emoji pack rail ──────────────────────────────────────────────────────────
+   Thumbnails of the pack members around the canvas: a wrapped row underneath
+   on phones (left slots + right slots reading as one centred row), columns of
+   3 flanking the canvas on wide landscape screens (below). */
+.pack-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  min-height: 40px;
+}
+.pack-rail-l { grid-area: rail-l; justify-self: end;   justify-content: flex-end; }
+.pack-rail-r { grid-area: rail-r; justify-self: start; justify-content: flex-start; }
+
+.pack-item { position: relative; }
+.pack-thumb {
+  display: block;
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  border: 2px solid var(--clr-card-edge);
+  background: var(--clr-canvas);
+  border-radius: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+.pack-thumb:hover  { border-color: var(--clr-brand); }
+.pack-thumb:active { transform: scale(0.92); }
+.pack-thumb .swatch-svg { width: 100%; height: 100%; }
+.pack-del {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--clr-brand-dk);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pack-del:active { transform: scale(0.9); }
+.pack-add {
+  width: 40px;
+  height: 40px;
+  border: 2px dashed var(--clr-card-edge);
+  border-radius: 12px;
+  background: none;
+  color: var(--clr-label);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.pack-add:hover  { border-color: var(--clr-brand); color: var(--clr-brand); }
+.pack-add:active { transform: scale(0.92); }
+
 /* chip row under the canvas: nudge arrows + restack for the selected part */
 .part-tools[hidden] { display: none; }
 .part-tools {
+  grid-area: tools;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -618,6 +691,16 @@ body {
   /* compact the chrome so the buttons fit on a short landscape phone */
   .app-header    { padding: 8px 16px; }
   .canvas-card   { flex: 0 0 auto; }
+  /* pack rail: columns of 3 flanking the canvas instead of a row below */
+  .canvas-card {
+    grid-template-areas:
+      'rail-l canvas rail-r'
+      'tools  tools  tools';
+    grid-template-columns: auto 1fr auto;
+  }
+  .pack-rail   { flex-direction: column; min-width: 40px; }
+  .pack-rail-l { align-self: center; }
+  .pack-rail-r { align-self: center; }
   /* cap by height too so a short landscape phone keeps the canvas on screen */
   .canvas-wrap   { width: min(300px, 34vw, 58vh); }
   .controls-card { flex: 1 1 360px; align-self: stretch; padding: 5px 12px; }
