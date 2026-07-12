@@ -1,0 +1,14 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0 4.5)">
+  <g id="color">
+    <polygon fill="#d22f27" points="36.3127 41 46.3127 35 55.3127 35 57.0181 35.6017 59.7267 35.6548 62.8335 35.761 64.002 36.4235 64.533 37.3012 64.5065 38.3633 63.8692 39.5317 62.8867 40.2222 59.3127 41 54.3127 41 51.3127 41 48.3127 41 36.3127 41"/>
+    <path fill="#d22f27" d="m38.8666,35h8.8922c1.4105,0,2.5539,1.1434,2.5539,2.5539v.8922c0,1.4105-1.1434,2.5539-2.5539,2.5539h-8.8922c-1.4105,0-2.5539-1.1434-2.5539-2.5539v-.8922c0-1.4105,1.1434-2.5539,2.5539-2.5539Z"/>
+  </g>
+  <g id="line">
+    <line x1="55.3715" x2="39.2539" y1="35" y2="35" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <line x1="60.3127" x2="55.4303" y1="35" y2="35" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m56.5002,41h4.8125s4,0,4-3c.0345-1.6224-1.2527-2.9655-2.8751-3-.0416-.0009-.0833-.0009-.1249,0h-2"/>
+    <line x1="36.3127" x2="56.5002" y1="41" y2="41" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  </g>
+  </g>
+</svg>

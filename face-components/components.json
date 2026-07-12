@@ -5475,6 +5475,66 @@
       "emoji": "🎧️",
       "subgroup": "music",
       "file": "svg/1F3A7-headphones_extras.svg"
+    },
+    {
+      "id": "1F43D_nose",
+      "type": "nose",
+      "name": "pig nose — nose",
+      "hexcode": "1F43D",
+      "source_emoji": "pig nose",
+      "emoji": "🐽",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F43D_nose.svg"
+    },
+    {
+      "id": "1F443_nose",
+      "type": "nose",
+      "name": "nose — nose",
+      "hexcode": "1F443",
+      "source_emoji": "nose",
+      "emoji": "👃",
+      "subgroup": "body-parts",
+      "file": "svg/1F443_nose.svg"
+    },
+    {
+      "id": "1F925_nose",
+      "type": "nose",
+      "name": "lying face — nose",
+      "hexcode": "1F925",
+      "source_emoji": "lying face",
+      "emoji": "🤥",
+      "subgroup": "face-neutral-skeptical",
+      "file": "svg/1F925_nose.svg"
+    },
+    {
+      "id": "1F436_nose",
+      "type": "nose",
+      "name": "dog face — nose",
+      "hexcode": "1F436",
+      "source_emoji": "dog face",
+      "emoji": "🐶",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F436_nose.svg"
+    },
+    {
+      "id": "1F42D_nose",
+      "type": "nose",
+      "name": "mouse face — nose",
+      "hexcode": "1F42D",
+      "source_emoji": "mouse face",
+      "emoji": "🐭",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F42D_nose.svg"
+    },
+    {
+      "id": "1F47A_nose",
+      "type": "nose",
+      "name": "goblin — nose",
+      "hexcode": "1F47A",
+      "source_emoji": "goblin",
+      "emoji": "👺",
+      "subgroup": "face-costume",
+      "file": "svg/1F47A_nose.svg"
     }
   ]
 }
