@@ -1143,7 +1143,6 @@ function renderGallery() {
     p.className = 'gallery-empty';
     p.textContent = 'No saved emojis yet — press 💾 Save to keep this one!';
     grid.appendChild(p);
-    return;
   }
   list.forEach((encoded, i) => {
     const item = document.createElement('div');
@@ -1173,6 +1172,62 @@ function renderGallery() {
     grid.appendChild(item);
   });
   if (sceneCount) renderSceneShelf(grid);
+  renderPresetShelf(grid);
+}
+
+// ── Starter packs ─────────────────────────────────────────────────────────────
+// Curated theme packs (issue #25 pilots the Traveller pack). A preset is just
+// a maintained list of ?e= encodings, so loading one goes through the same
+// replace-the-pack-with-Undo shape as opening a ?p= link.
+
+const PRESET_PACKS = [{
+  id: 'traveller',
+  name: 'Traveller pack',
+  emoji: '\u{1F9F3}',
+  members: [
+    'yellow..1F601..1F60A.1F9E2-cap.2708_16_-6',          // pilot, plane flying by
+    'orange..1F60C..1F60A.1F452-sun-hat.1F3DD_18_34',     // beach day
+    'dotted..1F600..1F62E.1F4F7_0_30',                    // say cheese!
+    'green..1F606..1F60B.1F97D-goggles.1F392_-20_32',     // backpacker
+    'blue..1F600..1F615.1F9ED_18_32',                     // which way?
+    'red..1F601..1F60D.1F576-shades.1F9F3_-20_34',        // jetsetter
+    'white..1F60D..1F60C.1F3A7-headphones',               // in-flight playlist
+  ],
+}];
+
+function loadPresetPack(preset) {
+  const prev = { members: pack.slice(), active: packActive };
+  pack = preset.members.slice(0, PACK_MAX);
+  packActive = -1;
+  persistPack();
+  renderPackRail();
+  updateUrl();
+  closeGallery();
+  showToast(preset.emoji + ' ' + preset.name + ' loaded!', 'Undo', () => {
+    pack = prev.members;
+    packActive = prev.active;
+    persistPack();
+    renderPackRail();
+    updateUrl();
+  });
+}
+
+function renderPresetShelf(grid) {
+  const head = document.createElement('h3');
+  head.className = 'gallery-sect';
+  head.textContent = '✨ Starter packs';
+  grid.appendChild(head);
+  PRESET_PACKS.forEach(preset => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-pack';
+    btn.setAttribute('aria-label', 'Load the ' + preset.name);
+    btn.innerHTML =
+      '<span class="preset-thumbs">' +
+      preset.members.map(galleryThumbSvg).join('') +
+      '</span><span class="preset-name">' + preset.emoji + ' ' + preset.name + '</span>';
+    btn.addEventListener('click', () => loadPresetPack(preset));
+    grid.appendChild(btn);
+  });
 }
 
 function saveCurrentToGallery() {

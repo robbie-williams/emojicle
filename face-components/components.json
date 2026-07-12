@@ -5535,6 +5535,66 @@
       "emoji": "👺",
       "subgroup": "face-costume",
       "file": "svg/1F47A_nose.svg"
+    },
+    {
+      "id": "2708_sticker",
+      "type": "sticker",
+      "name": "airplane — sticker",
+      "hexcode": "2708",
+      "source_emoji": "airplane",
+      "emoji": "✈️",
+      "subgroup": "transport-air",
+      "file": "svg/2708_sticker.svg"
+    },
+    {
+      "id": "1F9F3_sticker",
+      "type": "sticker",
+      "name": "luggage — sticker",
+      "hexcode": "1F9F3",
+      "source_emoji": "luggage",
+      "emoji": "🧳",
+      "subgroup": "household",
+      "file": "svg/1F9F3_sticker.svg"
+    },
+    {
+      "id": "1F4F7_sticker",
+      "type": "sticker",
+      "name": "camera — sticker",
+      "hexcode": "1F4F7",
+      "source_emoji": "camera",
+      "emoji": "📷",
+      "subgroup": "light & video",
+      "file": "svg/1F4F7_sticker.svg"
+    },
+    {
+      "id": "1F9ED_sticker",
+      "type": "sticker",
+      "name": "compass — sticker",
+      "hexcode": "1F9ED",
+      "source_emoji": "compass",
+      "emoji": "🧭",
+      "subgroup": "science",
+      "file": "svg/1F9ED_sticker.svg"
+    },
+    {
+      "id": "1F3DD_sticker",
+      "type": "sticker",
+      "name": "desert island — sticker",
+      "hexcode": "1F3DD",
+      "source_emoji": "desert island",
+      "emoji": "🏝️",
+      "subgroup": "place-geographic",
+      "file": "svg/1F3DD_sticker.svg"
+    },
+    {
+      "id": "1F392_sticker",
+      "type": "sticker",
+      "name": "backpack — sticker",
+      "hexcode": "1F392",
+      "source_emoji": "backpack",
+      "emoji": "🎒",
+      "subgroup": "clothing",
+      "file": "svg/1F392_sticker.svg"
     }
   ]
 }
