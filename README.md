@@ -12,6 +12,10 @@ free, no ads, no accounts, works offline.
 ## Features
 
 - **Tap pickers** — tap a part's name to browse every option in a grid.
+- **Stickers & wearables** — beyond face parts, the Extras picker carries
+  whole-emoji stickers (pizza, fruit, animals, stars…) that drop onto the
+  canvas as small draggable pieces, plus wearable accessories (top hat,
+  crown, cap, glasses, headphones…) pre-fitted to the face.
 - **Random** — roll a whole new emoji in one tap.
 - **Drag to move** — tap a part on the canvas to select it, press-and-drag to
   move it anywhere (the face stays put as the anchor).
@@ -49,10 +53,11 @@ free, no ads, no accounts, works offline.
 ## How it's built
 
 Pure static HTML/CSS/JS — no framework, no CSS library, no build step at
-runtime, no CDN dependencies. The art is the
-[OpenMoji](https://openmoji.org) face-component pack (SVG, viewBox `0 0 72 72`),
-compiled by `tools/build-parts.js` into the generated `parts-data.js` so the
-app makes zero per-part fetches.
+runtime, no CDN dependencies. The art is [OpenMoji](https://openmoji.org)
+(SVG, viewBox `0 0 72 72`): a face-component pack decomposed into stackable
+parts, plus whole-emoji stickers and fitted wearables — all compiled by
+`tools/build-parts.js` into the generated `parts-data.js` (the `PARTS` layers
+and the `STICKERS` list) so the app makes zero per-part fetches.
 
 ```
 index.html        app shell
@@ -113,7 +118,7 @@ CI runs the unit tests on every deploy; a failing test blocks the deploy.
 ### Adding art
 
 Drop a file named `<token>_<type>.svg` into `face-components/svg/` (`type` is
-one of face/eyes/brows/nose/mouth/extras/ears; `token` is usually the
+one of face/eyes/brows/nose/mouth/extras/sticker; `token` is usually the
 OpenMoji hexcode, optionally suffixed like `1F4A9-hat`) and run:
 
 ```sh

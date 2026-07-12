@@ -1,10 +1,26 @@
 'use strict';
 
 // ── Part data ───────────────────────────────────────────────────────────────
-// PARTS and PACK_ARMS come from parts-data.js (auto-generated from the
+// PARTS and STICKERS come from parts-data.js (auto-generated from the
 // face-components/ OpenMoji pack, viewBox 0 0 72 72). PARTS is keyed by layer:
 //   { face:[{name,svg}], eyes:[…], eyebrows:[…], nose:[…], mouth:[…], extras:[…] }
 // Optional layers (eyebrows, nose, extras) start with a "None" option.
+// STICKERS is the whole-emoji list (food, animals, objects…) that the pack /
+// background features consume directly.
+
+// Random only rolls the classic extras (accessories drawn for faces) — a
+// random emoji sporting a surprise pizza every other tap gets old fast. The
+// stickers appended below remain reachable through the picker.
+const CLASSIC_EXTRAS = PARTS.extras.length;
+
+// Every sticker also joins the Extras list scaled down and parked above the
+// face, so kids can drag a pizza slice (or a T-Rex) anywhere on their emoji.
+// The wrap keeps ids stable for share links without duplicating art data.
+STICKERS.forEach(s => PARTS.extras.push({
+  id: s.id,
+  name: s.name,
+  svg: '<g transform="translate(18 -2) scale(0.5)">' + s.svg + '</g>',
+}));
 
 // Up to three extras can be stacked: extras2/extras3 are additional layers
 // that share the extras part list (aliased below), revealed one at a time by
@@ -78,7 +94,8 @@ function randomise() {
   const prev = booted ? encodeState() : null;
 
   LAYERS.forEach(layer => {
-    state[layer] = Math.floor(Math.random() * PARTS[layer].length);
+    const n = layer.startsWith('extras') ? CLASSIC_EXTRAS : PARTS[layer].length;
+    state[layer] = Math.floor(Math.random() * n);
   });
   // fresh emoji → one extras slot again (a random roll shouldn't pile on hats)
   state.extras2 = 0;

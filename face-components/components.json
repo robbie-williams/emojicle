@@ -1,6 +1,6 @@
 {
-  "description": "Heuristic semantic part decomposition of OpenMoji face emojis (face-* subgroups) for Emojicle.",
-  "source": "OpenMoji color SVGs; parts derived by geometry/heuristics — review-grade, not authoritative.",
+  "description": "Heuristic semantic part decomposition of OpenMoji face emojis, plus curated whole-emoji stickers and fitted wearable accessories, for Emojicle.",
+  "source": "OpenMoji color SVGs; face parts derived by geometry/heuristics; stickers are whole glyphs; wearables are whole glyphs fitted onto the face by bbox.",
   "types": [
     "face",
     "eyes",
@@ -9,10 +9,11 @@
     "brows",
     "ears",
     "arms",
-    "extras"
+    "extras",
+    "sticker"
   ],
-  "emoji_count": 119,
-  "component_count": 453,
+  "emoji_count": 212,
+  "component_count": 546,
   "generated": "2026-06-16",
   "components": [
     {
@@ -3786,14 +3787,14 @@
       "file": "svg/1F973_brows.svg"
     },
     {
-      "id": "1F973_ears",
-      "type": "ears",
-      "name": "partying face — ears",
+      "id": "1F973-confetti_extras",
+      "type": "extras",
+      "name": "partying face — confetti",
       "hexcode": "1F973",
-      "source_emoji": "partying face",
+      "source_emoji": "partying face confetti",
       "emoji": "🥳",
       "subgroup": "face-hat",
-      "file": "svg/1F973_ears.svg"
+      "file": "svg/1F973-confetti_extras.svg"
     },
     {
       "id": "1F973_extras",
@@ -4544,6 +4545,936 @@
       "emoji": "☺️",
       "subgroup": "face-affection",
       "file": "svg/263A_brows.svg"
+    },
+    {
+      "id": "1F355_sticker",
+      "type": "sticker",
+      "name": "pizza — sticker",
+      "hexcode": "1F355",
+      "source_emoji": "pizza",
+      "emoji": "🍕",
+      "subgroup": "food-prepared",
+      "file": "svg/1F355_sticker.svg"
+    },
+    {
+      "id": "1F354_sticker",
+      "type": "sticker",
+      "name": "hamburger — sticker",
+      "hexcode": "1F354",
+      "source_emoji": "hamburger",
+      "emoji": "🍔",
+      "subgroup": "food-prepared",
+      "file": "svg/1F354_sticker.svg"
+    },
+    {
+      "id": "1F35F_sticker",
+      "type": "sticker",
+      "name": "french fries — sticker",
+      "hexcode": "1F35F",
+      "source_emoji": "french fries",
+      "emoji": "🍟",
+      "subgroup": "food-prepared",
+      "file": "svg/1F35F_sticker.svg"
+    },
+    {
+      "id": "1F32D_sticker",
+      "type": "sticker",
+      "name": "hot dog — sticker",
+      "hexcode": "1F32D",
+      "source_emoji": "hot dog",
+      "emoji": "🌭",
+      "subgroup": "food-prepared",
+      "file": "svg/1F32D_sticker.svg"
+    },
+    {
+      "id": "1F37F_sticker",
+      "type": "sticker",
+      "name": "popcorn — sticker",
+      "hexcode": "1F37F",
+      "source_emoji": "popcorn",
+      "emoji": "🍿",
+      "subgroup": "food-prepared",
+      "file": "svg/1F37F_sticker.svg"
+    },
+    {
+      "id": "1F369_sticker",
+      "type": "sticker",
+      "name": "doughnut — sticker",
+      "hexcode": "1F369",
+      "source_emoji": "doughnut",
+      "emoji": "🍩",
+      "subgroup": "food-sweet",
+      "file": "svg/1F369_sticker.svg"
+    },
+    {
+      "id": "1F36A_sticker",
+      "type": "sticker",
+      "name": "cookie — sticker",
+      "hexcode": "1F36A",
+      "source_emoji": "cookie",
+      "emoji": "🍪",
+      "subgroup": "food-sweet",
+      "file": "svg/1F36A_sticker.svg"
+    },
+    {
+      "id": "1F382_sticker",
+      "type": "sticker",
+      "name": "birthday cake — sticker",
+      "hexcode": "1F382",
+      "source_emoji": "birthday cake",
+      "emoji": "🎂",
+      "subgroup": "food-sweet",
+      "file": "svg/1F382_sticker.svg"
+    },
+    {
+      "id": "1F9C1_sticker",
+      "type": "sticker",
+      "name": "cupcake — sticker",
+      "hexcode": "1F9C1",
+      "source_emoji": "cupcake",
+      "emoji": "🧁",
+      "subgroup": "food-sweet",
+      "file": "svg/1F9C1_sticker.svg"
+    },
+    {
+      "id": "1F366_sticker",
+      "type": "sticker",
+      "name": "soft ice cream — sticker",
+      "hexcode": "1F366",
+      "source_emoji": "soft ice cream",
+      "emoji": "🍦",
+      "subgroup": "food-sweet",
+      "file": "svg/1F366_sticker.svg"
+    },
+    {
+      "id": "1F36D_sticker",
+      "type": "sticker",
+      "name": "lollipop — sticker",
+      "hexcode": "1F36D",
+      "source_emoji": "lollipop",
+      "emoji": "🍭",
+      "subgroup": "food-sweet",
+      "file": "svg/1F36D_sticker.svg"
+    },
+    {
+      "id": "1F95E_sticker",
+      "type": "sticker",
+      "name": "pancakes — sticker",
+      "hexcode": "1F95E",
+      "source_emoji": "pancakes",
+      "emoji": "🥞",
+      "subgroup": "food-prepared",
+      "file": "svg/1F95E_sticker.svg"
+    },
+    {
+      "id": "1F9C0_sticker",
+      "type": "sticker",
+      "name": "cheese wedge — sticker",
+      "hexcode": "1F9C0",
+      "source_emoji": "cheese wedge",
+      "emoji": "🧀",
+      "subgroup": "food-prepared",
+      "file": "svg/1F9C0_sticker.svg"
+    },
+    {
+      "id": "1F968_sticker",
+      "type": "sticker",
+      "name": "pretzel — sticker",
+      "hexcode": "1F968",
+      "source_emoji": "pretzel",
+      "emoji": "🥨",
+      "subgroup": "food-prepared",
+      "file": "svg/1F968_sticker.svg"
+    },
+    {
+      "id": "1F349_sticker",
+      "type": "sticker",
+      "name": "watermelon — sticker",
+      "hexcode": "1F349",
+      "source_emoji": "watermelon",
+      "emoji": "🍉",
+      "subgroup": "food-fruit",
+      "file": "svg/1F349_sticker.svg"
+    },
+    {
+      "id": "1F353_sticker",
+      "type": "sticker",
+      "name": "strawberry — sticker",
+      "hexcode": "1F353",
+      "source_emoji": "strawberry",
+      "emoji": "🍓",
+      "subgroup": "food-fruit",
+      "file": "svg/1F353_sticker.svg"
+    },
+    {
+      "id": "1F34C_sticker",
+      "type": "sticker",
+      "name": "banana — sticker",
+      "hexcode": "1F34C",
+      "source_emoji": "banana",
+      "emoji": "🍌",
+      "subgroup": "food-fruit",
+      "file": "svg/1F34C_sticker.svg"
+    },
+    {
+      "id": "1F34E_sticker",
+      "type": "sticker",
+      "name": "red apple — sticker",
+      "hexcode": "1F34E",
+      "source_emoji": "red apple",
+      "emoji": "🍎",
+      "subgroup": "food-fruit",
+      "file": "svg/1F34E_sticker.svg"
+    },
+    {
+      "id": "1F34A_sticker",
+      "type": "sticker",
+      "name": "tangerine — sticker",
+      "hexcode": "1F34A",
+      "source_emoji": "tangerine",
+      "emoji": "🍊",
+      "subgroup": "food-fruit",
+      "file": "svg/1F34A_sticker.svg"
+    },
+    {
+      "id": "1F347_sticker",
+      "type": "sticker",
+      "name": "grapes — sticker",
+      "hexcode": "1F347",
+      "source_emoji": "grapes",
+      "emoji": "🍇",
+      "subgroup": "food-fruit",
+      "file": "svg/1F347_sticker.svg"
+    },
+    {
+      "id": "1F352_sticker",
+      "type": "sticker",
+      "name": "cherries — sticker",
+      "hexcode": "1F352",
+      "source_emoji": "cherries",
+      "emoji": "🍒",
+      "subgroup": "food-fruit",
+      "file": "svg/1F352_sticker.svg"
+    },
+    {
+      "id": "1F34D_sticker",
+      "type": "sticker",
+      "name": "pineapple — sticker",
+      "hexcode": "1F34D",
+      "source_emoji": "pineapple",
+      "emoji": "🍍",
+      "subgroup": "food-fruit",
+      "file": "svg/1F34D_sticker.svg"
+    },
+    {
+      "id": "1F95D_sticker",
+      "type": "sticker",
+      "name": "kiwi fruit — sticker",
+      "hexcode": "1F95D",
+      "source_emoji": "kiwi fruit",
+      "emoji": "🥝",
+      "subgroup": "food-fruit",
+      "file": "svg/1F95D_sticker.svg"
+    },
+    {
+      "id": "1F34B_sticker",
+      "type": "sticker",
+      "name": "lemon — sticker",
+      "hexcode": "1F34B",
+      "source_emoji": "lemon",
+      "emoji": "🍋",
+      "subgroup": "food-fruit",
+      "file": "svg/1F34B_sticker.svg"
+    },
+    {
+      "id": "1F351_sticker",
+      "type": "sticker",
+      "name": "peach — sticker",
+      "hexcode": "1F351",
+      "source_emoji": "peach",
+      "emoji": "🍑",
+      "subgroup": "food-fruit",
+      "file": "svg/1F351_sticker.svg"
+    },
+    {
+      "id": "1F955_sticker",
+      "type": "sticker",
+      "name": "carrot — sticker",
+      "hexcode": "1F955",
+      "source_emoji": "carrot",
+      "emoji": "🥕",
+      "subgroup": "food-vegetable",
+      "file": "svg/1F955_sticker.svg"
+    },
+    {
+      "id": "1F33D_sticker",
+      "type": "sticker",
+      "name": "ear of corn — sticker",
+      "hexcode": "1F33D",
+      "source_emoji": "ear of corn",
+      "emoji": "🌽",
+      "subgroup": "food-vegetable",
+      "file": "svg/1F33D_sticker.svg"
+    },
+    {
+      "id": "1F951_sticker",
+      "type": "sticker",
+      "name": "avocado — sticker",
+      "hexcode": "1F951",
+      "source_emoji": "avocado",
+      "emoji": "🥑",
+      "subgroup": "food-vegetable",
+      "file": "svg/1F951_sticker.svg"
+    },
+    {
+      "id": "1F436_sticker",
+      "type": "sticker",
+      "name": "dog face — sticker",
+      "hexcode": "1F436",
+      "source_emoji": "dog face",
+      "emoji": "🐶",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F436_sticker.svg"
+    },
+    {
+      "id": "1F431_sticker",
+      "type": "sticker",
+      "name": "cat face — sticker",
+      "hexcode": "1F431",
+      "source_emoji": "cat face",
+      "emoji": "🐱",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F431_sticker.svg"
+    },
+    {
+      "id": "1F430_sticker",
+      "type": "sticker",
+      "name": "rabbit face — sticker",
+      "hexcode": "1F430",
+      "source_emoji": "rabbit face",
+      "emoji": "🐰",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F430_sticker.svg"
+    },
+    {
+      "id": "1F98A_sticker",
+      "type": "sticker",
+      "name": "fox — sticker",
+      "hexcode": "1F98A",
+      "source_emoji": "fox",
+      "emoji": "🦊",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F98A_sticker.svg"
+    },
+    {
+      "id": "1F43B_sticker",
+      "type": "sticker",
+      "name": "bear — sticker",
+      "hexcode": "1F43B",
+      "source_emoji": "bear",
+      "emoji": "🐻",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F43B_sticker.svg"
+    },
+    {
+      "id": "1F43C_sticker",
+      "type": "sticker",
+      "name": "panda — sticker",
+      "hexcode": "1F43C",
+      "source_emoji": "panda",
+      "emoji": "🐼",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F43C_sticker.svg"
+    },
+    {
+      "id": "1F428_sticker",
+      "type": "sticker",
+      "name": "koala — sticker",
+      "hexcode": "1F428",
+      "source_emoji": "koala",
+      "emoji": "🐨",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F428_sticker.svg"
+    },
+    {
+      "id": "1F42F_sticker",
+      "type": "sticker",
+      "name": "tiger face — sticker",
+      "hexcode": "1F42F",
+      "source_emoji": "tiger face",
+      "emoji": "🐯",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F42F_sticker.svg"
+    },
+    {
+      "id": "1F981_sticker",
+      "type": "sticker",
+      "name": "lion — sticker",
+      "hexcode": "1F981",
+      "source_emoji": "lion",
+      "emoji": "🦁",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F981_sticker.svg"
+    },
+    {
+      "id": "1F437_sticker",
+      "type": "sticker",
+      "name": "pig face — sticker",
+      "hexcode": "1F437",
+      "source_emoji": "pig face",
+      "emoji": "🐷",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F437_sticker.svg"
+    },
+    {
+      "id": "1F438_sticker",
+      "type": "sticker",
+      "name": "frog — sticker",
+      "hexcode": "1F438",
+      "source_emoji": "frog",
+      "emoji": "🐸",
+      "subgroup": "animal-amphibian",
+      "file": "svg/1F438_sticker.svg"
+    },
+    {
+      "id": "1F435_sticker",
+      "type": "sticker",
+      "name": "monkey face — sticker",
+      "hexcode": "1F435",
+      "source_emoji": "monkey face",
+      "emoji": "🐵",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F435_sticker.svg"
+    },
+    {
+      "id": "1F427_sticker",
+      "type": "sticker",
+      "name": "penguin — sticker",
+      "hexcode": "1F427",
+      "source_emoji": "penguin",
+      "emoji": "🐧",
+      "subgroup": "animal-bird",
+      "file": "svg/1F427_sticker.svg"
+    },
+    {
+      "id": "1F424_sticker",
+      "type": "sticker",
+      "name": "baby chick — sticker",
+      "hexcode": "1F424",
+      "source_emoji": "baby chick",
+      "emoji": "🐤",
+      "subgroup": "animal-bird",
+      "file": "svg/1F424_sticker.svg"
+    },
+    {
+      "id": "1F986_sticker",
+      "type": "sticker",
+      "name": "duck — sticker",
+      "hexcode": "1F986",
+      "source_emoji": "duck",
+      "emoji": "🦆",
+      "subgroup": "animal-bird",
+      "file": "svg/1F986_sticker.svg"
+    },
+    {
+      "id": "1F989_sticker",
+      "type": "sticker",
+      "name": "owl — sticker",
+      "hexcode": "1F989",
+      "source_emoji": "owl",
+      "emoji": "🦉",
+      "subgroup": "animal-bird",
+      "file": "svg/1F989_sticker.svg"
+    },
+    {
+      "id": "1F984_sticker",
+      "type": "sticker",
+      "name": "unicorn — sticker",
+      "hexcode": "1F984",
+      "source_emoji": "unicorn",
+      "emoji": "🦄",
+      "subgroup": "animal-mammal",
+      "file": "svg/1F984_sticker.svg"
+    },
+    {
+      "id": "1F41D_sticker",
+      "type": "sticker",
+      "name": "honeybee — sticker",
+      "hexcode": "1F41D",
+      "source_emoji": "honeybee",
+      "emoji": "🐝",
+      "subgroup": "animal-bug",
+      "file": "svg/1F41D_sticker.svg"
+    },
+    {
+      "id": "1F98B_sticker",
+      "type": "sticker",
+      "name": "butterfly — sticker",
+      "hexcode": "1F98B",
+      "source_emoji": "butterfly",
+      "emoji": "🦋",
+      "subgroup": "animal-bug",
+      "file": "svg/1F98B_sticker.svg"
+    },
+    {
+      "id": "1F422_sticker",
+      "type": "sticker",
+      "name": "turtle — sticker",
+      "hexcode": "1F422",
+      "source_emoji": "turtle",
+      "emoji": "🐢",
+      "subgroup": "animal-reptile",
+      "file": "svg/1F422_sticker.svg"
+    },
+    {
+      "id": "1F419_sticker",
+      "type": "sticker",
+      "name": "octopus — sticker",
+      "hexcode": "1F419",
+      "source_emoji": "octopus",
+      "emoji": "🐙",
+      "subgroup": "animal-marine",
+      "file": "svg/1F419_sticker.svg"
+    },
+    {
+      "id": "1F420_sticker",
+      "type": "sticker",
+      "name": "tropical fish — sticker",
+      "hexcode": "1F420",
+      "source_emoji": "tropical fish",
+      "emoji": "🐠",
+      "subgroup": "animal-marine",
+      "file": "svg/1F420_sticker.svg"
+    },
+    {
+      "id": "1F42C_sticker",
+      "type": "sticker",
+      "name": "dolphin — sticker",
+      "hexcode": "1F42C",
+      "source_emoji": "dolphin",
+      "emoji": "🐬",
+      "subgroup": "animal-marine",
+      "file": "svg/1F42C_sticker.svg"
+    },
+    {
+      "id": "1F433_sticker",
+      "type": "sticker",
+      "name": "spouting whale — sticker",
+      "hexcode": "1F433",
+      "source_emoji": "spouting whale",
+      "emoji": "🐳",
+      "subgroup": "animal-marine",
+      "file": "svg/1F433_sticker.svg"
+    },
+    {
+      "id": "1F995_sticker",
+      "type": "sticker",
+      "name": "sauropod — sticker",
+      "hexcode": "1F995",
+      "source_emoji": "sauropod",
+      "emoji": "🦕",
+      "subgroup": "animal-reptile",
+      "file": "svg/1F995_sticker.svg"
+    },
+    {
+      "id": "1F996_sticker",
+      "type": "sticker",
+      "name": "T-Rex — sticker",
+      "hexcode": "1F996",
+      "source_emoji": "T-Rex",
+      "emoji": "🦖",
+      "subgroup": "animal-reptile",
+      "file": "svg/1F996_sticker.svg"
+    },
+    {
+      "id": "2600_sticker",
+      "type": "sticker",
+      "name": "sun — sticker",
+      "hexcode": "2600",
+      "source_emoji": "sun",
+      "emoji": "☀️",
+      "subgroup": "sky-weather",
+      "file": "svg/2600_sticker.svg"
+    },
+    {
+      "id": "1F308_sticker",
+      "type": "sticker",
+      "name": "rainbow — sticker",
+      "hexcode": "1F308",
+      "source_emoji": "rainbow",
+      "emoji": "🌈",
+      "subgroup": "sky-weather",
+      "file": "svg/1F308_sticker.svg"
+    },
+    {
+      "id": "2B50_sticker",
+      "type": "sticker",
+      "name": "star — sticker",
+      "hexcode": "2B50",
+      "source_emoji": "star",
+      "emoji": "⭐️",
+      "subgroup": "sky-weather",
+      "file": "svg/2B50_sticker.svg"
+    },
+    {
+      "id": "1F31F_sticker",
+      "type": "sticker",
+      "name": "glowing star — sticker",
+      "hexcode": "1F31F",
+      "source_emoji": "glowing star",
+      "emoji": "🌟",
+      "subgroup": "sky-weather",
+      "file": "svg/1F31F_sticker.svg"
+    },
+    {
+      "id": "2601_sticker",
+      "type": "sticker",
+      "name": "cloud — sticker",
+      "hexcode": "2601",
+      "source_emoji": "cloud",
+      "emoji": "☁️",
+      "subgroup": "sky-weather",
+      "file": "svg/2601_sticker.svg"
+    },
+    {
+      "id": "26C5_sticker",
+      "type": "sticker",
+      "name": "sun behind cloud — sticker",
+      "hexcode": "26C5",
+      "source_emoji": "sun behind cloud",
+      "emoji": "⛅️",
+      "subgroup": "sky-weather",
+      "file": "svg/26C5_sticker.svg"
+    },
+    {
+      "id": "2744_sticker",
+      "type": "sticker",
+      "name": "snowflake — sticker",
+      "hexcode": "2744",
+      "source_emoji": "snowflake",
+      "emoji": "❄️",
+      "subgroup": "sky-weather",
+      "file": "svg/2744_sticker.svg"
+    },
+    {
+      "id": "1F338_sticker",
+      "type": "sticker",
+      "name": "cherry blossom — sticker",
+      "hexcode": "1F338",
+      "source_emoji": "cherry blossom",
+      "emoji": "🌸",
+      "subgroup": "plant-flower",
+      "file": "svg/1F338_sticker.svg"
+    },
+    {
+      "id": "1F33B_sticker",
+      "type": "sticker",
+      "name": "sunflower — sticker",
+      "hexcode": "1F33B",
+      "source_emoji": "sunflower",
+      "emoji": "🌻",
+      "subgroup": "plant-flower",
+      "file": "svg/1F33B_sticker.svg"
+    },
+    {
+      "id": "1F337_sticker",
+      "type": "sticker",
+      "name": "tulip — sticker",
+      "hexcode": "1F337",
+      "source_emoji": "tulip",
+      "emoji": "🌷",
+      "subgroup": "plant-flower",
+      "file": "svg/1F337_sticker.svg"
+    },
+    {
+      "id": "1F344_sticker",
+      "type": "sticker",
+      "name": "mushroom — sticker",
+      "hexcode": "1F344",
+      "source_emoji": "mushroom",
+      "emoji": "🍄",
+      "subgroup": "plant-other",
+      "file": "svg/1F344_sticker.svg"
+    },
+    {
+      "id": "1F335_sticker",
+      "type": "sticker",
+      "name": "cactus — sticker",
+      "hexcode": "1F335",
+      "source_emoji": "cactus",
+      "emoji": "🌵",
+      "subgroup": "plant-other",
+      "file": "svg/1F335_sticker.svg"
+    },
+    {
+      "id": "1F333_sticker",
+      "type": "sticker",
+      "name": "deciduous tree — sticker",
+      "hexcode": "1F333",
+      "source_emoji": "deciduous tree",
+      "emoji": "🌳",
+      "subgroup": "plant-other",
+      "file": "svg/1F333_sticker.svg"
+    },
+    {
+      "id": "1F319_sticker",
+      "type": "sticker",
+      "name": "crescent moon — sticker",
+      "hexcode": "1F319",
+      "source_emoji": "crescent moon",
+      "emoji": "🌙",
+      "subgroup": "sky-weather",
+      "file": "svg/1F319_sticker.svg"
+    },
+    {
+      "id": "1F525_sticker",
+      "type": "sticker",
+      "name": "fire — sticker",
+      "hexcode": "1F525",
+      "source_emoji": "fire",
+      "emoji": "🔥",
+      "subgroup": "sky-weather",
+      "file": "svg/1F525_sticker.svg"
+    },
+    {
+      "id": "1F4A7_sticker",
+      "type": "sticker",
+      "name": "droplet — sticker",
+      "hexcode": "1F4A7",
+      "source_emoji": "droplet",
+      "emoji": "💧",
+      "subgroup": "sky-weather",
+      "file": "svg/1F4A7_sticker.svg"
+    },
+    {
+      "id": "2764_sticker",
+      "type": "sticker",
+      "name": "red heart — sticker",
+      "hexcode": "2764",
+      "source_emoji": "red heart",
+      "emoji": "❤️",
+      "subgroup": "heart",
+      "file": "svg/2764_sticker.svg"
+    },
+    {
+      "id": "1F496_sticker",
+      "type": "sticker",
+      "name": "sparkling heart — sticker",
+      "hexcode": "1F496",
+      "source_emoji": "sparkling heart",
+      "emoji": "💖",
+      "subgroup": "heart",
+      "file": "svg/1F496_sticker.svg"
+    },
+    {
+      "id": "1F388_sticker",
+      "type": "sticker",
+      "name": "balloon — sticker",
+      "hexcode": "1F388",
+      "source_emoji": "balloon",
+      "emoji": "🎈",
+      "subgroup": "event",
+      "file": "svg/1F388_sticker.svg"
+    },
+    {
+      "id": "1F381_sticker",
+      "type": "sticker",
+      "name": "wrapped gift — sticker",
+      "hexcode": "1F381",
+      "source_emoji": "wrapped gift",
+      "emoji": "🎁",
+      "subgroup": "event",
+      "file": "svg/1F381_sticker.svg"
+    },
+    {
+      "id": "1F389_sticker",
+      "type": "sticker",
+      "name": "party popper — sticker",
+      "hexcode": "1F389",
+      "source_emoji": "party popper",
+      "emoji": "🎉",
+      "subgroup": "event",
+      "file": "svg/1F389_sticker.svg"
+    },
+    {
+      "id": "26BD_sticker",
+      "type": "sticker",
+      "name": "soccer ball — sticker",
+      "hexcode": "26BD",
+      "source_emoji": "soccer ball",
+      "emoji": "⚽️",
+      "subgroup": "sport",
+      "file": "svg/26BD_sticker.svg"
+    },
+    {
+      "id": "1F3C0_sticker",
+      "type": "sticker",
+      "name": "basketball — sticker",
+      "hexcode": "1F3C0",
+      "source_emoji": "basketball",
+      "emoji": "🏀",
+      "subgroup": "sport",
+      "file": "svg/1F3C0_sticker.svg"
+    },
+    {
+      "id": "1F697_sticker",
+      "type": "sticker",
+      "name": "automobile — sticker",
+      "hexcode": "1F697",
+      "source_emoji": "automobile",
+      "emoji": "🚗",
+      "subgroup": "transport-ground",
+      "file": "svg/1F697_sticker.svg"
+    },
+    {
+      "id": "1F680_sticker",
+      "type": "sticker",
+      "name": "rocket — sticker",
+      "hexcode": "1F680",
+      "source_emoji": "rocket",
+      "emoji": "🚀",
+      "subgroup": "transport-air",
+      "file": "svg/1F680_sticker.svg"
+    },
+    {
+      "id": "1F9F8_sticker",
+      "type": "sticker",
+      "name": "teddy bear — sticker",
+      "hexcode": "1F9F8",
+      "source_emoji": "teddy bear",
+      "emoji": "🧸",
+      "subgroup": "game",
+      "file": "svg/1F9F8_sticker.svg"
+    },
+    {
+      "id": "1F3B8_sticker",
+      "type": "sticker",
+      "name": "guitar — sticker",
+      "hexcode": "1F3B8",
+      "source_emoji": "guitar",
+      "emoji": "🎸",
+      "subgroup": "musical-instrument",
+      "file": "svg/1F3B8_sticker.svg"
+    },
+    {
+      "id": "1F3B5_sticker",
+      "type": "sticker",
+      "name": "musical note — sticker",
+      "hexcode": "1F3B5",
+      "source_emoji": "musical note",
+      "emoji": "🎵",
+      "subgroup": "music",
+      "file": "svg/1F3B5_sticker.svg"
+    },
+    {
+      "id": "26A1_sticker",
+      "type": "sticker",
+      "name": "high voltage — sticker",
+      "hexcode": "26A1",
+      "source_emoji": "high voltage",
+      "emoji": "⚡️",
+      "subgroup": "sky-weather",
+      "file": "svg/26A1_sticker.svg"
+    },
+    {
+      "id": "1F3A9-top-hat_extras",
+      "type": "extras",
+      "name": "top hat — extras",
+      "hexcode": "1F3A9",
+      "source_emoji": "top hat",
+      "emoji": "🎩",
+      "subgroup": "clothing",
+      "file": "svg/1F3A9-top-hat_extras.svg"
+    },
+    {
+      "id": "1F451-crown_extras",
+      "type": "extras",
+      "name": "crown — extras",
+      "hexcode": "1F451",
+      "source_emoji": "crown",
+      "emoji": "👑",
+      "subgroup": "clothing",
+      "file": "svg/1F451-crown_extras.svg"
+    },
+    {
+      "id": "1F9E2-cap_extras",
+      "type": "extras",
+      "name": "cap — extras",
+      "hexcode": "1F9E2",
+      "source_emoji": "cap",
+      "emoji": "🧢",
+      "subgroup": "clothing",
+      "file": "svg/1F9E2-cap_extras.svg"
+    },
+    {
+      "id": "1F393-grad-cap_extras",
+      "type": "extras",
+      "name": "graduation cap — extras",
+      "hexcode": "1F393",
+      "source_emoji": "graduation cap",
+      "emoji": "🎓️",
+      "subgroup": "clothing",
+      "file": "svg/1F393-grad-cap_extras.svg"
+    },
+    {
+      "id": "1F452-sun-hat_extras",
+      "type": "extras",
+      "name": "sun hat — extras",
+      "hexcode": "1F452",
+      "source_emoji": "sun hat",
+      "emoji": "👒",
+      "subgroup": "clothing",
+      "file": "svg/1F452-sun-hat_extras.svg"
+    },
+    {
+      "id": "1F380-hair-bow_extras",
+      "type": "extras",
+      "name": "hair bow — extras",
+      "hexcode": "1F380",
+      "source_emoji": "hair bow",
+      "emoji": "🎀",
+      "subgroup": "event",
+      "file": "svg/1F380-hair-bow_extras.svg"
+    },
+    {
+      "id": "1F453-glasses_extras",
+      "type": "extras",
+      "name": "glasses — extras",
+      "hexcode": "1F453",
+      "source_emoji": "glasses",
+      "emoji": "👓️",
+      "subgroup": "clothing",
+      "file": "svg/1F453-glasses_extras.svg"
+    },
+    {
+      "id": "1F576-shades_extras",
+      "type": "extras",
+      "name": "sunglasses — extras",
+      "hexcode": "1F576",
+      "source_emoji": "sunglasses",
+      "emoji": "🕶️",
+      "subgroup": "clothing",
+      "file": "svg/1F576-shades_extras.svg"
+    },
+    {
+      "id": "1F97D-goggles_extras",
+      "type": "extras",
+      "name": "goggles — extras",
+      "hexcode": "1F97D",
+      "source_emoji": "goggles",
+      "emoji": "🥽",
+      "subgroup": "clothing",
+      "file": "svg/1F97D-goggles_extras.svg"
+    },
+    {
+      "id": "1F3A7-headphones_extras",
+      "type": "extras",
+      "name": "headphones — extras",
+      "hexcode": "1F3A7",
+      "source_emoji": "headphones",
+      "emoji": "🎧️",
+      "subgroup": "music",
+      "file": "svg/1F3A7-headphones_extras.svg"
     }
   ]
 }
