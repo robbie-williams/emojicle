@@ -1111,7 +1111,10 @@ function saveGallery(list) {
   try { localStorage.setItem(GALLERY_KEY, JSON.stringify(list)); } catch (e) {}
 }
 
-function galleryThumbSvg(encoded) {
+// inner markup (layers stacked in z-order, offsets applied) for any encoded
+// emoji, drawn for the 0 0 72 72 box — thumbnails and the scene designer both
+// build on this
+function encodedInnerSvg(encoded) {
   const d = decodeState(encoded);
   let inner = '';
   d.zOrder.forEach(layer => {
@@ -1121,7 +1124,12 @@ function galleryThumbSvg(encoded) {
     const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
     inner += `<g${t}>${part.svg}</g>`;
   });
-  return '<svg viewBox="-8 -8 88 88" class="swatch-svg" aria-hidden="true">' + inner + '</svg>';
+  return inner;
+}
+
+function galleryThumbSvg(encoded) {
+  return '<svg viewBox="-8 -8 88 88" class="swatch-svg" aria-hidden="true">' +
+         encodedInnerSvg(encoded) + '</svg>';
 }
 
 function renderGallery() {

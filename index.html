@@ -95,6 +95,10 @@
         <span class="btn-icon" aria-hidden="true">&#x1F3AE;</span>
         <span>Games</span>
       </button>
+      <button id="btn-scene" class="btn-action btn-scene" aria-label="Design a scene with your pack">
+        <span class="btn-icon" aria-hidden="true">&#x1F3DE;&#xFE0F;</span>
+        <span>Scene</span>
+      </button>
       <button id="btn-share" class="btn-action btn-share" aria-label="Share or save your emoji">
         <span class="btn-icon" aria-hidden="true">&#x1F4E4;</span>
         <span>Send</span>
@@ -394,10 +398,37 @@
     </div>
   </div>
 
+  <div id="scene" class="scene" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="clinic-top">
+      <button id="scene-close" class="picker-close" aria-label="Close the scene designer">&times;</button>
+      <h2 class="clinic-title">&#x1F3DE;&#xFE0F; Scene</h2>
+      <button id="scene-share" class="gallery-save">&#x1F4E4; Send</button>
+    </div>
+    <div id="scene-bgs" class="scene-bgs" role="group" aria-label="Pick a background"></div>
+    <div class="scene-stage-wrap">
+      <svg id="scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 100" preserveAspectRatio="none" role="img"
+           aria-label="Your scene — tap an emoji in the tray below to add it, then drag it around">
+        <g id="scene-bg-layer"></g>
+        <g id="scene-items"></g>
+        <rect id="scene-sel" class="select-box" rx="2" ry="2" fill="none"
+              pointer-events="none" visibility="hidden"></rect>
+      </svg>
+      <p id="scene-hint" class="scene-hint">&#x1F447; Tap an emoji to add it to your scene</p>
+    </div>
+    <div id="scene-tools" class="part-tools scene-tools" hidden>
+      <button id="sc-smaller" class="pt-btn" aria-label="Make it smaller">&#x2796;</button>
+      <button id="sc-bigger" class="pt-btn" aria-label="Make it bigger">&#x2795;</button>
+      <button id="sc-dup" class="pt-btn" aria-label="Duplicate it">&#x1F46F;</button>
+      <button id="sc-del" class="pt-btn" aria-label="Remove it from the scene">&#x1F5D1;&#xFE0F;</button>
+    </div>
+    <div id="scene-tray" class="scene-tray" role="group" aria-label="Your pack — tap to place"></div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="parts-data.js"></script>
   <script src="app.js"></script>
+  <script src="scene.js"></script>
   <script src="games-common.js"></script>
   <script src="games.js"></script>
   <script src="minigames.js"></script>

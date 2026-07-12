@@ -42,6 +42,12 @@ free, no ads, no accounts, works offline.
   phones). Tap a thumbnail to switch which one you're editing, + to add the
   current emoji, ✕ to remove one. A whole pack shares as a `?p=` link —
   still no backend — and comes back on the next visit.
+- **Scene designer** — a full-screen canvas the size of your device window:
+  pick a background from the library (meadow, beach, space, party, rainbow,
+  snow — all lightweight inline SVG), place emojis from your pack, drag,
+  grow/shrink, duplicate. Share the scene as a PNG or a `?s=` link that
+  travels with the pack; scenes reflow with the screen so a phone scene
+  spreads out on a tablet.
 - **Gallery** — save the current emoji on-device (🖼 in the header) and
   reload or delete saves later; nothing leaves the browser.
 - **Mute** — a header toggle silences every game and dance sound at the
@@ -67,7 +73,8 @@ and the `STICKERS` list) so the app makes zero per-part fetches.
 ```
 index.html        app shell
 app.js            builder behaviour (rendering, picker, drag, dance, share,
-                  gallery, overlay stack, audio bus)
+                  gallery, packs, overlay stack, audio bus)
+scene.js          scene designer (background library, placement canvas, ?s=)
 games-common.js   GameKit — helpers shared by every minigame (SFX, particles,
                   emoji snapshots, best-score storage, reduced-motion)
 games.js          minigame registry + the Games picker
