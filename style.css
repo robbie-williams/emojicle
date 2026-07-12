@@ -127,12 +127,13 @@ body {
   white-space: nowrap;
 }
 
-.app-title {
-  font-size: 1.9rem;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-  line-height: 1;
+.app-title { line-height: 0; }
+.app-logo {
+  height: 38px;
+  /* stay clear of the corner buttons even on 320px screens */
+  max-width: min(62vw, 250px);
+  display: block;
+  margin: 0 auto;
 }
 
 .app-tagline {
