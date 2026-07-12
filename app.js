@@ -1325,14 +1325,39 @@ function detachFromPack() {
   renderPackRail();
 }
 
+// ── Header menu (☰: sound, theme, about) ─────────────────────────────────────
+// Sound and dark mode live in a small popover under the header's ☰ button,
+// alongside "About Emojicle" — a modal that also carries the OpenMoji credit
+// (issue #26 moved it off the always-visible footer).
+
+function initMenu() {
+  const menu = document.getElementById('menu');
+  const close = () => closeOverlay(menu);
+  document.getElementById('btn-menu').addEventListener('click', () =>
+    openOverlay(menu, close));
+  menu.addEventListener('click', e => {
+    if (e.target.id === 'menu') close();   // tap outside the popover
+  });
+  const about = document.getElementById('about');
+  const closeAbout = () => closeOverlay(about);
+  document.getElementById('menu-about').addEventListener('click', () => {
+    close();
+    openOverlay(about, closeAbout);
+  });
+  document.getElementById('about-close').addEventListener('click', closeAbout);
+  about.addEventListener('click', e => {
+    if (e.target.id === 'about') closeAbout();
+  });
+}
+
 // ── Sound toggle (mute) ───────────────────────────────────────────────────────
-// A kids app that always makes noise is a parents problem — the header 🔊/🔇
-// flips the master GainNode every sound routes through, persisted like the
-// theme choice.
+// A kids app that always makes noise is a parents problem — the menu's 🔊/🔇
+// row flips the master GainNode every sound routes through, persisted like
+// the theme choice.
 
 function applyMuted() {
-  const btn = document.getElementById('btn-sound');
-  btn.textContent = muted ? '\u{1F507}' : '\u{1F50A}';
+  const btn = document.getElementById('menu-sound');
+  btn.textContent = muted ? '\u{1F507} Sound is off' : '\u{1F50A} Sound is on';
   btn.setAttribute('aria-label', muted ? 'Turn sound on' : 'Turn sound off');
   if (masterGain) masterGain.gain.value = muted ? 0 : 1;
 }
@@ -1340,7 +1365,7 @@ function applyMuted() {
 function initSound() {
   try { muted = localStorage.getItem('emojicle-muted') === '1'; } catch (e) {}
   applyMuted();
-  document.getElementById('btn-sound').addEventListener('click', () => {
+  document.getElementById('menu-sound').addEventListener('click', () => {
     muted = !muted;
     try { localStorage.setItem('emojicle-muted', muted ? '1' : '0'); } catch (e) {}
     applyMuted();
@@ -1349,18 +1374,19 @@ function initSound() {
 
 // ── Theme (dark mode) ─────────────────────────────────────────────────────────
 // The head script in index.html stamps data-theme before first paint (saved
-// choice, else system preference). The header moon/sun button flips and saves
+// choice, else system preference). The menu's moon/sun row flips and saves
 // it; while the user hasn't chosen, we keep following the system live.
 
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
-  // show the mode the button switches TO
-  document.getElementById('btn-theme').textContent = t === 'dark' ? '☀️' : '\u{1F319}';
+  // show the mode the row switches TO
+  document.getElementById('menu-theme').textContent =
+    t === 'dark' ? '☀️ Light mode' : '\u{1F319} Dark mode';
 }
 
 function initTheme() {
   applyTheme(document.documentElement.dataset.theme || 'light');
-  document.getElementById('btn-theme').addEventListener('click', () => {
+  document.getElementById('menu-theme').addEventListener('click', () => {
     const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     try { localStorage.setItem('emojicle-theme', t); } catch (e) {}
     applyTheme(t);
@@ -1400,6 +1426,7 @@ function init() {
   buildControls();
   buildDancePicker();
   initDrag();
+  initMenu();
   initTheme();
   initSound();
   initPartTools();

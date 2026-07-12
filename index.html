@@ -41,8 +41,7 @@
     <h1 class="app-title">Emojicle</h1>
     <p class="app-tagline">Make your emoji!</p>
     <button id="btn-gallery" class="theme-toggle gallery-toggle" aria-label="My saved emojis">&#x1F5BC;&#xFE0F;</button>
-    <button id="btn-sound" class="theme-toggle sound-toggle" aria-label="Turn sound off"></button>
-    <button id="btn-theme" class="theme-toggle" aria-label="Toggle dark mode"></button>
+    <button id="btn-menu" class="theme-toggle" aria-label="Open menu" aria-haspopup="true">&#x2630;</button>
   </header>
 
   <main class="app-main">
@@ -117,12 +116,33 @@
     </div>
   </main>
 
-  <footer class="app-credit">
-    Emoji art by <a href="https://openmoji.org" target="_blank" rel="noopener">OpenMoji</a>
-    &middot; licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
-  </footer>
-
   <div id="sr-status" class="visually-hidden" aria-live="polite"></div>
+
+  <div id="menu" class="menu-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="menu-pop" role="menu" aria-label="Emojicle menu">
+      <button id="menu-sound" class="menu-item" role="menuitem"></button>
+      <button id="menu-theme" class="menu-item" role="menuitem"></button>
+      <button id="menu-about" class="menu-item" role="menuitem">&#x2139;&#xFE0F; About Emojicle</button>
+    </div>
+  </div>
+
+  <div id="about" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">&#x1F929; About Emojicle</h2>
+        <button id="about-close" class="picker-close" aria-label="Close about">&times;</button>
+      </div>
+      <div class="about-body">
+        <p>Emojicle is a make-your-own-emoji toy: mix up faces, eyes and extras,
+           collect a pack of pals, build scenes, dance and play games — all right
+           here on your device, even offline.</p>
+        <p class="about-credit">Emoji art by
+           <a href="https://openmoji.org" target="_blank" rel="noopener">OpenMoji</a>
+           &middot; licensed
+           <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.</p>
+      </div>
+    </div>
+  </div>
 
   <div id="gallery" class="picker" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="picker-panel">
