@@ -1022,7 +1022,7 @@ async function shareScene() {
     if (withLink) {
       try { await navigator.clipboard.writeText(location.href); } catch (e) {}
     }
-    showToast(withLink ? 'Scene saved · link copied' : 'Scene saved');
+    showToast(withLink ? 'Scene exported · link copied' : 'Scene exported');
   }
 }
 

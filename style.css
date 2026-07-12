@@ -1802,6 +1802,11 @@ body.overlay-open { overflow: hidden; }
 .scene-pick-btn:hover  { border-color: var(--clr-brand); }
 .scene-pick-btn:active { transform: scale(0.92); }
 
+/* two wordier header buttons (Save as scene / Export) share the top bar with
+   the title — slim them down so the title keeps at least its emoji */
+#scene .gallery-save { padding: 8px 10px; font-size: 0.78rem; }
+#scene .clinic-top { gap: 8px; }
+
 .scene-picker { z-index: 350; }
 .scene-search {
   margin: 0 16px 10px;
