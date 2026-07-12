@@ -454,6 +454,7 @@
       <p id="scene-hint" class="scene-hint">&#x1F447; Tap an emoji to add it to your scene</p>
     </div>
     <div class="scene-bottom">
+      <button id="scene-pick-btn" class="scene-pick-btn" aria-label="Add a standard emoji to the scene">&#x1F50E;</button>
       <div id="scene-tray" class="scene-tray" role="group" aria-label="Your pack — tap to place"></div>
       <div id="scene-tools" class="part-tools scene-tools" hidden>
         <button id="sc-smaller" class="pt-btn" aria-label="Make it smaller">&#x2796;</button>
@@ -461,6 +462,18 @@
         <button id="sc-dup" class="pt-btn" aria-label="Duplicate it">&#x1F46F;</button>
         <button id="sc-del" class="pt-btn" aria-label="Remove it from the scene">&#x1F5D1;&#xFE0F;</button>
       </div>
+    </div>
+  </div>
+
+  <div id="scene-picker" class="picker scene-picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">&#x1F50E; Add an emoji</h2>
+        <button id="scene-picker-close" class="picker-close" aria-label="Close emoji picker">&times;</button>
+      </div>
+      <input id="scene-picker-search" class="scene-search" type="search"
+             placeholder="Search &mdash; try &ldquo;rocket&rdquo;!" autocomplete="off">
+      <div id="scene-picker-grid" class="picker-grid"></div>
     </div>
   </div>
 

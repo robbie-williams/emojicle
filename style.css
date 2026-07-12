@@ -1783,6 +1783,37 @@ body.overlay-open { overflow: hidden; }
 .scene-tray > :first-child { margin-left: auto; }
 .scene-tray > :last-child  { margin-right: auto; }
 .scene-tray .pack-thumb { flex-shrink: 0; }
+
+/* 🔎 standard-emoji picker (issue #19): the tray button, and the modal —
+   which must stack above the scene overlay (300), unlike ordinary pickers */
+.scene-pick-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 2px dashed var(--clr-card-edge);
+  border-radius: 12px;
+  background: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+.scene-pick-btn:hover  { border-color: var(--clr-brand); }
+.scene-pick-btn:active { transform: scale(0.92); }
+
+.scene-picker { z-index: 350; }
+.scene-search {
+  margin: 0 16px 10px;
+  padding: 10px 14px;
+  border: 2px solid var(--clr-card-edge);
+  border-radius: 12px;
+  background: var(--clr-canvas);
+  color: var(--clr-partname);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.scene-search:focus { outline: none; border-color: var(--clr-brand); }
 .scene-tray-thumb { position: relative; }
 .scene-tray-current { border-style: dashed; }
 .scene-tray-plus {

@@ -52,13 +52,28 @@ const OPTIONAL = new Set(['eyebrows', 'nose', 'extras']);
 function loadNames() {
   const byHex = {};
   const byId = {};
-  if (!fs.existsSync(MANIFEST)) return { byHex, byId };
+  const subgroupById = {};
+  if (!fs.existsSync(MANIFEST)) return { byHex, byId, subgroupById };
   const m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
   for (const c of m.components || []) {
     if (c.hexcode) byHex[c.hexcode.toUpperCase()] = c.source_emoji;
     if (c.id) byId[c.id] = c.source_emoji;
+    if (c.id && c.subgroup) subgroupById[c.id] = c.subgroup;
   }
-  return { byHex, byId };
+  return { byHex, byId, subgroupById };
+}
+
+// OpenMoji subgroup -> kid-friendly picker category for stickers (issue #19).
+// Anything unmapped lands in "More fun".
+const STICKER_GROUPS = [
+  ['Animals',        /^animal-/],
+  ['Food & drink',   /^(food-|drink)/],
+  ['Nature',         /^(plant-|sky-weather)/],
+  ['Travel & places',/^(transport-|place-|science|household|clothing|light & video)/],
+];
+function stickerGroup(subgroup) {
+  for (const [label, re] of STICKER_GROUPS) if (re.test(subgroup || '')) return label;
+  return 'More fun';
 }
 
 const humanize = s => s.replace(/[-_]+/g, ' ').trim().toLowerCase();
@@ -112,7 +127,11 @@ for (const file of files) {
   // handle used by share links, so they survive pack re-curation (indices don't).
   const entry = { id: token, name: displayName(token, type.toLowerCase(), names), svg };
 
-  if (type.toLowerCase() === 'sticker') { stickers.push(entry); continue; }
+  if (type.toLowerCase() === 'sticker') {
+    entry.g = stickerGroup(names.subgroupById[`${token}_sticker`]);
+    stickers.push(entry);
+    continue;
+  }
 
   const layer = TYPE_TO_LAYER[type.toLowerCase()];
   if (!layer) { skipped++; continue; }

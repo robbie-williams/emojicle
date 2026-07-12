@@ -96,6 +96,42 @@ test('items referencing missing pack members are shed', () => {
   assert.strictEqual(valid[0].m, 0);
 });
 
+test('sticker items round-trip through the codec (#19)', () => {
+  const stickerId = vm.runInContext('STICKERS[0].id', context);
+  const sc = {
+    bg: 'space',
+    items: [
+      { m: 2, x: 100, y: 200, s: 1 },
+      { st: stickerId, x: 700, y: 300, s: -1 },
+    ],
+  };
+  eq(api.decodeScene(api.encodeScene(sc)), sc);
+  // URL-safe too
+  const u = new URL('https://emojicle.test/');
+  u.searchParams.set('s', api.encodeScene(sc));
+  assert.ok(!u.search.includes('%'), 'no percent-escapes: ' + u.search);
+});
+
+test('unknown sticker ids are skipped on decode; old apps skip sticker segments', () => {
+  const d = api.decodeScene('meadow*sNOPE_1_2_0*3_4_5_0');
+  eq(d.items, [{ m: 3, x: 4, y: 5, s: 0 }]);
+  // the old decoder treated every segment as ints — "s…" parses to NaN and is
+  // dropped, which is exactly what decodeScene does with junk today
+  eq(api.decodeScene('meadow*not_an_item_0_0').items, []);
+});
+
+test('sticker items survive sceneValidItems; pack items still shed (#19)', () => {
+  const stickerId = vm.runInContext('STICKERS[0].id', context);
+  api.setPack([api.encodeState()], -1);
+  api.setScene({ bg: 'meadow', items: [
+    { st: stickerId, x: 1, y: 1, s: 0 },
+    { m: 5, x: 1, y: 1, s: 0 },
+  ] });
+  const valid = api.sceneValidItems();
+  assert.strictEqual(valid.length, 1);
+  assert.strictEqual(valid[0].st, stickerId);
+});
+
 test('the kid-friendly doodle background is the library default (#14)', () => {
   assert.strictEqual(api.SCENE_BGS[0].id, 'doodles');
   // and the app-backdrop tile built from the same motifs is clean SVG

@@ -574,12 +574,21 @@ SCENE_BGS.forEach(b => { SCENE_BG_IDS[b.id] = b; });
 
 // ── Scene state & codec ───────────────────────────────────────────────────────
 
-let scene = { bg: SCENE_BGS[0].id, items: [] };   // items: { m, x, y, s }
+// items: { m, x, y, s } for a pack member, { st, x, y, s } for a standard
+// sticker placed straight from the searchable picker (issue #19)
+let scene = { bg: SCENE_BGS[0].id, items: [] };
 let sceneSel = -1;                                 // selected item index (top = last)
 
-// ?s=<bg>*<m>_<x>_<y>_<s>*…  x/y are per-mille ints, s a size step
+const STICKER_BY_ID = {};
+STICKERS.forEach(s => { STICKER_BY_ID[s.id] = s; });
+
+// ?s=<bg>*<m>_<x>_<y>_<s>*…  x/y are per-mille ints, s a size step.
+// Sticker items ride as *s<id>_<x>_<y>_<s> — old apps opening a new link
+// parseInt the "s…" to NaN and skip the segment, so they degrade gracefully
+// to the pack-only scene instead of breaking.
 function encodeScene(sc) {
-  return sc.bg + sc.items.map(it => `*${it.m}_${it.x}_${it.y}_${it.s}`).join('');
+  return sc.bg + sc.items.map(it =>
+    `*${it.st ? 's' + it.st : it.m}_${it.x}_${it.y}_${it.s}`).join('');
 }
 
 function decodeScene(str) {
@@ -589,22 +598,40 @@ function decodeScene(str) {
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
   for (const seg of segs.slice(1)) {
     if (items.length >= SCENE_MAX) break;
-    const f = seg.split('_').map(v => parseInt(v, 10));
-    if (f.length !== 4 || f.some(n => !Number.isInteger(n))) continue;
-    items.push({
-      m: clamp(f[0], 0, PACK_MAX - 1),
-      x: clamp(f[1], 0, 1000),
-      y: clamp(f[2], 0, 1000),
-      s: clamp(f[3], SCENE_S_MIN, SCENE_S_MAX),
-    });
+    const f = seg.split('_');
+    const nums = f.slice(1).map(v => parseInt(v, 10));
+    if (f.length !== 4 || nums.some(n => !Number.isInteger(n))) continue;
+    const pos = {
+      x: clamp(nums[0], 0, 1000),
+      y: clamp(nums[1], 0, 1000),
+      s: clamp(nums[2], SCENE_S_MIN, SCENE_S_MAX),
+    };
+    if (f[0].startsWith('s')) {
+      const st = f[0].slice(1);
+      if (STICKER_BY_ID[st]) items.push({ st, ...pos });
+    } else {
+      const m = parseInt(f[0], 10);
+      if (Number.isInteger(m)) items.push({ m: clamp(m, 0, PACK_MAX - 1), ...pos });
+    }
   }
   return { bg, items };
+}
+
+// the inner 72×72 art for any scene item: a sticker's own glyph, or the
+// item's pack member decoded — '' when the referenced thing no longer exists
+function sceneItemArt(it, packArr) {
+  if (it.st) {
+    const s = STICKER_BY_ID[it.st];
+    return s ? s.svg : '';
+  }
+  const enc = packArr[it.m];
+  return enc ? encodedInnerSvg(enc) : '';
 }
 
 // items whose pack member vanished (pack re-curation) render as nothing and
 // are dropped on the next open
 function sceneValidItems() {
-  return scene.items.filter(it => !!pack[it.m]);
+  return scene.items.filter(it => !!sceneItemArt(it, pack));
 }
 
 function persistScene() {
@@ -661,15 +688,15 @@ function itemCenter(it) {
 
 // dims-parameterised so saved-scene thumbnails (which carry their own pack
 // snapshot) render through the same path as the live canvas
-function sceneItemMarkupIn(it, enc, dims) {
-  if (!enc) return '';
+function sceneItemMarkupIn(it, art, dims) {
+  if (!art) return '';
   const f = SCENE_BASE * Math.min(dims.w, dims.h) / 72 * Math.pow(SCENE_STEP, it.s);
   const c = { x: it.x / 1000 * dims.w, y: it.y / 1000 * dims.h };
-  return `<g transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${encodedInnerSvg(enc)}</g>`;
+  return `<g transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${art}</g>`;
 }
 
 function sceneItemMarkup(it) {
-  return sceneItemMarkupIn(it, pack[it.m], sceneDims);
+  return sceneItemMarkupIn(it, sceneItemArt(it, pack), sceneDims);
 }
 
 function renderSceneBg() {
@@ -691,7 +718,7 @@ function renderSceneSel() {
   const box = document.getElementById('scene-sel');
   if (!box) return;
   const it = scene.items[sceneSel];
-  if (!it || !pack[it.m]) { box.setAttribute('visibility', 'hidden'); syncSceneTools(); return; }
+  if (!it || !sceneItemArt(it, pack)) { box.setAttribute('visibility', 'hidden'); syncSceneTools(); return; }
   const f = itemFactor(it);
   const c = itemCenter(it);
   const half = 36 * f + 1.5;
@@ -768,6 +795,80 @@ function placeSceneItem(mi) {
   sceneChanged();
 }
 
+// ── Standard-emoji picker (issue #19) ─────────────────────────────────────────
+// 🔎 next to the tray opens a searchable, category-grouped picker over the
+// curated STICKERS set, so a rocket can join the scene without building a
+// custom face for it. Placed stickers behave exactly like pack items:
+// drag, resize, duplicate, delete, share.
+
+const STICKER_GROUP_ORDER = ['Animals', 'Food & drink', 'Nature', 'Travel & places', 'More fun'];
+
+function placeStickerItem(id) {
+  if (!STICKER_BY_ID[id]) return;
+  if (scene.items.length >= SCENE_MAX) {
+    showToast('\u{1F3DE}\u{FE0F} The scene is full!');
+    return;
+  }
+  const jx = Math.round((Math.random() - 0.5) * 240);
+  const jy = Math.round((Math.random() - 0.5) * 240);
+  scene.items.push({ st: id, x: 500 + jx, y: 560 + jy, s: 0 });
+  sceneSel = scene.items.length - 1;
+  renderSceneItems();
+  renderSceneTray();   // syncs the "tap an emoji" hint
+  sceneChanged();
+  closeScenePicker();
+}
+
+function stickerButton(s) {
+  const b = document.createElement('button');
+  b.className = 'swatch';
+  b.setAttribute('aria-label', 'Add ' + s.name + ' to the scene');
+  b.innerHTML = `<svg viewBox="0 0 72 72" class="swatch-svg" aria-hidden="true">${s.svg}</svg>` +
+                `<span class="swatch-name">${s.name}</span>`;
+  b.addEventListener('click', () => placeStickerItem(s.id));
+  return b;
+}
+
+function renderScenePicker(query) {
+  const grid = document.getElementById('scene-picker-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const q = (query || '').trim().toLowerCase();
+  if (q) {
+    const hits = STICKERS.filter(s => s.name.toLowerCase().includes(q));
+    if (!hits.length) {
+      const p = document.createElement('p');
+      p.className = 'gallery-empty';
+      p.textContent = 'Nothing found — try another word!';
+      grid.appendChild(p);
+      return;
+    }
+    hits.forEach(s => grid.appendChild(stickerButton(s)));
+    return;
+  }
+  STICKER_GROUP_ORDER.forEach(group => {
+    const members = STICKERS.filter(s => (s.g || 'More fun') === group);
+    if (!members.length) return;
+    const head = document.createElement('h3');
+    head.className = 'gallery-sect';
+    head.textContent = group;
+    grid.appendChild(head);
+    members.forEach(s => grid.appendChild(stickerButton(s)));
+  });
+}
+
+function openScenePicker() {
+  const el = document.getElementById('scene-picker');
+  const search = document.getElementById('scene-picker-search');
+  if (search) search.value = '';
+  renderScenePicker('');
+  openOverlay(el, closeScenePicker);
+}
+
+function closeScenePicker() {
+  closeOverlay(document.getElementById('scene-picker'));
+}
+
 function removeSceneItem() {
   if (sceneSel < 0) return;
   scene.items.splice(sceneSel, 1);
@@ -784,7 +885,7 @@ function duplicateSceneItem() {
     showToast('\u{1F3DE}\u{FE0F} The scene is full!');
     return;
   }
-  const copy = { m: it.m, x: Math.min(1000, it.x + 70), y: Math.min(1000, it.y + 70), s: it.s };
+  const copy = { ...it, x: Math.min(1000, it.x + 70), y: Math.min(1000, it.y + 70) };
   scene.items.push(copy);
   sceneSel = scene.items.length - 1;
   renderSceneItems();
@@ -836,7 +937,7 @@ function sceneToSvg(evt) {
 function sceneHit(p) {
   for (let i = scene.items.length - 1; i >= 0; i--) {
     const it = scene.items[i];
-    if (!pack[it.m]) continue;
+    if (!sceneItemArt(it, pack)) continue;
     const c = itemCenter(it);
     const half = 36 * itemFactor(it);
     if (Math.abs(p.x - c.x) <= half && Math.abs(p.y - c.y) <= half) return i;
@@ -966,7 +1067,7 @@ function saveCurrentScene() {
 function sceneThumbSvg(entry) {
   const dims = { w: 60, h: 100 };
   const dec = decodeScene(entry.s);
-  const items = dec.items.map(it => sceneItemMarkupIn(it, entry.p[it.m], dims)).join('');
+  const items = dec.items.map(it => sceneItemMarkupIn(it, sceneItemArt(it, entry.p), dims)).join('');
   return `<svg viewBox="0 0 ${dims.w} ${dims.h}" class="scene-thumb-svg" aria-hidden="true">` +
          SCENE_BG_IDS[dec.bg].draw(dims.w, dims.h) + items + '</svg>';
 }
@@ -1070,6 +1171,13 @@ function initScene() {
   });
   document.getElementById('scene-close').addEventListener('click', closeScene);
   document.getElementById('scene-save').addEventListener('click', saveCurrentScene);
+  document.getElementById('scene-pick-btn').addEventListener('click', openScenePicker);
+  document.getElementById('scene-picker-close').addEventListener('click', closeScenePicker);
+  document.getElementById('scene-picker').addEventListener('click', e => {
+    if (e.target.id === 'scene-picker') closeScenePicker();
+  });
+  document.getElementById('scene-picker-search').addEventListener('input', e =>
+    renderScenePicker(e.target.value));
   document.getElementById('scene-share').addEventListener('click', shareScene);
   document.getElementById('sc-bigger').addEventListener('click', () => resizeSceneItem(1));
   document.getElementById('sc-smaller').addEventListener('click', () => resizeSceneItem(-1));
