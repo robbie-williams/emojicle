@@ -489,7 +489,9 @@ body {
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 0;
   pointer-events: none;
-  z-index: 100;
+  /* above every sheet/overlay (pickers are 200, games/scene 300) — a toast
+     fired while one is open must stay visible and its Undo tappable */
+  z-index: 400;
 }
 
 .toast.show {
@@ -903,6 +905,22 @@ body {
   font-weight: 700;
   color: var(--clr-label);
   padding: 18px 8px;
+}
+
+/* saved-scenes shelf inside the gallery (issue #23) */
+.gallery-sect {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--clr-label);
+  padding-top: 8px;
+}
+.scene-shelf-thumb { padding: 4px; }
+.scene-shelf-thumb .scene-thumb-svg {
+  width: 100%;
+  aspect-ratio: 3 / 5;
+  display: block;
+  border-radius: 10px;
 }
 
 /* ── "Where should it go?" restack modal (long-press / double-tap a part) ─── */
@@ -1672,17 +1690,34 @@ body.overlay-open { overflow: hidden; }
 }
 .scene-hint[hidden] { display: none; }
 
-.scene-tools { padding: 6px 0 0; }
+/* Tray and selection tools share one bottom row of fixed height: the tray
+   scrolls sideways instead of wrapping, and the tools dock on the right only
+   while an emoji is selected — so selecting never squishes the stage above
+   (issue #18). */
+.scene-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px calc(10px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+.scene-tools { padding: 0; flex-shrink: 0; }
 
 .scene-tray {
   display: flex;
   gap: 8px;
-  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  /* top/right room so the current-emoji "+" badge isn't clipped by the
+     scroll box; auto margins centre the row when it fits (same trick as
+     .scene-bg-btn above) */
+  padding: 8px 8px 2px 0;
 }
+.scene-tray > :first-child { margin-left: auto; }
+.scene-tray > :last-child  { margin-right: auto; }
+.scene-tray .pack-thumb { flex-shrink: 0; }
 .scene-tray-thumb { position: relative; }
 .scene-tray-current { border-style: dashed; }
 .scene-tray-plus {

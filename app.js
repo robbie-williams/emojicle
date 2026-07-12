@@ -1136,7 +1136,9 @@ function renderGallery() {
   const grid = document.getElementById('gallery-grid');
   grid.innerHTML = '';
   const list = loadGallery();
-  if (!list.length) {
+  // saved scenes (scene.js) share this gallery as a shelf below the emojis
+  const sceneCount = typeof savedScenesCount === 'function' ? savedScenesCount() : 0;
+  if (!list.length && !sceneCount) {
     const p = document.createElement('p');
     p.className = 'gallery-empty';
     p.textContent = 'No saved emojis yet — press 💾 Save to keep this one!';
@@ -1170,6 +1172,7 @@ function renderGallery() {
     item.appendChild(del);
     grid.appendChild(item);
   });
+  if (sceneCount) renderSceneShelf(grid);
 }
 
 function saveCurrentToGallery() {

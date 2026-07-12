@@ -316,12 +316,17 @@ function itemCenter(it) {
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
-function sceneItemMarkup(it) {
-  const enc = pack[it.m];
+// dims-parameterised so saved-scene thumbnails (which carry their own pack
+// snapshot) render through the same path as the live canvas
+function sceneItemMarkupIn(it, enc, dims) {
   if (!enc) return '';
-  const f = itemFactor(it);
-  const c = itemCenter(it);
+  const f = SCENE_BASE * Math.min(dims.w, dims.h) / 72 * Math.pow(SCENE_STEP, it.s);
+  const c = { x: it.x / 1000 * dims.w, y: it.y / 1000 * dims.h };
   return `<g transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${encodedInnerSvg(enc)}</g>`;
+}
+
+function sceneItemMarkup(it) {
+  return sceneItemMarkupIn(it, pack[it.m], sceneDims);
 }
 
 function renderSceneBg() {
@@ -577,6 +582,107 @@ async function shareScene() {
   }
 }
 
+// ── My Scenes ─────────────────────────────────────────────────────────────────
+// 💾 in the scene header keeps the current scene in a localStorage list,
+// mirroring the My Emojis gallery (issue #23). Scene items reference pack
+// members by index, so each save snapshots the pack alongside the scene
+// encoding — a saved scene survives any later pack editing. Saved scenes
+// show as a shelf inside the My Emojis gallery; opening one restores scene
+// AND pack, with an Undo (same shape as loading a ?p= link).
+
+const SCENES_KEY = 'emojicle-scenes';
+const SCENES_MAX = 12;
+
+function loadScenes() {
+  try {
+    const l = JSON.parse(localStorage.getItem(SCENES_KEY));
+    if (!Array.isArray(l)) return [];
+    return l.filter(e => e && typeof e.s === 'string' &&
+      Array.isArray(e.p) && e.p.every(m => typeof m === 'string'));
+  } catch (e) { return []; }
+}
+
+function saveScenes(list) {
+  try { localStorage.setItem(SCENES_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function savedScenesCount() { return loadScenes().length; }
+
+function saveCurrentScene() {
+  const entry = { s: encodeScene({ bg: scene.bg, items: sceneValidItems() }), p: pack.slice() };
+  const list = loadScenes();
+  if (!list.some(e => e.s === entry.s && packToParam(e.p) === packToParam(entry.p))) {
+    list.unshift(entry);
+    if (list.length > SCENES_MAX) list.pop();
+    saveScenes(list);
+  }
+  showToast('\u{1F4BE} Saved — find it in \u{1F5BC}\u{FE0F} My Emojis!');
+}
+
+// portrait thumbnail (scenes are designed on portrait phones)
+function sceneThumbSvg(entry) {
+  const dims = { w: 60, h: 100 };
+  const dec = decodeScene(entry.s);
+  const items = dec.items.map(it => sceneItemMarkupIn(it, entry.p[it.m], dims)).join('');
+  return `<svg viewBox="0 0 ${dims.w} ${dims.h}" class="scene-thumb-svg" aria-hidden="true">` +
+         SCENE_BG_IDS[dec.bg].draw(dims.w, dims.h) + items + '</svg>';
+}
+
+function openSavedScene(entry) {
+  const prev = { p: pack.slice(), a: packActive, s: encodeScene(scene) };
+  pack = entry.p.slice(0, PACK_MAX);
+  packActive = -1;
+  persistPack();
+  renderPackRail();
+  scene = decodeScene(entry.s);
+  persistScene();
+  closeGallery();
+  openScene();
+  showToast('\u{1F3DE}\u{FE0F} Scene loaded!', 'Undo', () => {
+    pack = prev.p;
+    packActive = prev.a;
+    persistPack();
+    renderPackRail();
+    scene = decodeScene(prev.s);
+    persistScene();
+    const el = document.getElementById('scene');
+    if (el && el.classList.contains('show')) renderScene();
+    sceneSyncUrl();
+  });
+}
+
+// called by renderGallery() (app.js) to append the shelf under the emojis
+function renderSceneShelf(grid) {
+  const list = loadScenes();
+  if (!list.length) return;
+  const head = document.createElement('h3');
+  head.className = 'gallery-sect';
+  head.textContent = '\u{1F3DE}\u{FE0F} My Scenes';
+  grid.appendChild(head);
+  list.forEach((entry, i) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    const open = document.createElement('button');
+    open.className = 'swatch scene-shelf-thumb';
+    open.setAttribute('aria-label', 'Open saved scene ' + (i + 1));
+    open.innerHTML = sceneThumbSvg(entry);
+    open.addEventListener('click', () => openSavedScene(entry));
+    const del = document.createElement('button');
+    del.className = 'gallery-del';
+    del.textContent = '✕';
+    del.setAttribute('aria-label', 'Forget saved scene ' + (i + 1));
+    del.addEventListener('click', () => {
+      const l = loadScenes();
+      l.splice(i, 1);
+      saveScenes(l);
+      renderGallery();
+    });
+    item.appendChild(open);
+    item.appendChild(del);
+    grid.appendChild(item);
+  });
+}
+
 // ── Open / close / init ───────────────────────────────────────────────────────
 
 function openScene() {
@@ -620,6 +726,7 @@ function initScene() {
     openScene();
   });
   document.getElementById('scene-close').addEventListener('click', closeScene);
+  document.getElementById('scene-save').addEventListener('click', saveCurrentScene);
   document.getElementById('scene-share').addEventListener('click', shareScene);
   document.getElementById('sc-bigger').addEventListener('click', () => resizeSceneItem(1));
   document.getElementById('sc-smaller').addEventListener('click', () => resizeSceneItem(-1));
