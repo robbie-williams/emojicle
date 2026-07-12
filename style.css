@@ -170,13 +170,12 @@ body {
 }
 
 /* Grid so the pack rail can flank the canvas on wide screens and collapse to
-   a row underneath on phones (canvas → rail → part-tools, top to bottom). */
+   a row underneath on phones (canvas → rail, top to bottom). */
 .canvas-card {
   display: grid;
   grid-template-areas:
     'canvas canvas'
-    'rail-l rail-r'
-    'tools  tools';
+    'rail-l rail-r';
   grid-template-columns: 1fr 1fr;
   justify-content: center;
   justify-items: center;
@@ -262,25 +261,14 @@ body {
 .pack-add:hover  { border-color: var(--clr-brand); color: var(--clr-brand); }
 .pack-add:active { transform: scale(0.92); }
 
-/* chip row under the canvas: nudge arrows + restack for the selected part */
+/* chip-button toolbar (used by the scene designer's resize/dup/delete row) */
 .part-tools[hidden] { display: none; }
 .part-tools {
-  grid-area: tools;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
   flex-shrink: 0;
-}
-.part-tools-name {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: capitalize;
-  color: var(--clr-label);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 5.5em;
 }
 .pt-btn {
   border: none;
@@ -701,9 +689,7 @@ body {
   .canvas-card   { flex: 0 0 auto; }
   /* pack rail: columns of 3 flanking the canvas instead of a row below */
   .canvas-card {
-    grid-template-areas:
-      'rail-l canvas rail-r'
-      'tools  tools  tools';
+    grid-template-areas: 'rail-l canvas rail-r';
     grid-template-columns: auto 1fr auto;
   }
   .pack-rail   { flex-direction: column; min-width: 40px; }

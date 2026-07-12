@@ -700,7 +700,6 @@ function selectLayer(layer) {
   selectedLayer = layer;
   if (layer) document.getElementById('layer-' + layer).classList.add('layer-selected');
   updateSelectBox();
-  updatePartTools();
   if (layer) announce(PARTS[layer][state[layer]].name + ' selected');
 }
 
@@ -712,29 +711,19 @@ function deselect() {
   selectedLayer = null;
   const box = document.getElementById('select-box');
   if (box) box.setAttribute('visibility', 'hidden');
-  updatePartTools();
   announce('');
 }
 
-// ── Selected-part tools & announcements ──────────────────────────────────────
-// When a part is selected, a chip row appears under the canvas: nudge arrows
-// plus to-top/to-back. This is the keyboard/motor-friendly path to moving and
-// restacking (drag and long-press stay as shortcuts), and it announces the
-// selection to screen readers via the visually-hidden live region.
+// ── Canvas keyboard support & announcements ───────────────────────────────────
+// Drag moves a part and double-tap/long-press restacks it — the keyboard path
+// mirrors both on the focusable canvas (←/→ pick a part, ↑/↓ and Shift+←/→
+// nudge it, Enter restacks), and selection is announced to screen readers via
+// the visually-hidden live region. There's deliberately no on-screen button
+// row for any of this: it would only duplicate the gestures and cost space.
 
 function announce(txt) {
   const el = document.getElementById('sr-status');
   if (el) el.textContent = txt;
-}
-
-function updatePartTools() {
-  const bar = document.getElementById('part-tools');
-  if (!bar) return;
-  bar.hidden = !selectedLayer;
-  if (selectedLayer) {
-    document.getElementById('part-tools-name').textContent =
-      PARTS[selectedLayer][state[selectedLayer]].name;
-  }
 }
 
 function nudgeSelected(dx, dy) {
@@ -759,34 +748,22 @@ function cycleSelection(dir) {
   selectLayer(next);
 }
 
-function initPartTools() {
-  const acts = {
-    'pt-left':  () => nudgeSelected(-2, 0),
-    'pt-right': () => nudgeSelected(2, 0),
-    'pt-up':    () => nudgeSelected(0, -2),
-    'pt-down':  () => nudgeSelected(0, 2),
-    'pt-top':   () => {
-      if (!selectedLayer) return;
-      moveLayerToTop(selectedLayer);
-      updateUrl();
-      showToast('⬆️ ' + PARTS[selectedLayer][state[selectedLayer]].name + ' is on top!');
-    },
-    'pt-back':  () => {
-      if (!selectedLayer) return;
-      moveLayerToBack(selectedLayer);
-      updateUrl();
-      showToast('⬇️ ' + PARTS[selectedLayer][state[selectedLayer]].name + ' went to the back!');
-    },
-  };
-  Object.keys(acts).forEach(id =>
-    document.getElementById(id).addEventListener('click', acts[id]));
-
+function initCanvasKeys() {
   const svg = document.getElementById('emoji-svg');
   svg.addEventListener('keydown', e => {
     if (dancing) return;
-    if (e.key === 'ArrowLeft') { cycleSelection(-1); e.preventDefault(); }
-    else if (e.key === 'ArrowRight') { cycleSelection(1); e.preventDefault(); }
-    else if (e.key === 'Enter' && selectedLayer) { openMoveTop(selectedLayer); e.preventDefault(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const dir = e.key === 'ArrowLeft' ? -1 : 1;
+      if (e.shiftKey && selectedLayer) nudgeSelected(dir * 2, 0);
+      else cycleSelection(dir);
+      e.preventDefault();
+    } else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedLayer) {
+      nudgeSelected(0, e.key === 'ArrowUp' ? -2 : 2);
+      e.preventDefault();
+    } else if (e.key === 'Enter' && selectedLayer) {
+      openMoveTop(selectedLayer);
+      e.preventDefault();
+    }
   });
 }
 
@@ -1484,7 +1461,7 @@ function init() {
   initMenu();
   initTheme();
   initSound();
-  initPartTools();
+  initCanvasKeys();
   document.getElementById('btn-random').addEventListener('click', randomise);
   document.getElementById('btn-dance').addEventListener('click', onDanceButton);
   document.getElementById('btn-share').addEventListener('click', shareEmoji);
