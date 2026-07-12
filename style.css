@@ -397,21 +397,24 @@ body {
 
 .actions { display: flex; gap: 6px; margin: 0; flex-shrink: 0; }
 
+/* Icon stacked over a small label: five buttons hold up side-by-side this
+   way even at 320px, where icon-beside-label needed the labels dropped. */
 .btn-action {
   flex: 1 1 0;
   min-width: 0;
-  height: 52px;
+  height: 54px;
   border: none;
   border-bottom: 5px solid transparent;
   border-radius: var(--radius-btn);
-  font-size: 0.92rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0;
   color: #fff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
   cursor: pointer;
   touch-action: manipulation;
   transition: transform 0.08s ease, border-width 0.08s ease;
@@ -437,7 +440,7 @@ body {
 /* five buttons share the row — keep side padding slim so labels fit */
 .actions .btn-action { padding-left: 4px; padding-right: 4px; }
 
-.btn-icon { font-size: 1.1rem; line-height: 1; }
+.btn-icon { font-size: 1.2rem; line-height: 1; }
 
 /* Toggles under the action row: a 5-column grid mirrors the five buttons
    above, so "Random dance" sits under Dance (col 2) and "Send a magic link
@@ -715,14 +718,12 @@ body {
 }
 
 /* ── Very narrow / Display-Zoom phones (≈320px) ──────────────────────────────
-   Five labelled buttons can't share 320px — drop to big icons only (labels
-   live on in the aria-labels) so the row stays inside the box. */
+   Stacked icon-over-label buttons still fit five across at 320px — just
+   tighten the gutters and the label a touch. */
 @media (max-width: 360px) {
-  .app-main { padding-left: 10px; padding-right: 10px; }
+  /* side padding for this width lives with the backdrop rules (issue #21) */
   .actions { gap: 4px; }
-  .btn-action { font-size: 0.8rem; gap: 4px; }
-  .btn-action > span:not(.btn-icon) { display: none; }
-  .btn-icon { font-size: 1.35rem; }
+  .btn-action { font-size: 0.64rem; }
 }
 
 /* ── Attribution footer ───────────────────────────────────────────────────── */
@@ -1711,4 +1712,17 @@ body {
 }
 :root[data-theme="dark"] body {
   background-image: var(--doodle-bg-dark, none);
+}
+
+/* On narrow screens the opaque cards cover almost the whole viewport, so the
+   backdrop only survives in the side gutters (issue #21). Widen those gutters
+   a touch and shrink the tile so whole doodles — not slivers — land in the
+   visible strips. (This padding intentionally overrides the 360px rule
+   earlier in the file; whole doodles need the room even on tiny phones.) */
+@media (max-width: 480px) {
+  .app-main { padding-left: 22px; padding-right: 22px; }
+  body { background-size: 200px 200px; }
+}
+@media (max-width: 360px) {
+  .app-main { padding-left: 16px; padding-right: 16px; }
 }

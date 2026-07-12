@@ -1265,15 +1265,24 @@ function renderPackRail() {
     (pos < leftCount ? L : R).appendChild(item);
   });
 
-  if (pack.length < PACK_MAX) {
-    const add = document.createElement('button');
-    add.className = 'pack-add';
-    add.id = 'pack-add';
-    add.textContent = '+';
-    add.setAttribute('aria-label', 'Add this emoji to your pack');
-    add.addEventListener('click', addCurrentToPack);
-    R.appendChild(add);
+  if (pack.length < PACK_MAX) R.appendChild(packAddButton());
+}
+
+// One persistent "+" node, re-appended on every rail render. Rebuilding it
+// from scratch each time (like the thumbs) made taps flaky: a render landing
+// between a finger's pointerdown and its click replaced the node mid-gesture,
+// and the click dispatched to a button that was no longer in the DOM.
+let packAddBtn = null;
+function packAddButton() {
+  if (!packAddBtn) {
+    packAddBtn = document.createElement('button');
+    packAddBtn.className = 'pack-add';
+    packAddBtn.id = 'pack-add';
+    packAddBtn.textContent = '+';
+    packAddBtn.setAttribute('aria-label', 'Add this emoji to your pack');
+    packAddBtn.addEventListener('click', addCurrentToPack);
   }
+  return packAddBtn;
 }
 
 function addCurrentToPack() {
@@ -1451,14 +1460,12 @@ function init() {
   const e = q.get('e');
   if (e && !linkPack.length) packActive = -1;   // a plain emoji link is standalone
   const enc = e || (packActive >= 0 ? pack[packActive] : null);
-  if (enc) {
-    applyEncoded(enc);
-    renderAll();
-    MOVABLE.forEach(applyOffset);
-    updateUrl();   // normalise the URL to the canonical encoding
-  } else {
-    randomise();
-  }
+  // Nothing to restore lands on the plain smiley, not a random face —
+  // randomise() stays reserved for the explicit Random button.
+  applyEncoded(enc || LAYERS.map(l => DEFAULT_IDS[l] || '').join('.'));
+  renderAll();
+  MOVABLE.forEach(applyOffset);
+  updateUrl();   // normalise the URL to the canonical encoding
   renderPackRail();
   syncExtraSlots();   // reveal any extras slots a share link populated
   booted = true;      // from here on, Random offers an Undo
