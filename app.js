@@ -1126,16 +1126,24 @@ async function shareEmoji(withLink) {
 }
 
 // ── My Emojis gallery ─────────────────────────────────────────────────────────
-// The ?e= encoding is already a complete serialization of an emoji, so the
-// gallery is just a localStorage list of encoded strings with thumbnails
-// rendered from the same decode used by share links. 💾 saves the current
-// creation; tapping a thumbnail rebuilds it; ✕ forgets it.
+// Since packs became the unit users build with, 💾 snapshots the WHOLE pack
+// as a named entry { n: name, m: [?e=…] } (issue #27) — the same shape as a
+// starter pack, so saved packs render and load through the starter-pack path.
+// Tapping an entry restores the full pack with an Undo; ✕ forgets it.
 
 const GALLERY_KEY = 'emojicle-gallery';
 const GALLERY_MAX = 24;
 
 function loadGallery() {
-  try { return JSON.parse(localStorage.getItem(GALLERY_KEY)) || []; } catch (e) { return []; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(GALLERY_KEY));
+    if (!Array.isArray(raw)) return [];
+    // entries from before #27 were bare ?e= strings — carry each forward as
+    // a single-member pack (named on next save; '' shows a friendly default)
+    return raw.map(e => (typeof e === 'string' ? { n: '', m: [e] } : e))
+      .filter(e => e && typeof e.n === 'string' && Array.isArray(e.m) &&
+                   e.m.length && e.m.every(m => typeof m === 'string' && m));
+  } catch (e) { return []; }
 }
 
 function saveGallery(list) {
@@ -1172,26 +1180,29 @@ function renderGallery() {
   if (!list.length && !sceneCount) {
     const p = document.createElement('p');
     p.className = 'gallery-empty';
-    p.textContent = 'No saved emojis yet — press 💾 Save to keep this one!';
+    p.textContent = 'No saved packs yet — press 💾 Save to keep yours!';
     grid.appendChild(p);
   }
-  list.forEach((encoded, i) => {
+  list.forEach((entry, i) => {
+    const label = entry.n || '\u{1F49B} Saved emoji';
     const item = document.createElement('div');
-    item.className = 'gallery-item';
+    item.className = 'gallery-item gallery-pack';
     const open = document.createElement('button');
-    open.className = 'swatch';
-    open.setAttribute('aria-label', 'Load saved emoji ' + (i + 1));
-    open.innerHTML = galleryThumbSvg(encoded);
-    open.addEventListener('click', () => {
-      detachFromPack();   // a gallery load is a standalone emoji, not a member edit
-      restoreEncoded(encoded);
-      closeGallery();
-      showToast('\u{1F60A} Welcome back!');
-    });
+    open.className = 'preset-pack';
+    open.setAttribute('aria-label', 'Load saved pack: ' + label);
+    const thumbs = document.createElement('span');
+    thumbs.className = 'preset-thumbs';
+    thumbs.innerHTML = entry.m.map(galleryThumbSvg).join('');
+    const name = document.createElement('span');
+    name.className = 'preset-name';
+    name.textContent = label;   // user text — never innerHTML
+    open.appendChild(thumbs);
+    open.appendChild(name);
+    open.addEventListener('click', () => replacePack(entry.m, '\u{1F4E6} ' + label));
     const del = document.createElement('button');
     del.className = 'gallery-del';
     del.textContent = '✕';
-    del.setAttribute('aria-label', 'Forget saved emoji ' + (i + 1));
+    del.setAttribute('aria-label', 'Forget saved pack: ' + label);
     del.addEventListener('click', () => {
       const l = loadGallery();
       l.splice(i, 1);
@@ -1226,21 +1237,26 @@ const PRESET_PACKS = [{
   ],
 }];
 
-function loadPresetPack(preset) {
+// swap the whole pack for another (starter pack or saved pack), with Undo
+function replacePack(members, label) {
   const prev = { members: pack.slice(), active: packActive };
-  pack = preset.members.slice(0, PACK_MAX);
+  pack = members.slice(0, PACK_MAX);
   packActive = -1;
   persistPack();
   renderPackRail();
   updateUrl();
   closeGallery();
-  showToast(preset.emoji + ' ' + preset.name + ' loaded!', 'Undo', () => {
+  showToast(label + ' loaded!', 'Undo', () => {
     pack = prev.members;
     packActive = prev.active;
     persistPack();
     renderPackRail();
     updateUrl();
   });
+}
+
+function loadPresetPack(preset) {
+  replacePack(preset.members, preset.emoji + ' ' + preset.name);
 }
 
 function renderPresetShelf(grid) {
@@ -1261,14 +1277,32 @@ function renderPresetShelf(grid) {
   });
 }
 
-function saveCurrentToGallery() {
+// 💾 in the gallery: ask for a name, then snapshot the whole pack (or the
+// lone canvas emoji when the pack is empty) as one named entry
+function openPackNameModal() {
+  const input = document.getElementById('pack-name-input');
+  input.value = '';
+  openOverlay(document.getElementById('pack-name'), closePackNameModal);
+  input.focus({ preventScroll: true });
+}
+
+function closePackNameModal() {
+  closeOverlay(document.getElementById('pack-name'));
+}
+
+function confirmSavePack(e) {
+  e.preventDefault();
+  const name = document.getElementById('pack-name-input').value.trim() || 'My pack';
+  const members = pack.length ? pack.slice() : [encodeState()];
   const list = loadGallery();
-  const enc = encodeState();
-  if (!list.includes(enc)) {
-    list.unshift(enc);
-    if (list.length > GALLERY_MAX) list.pop();
-    saveGallery(list);
-  }
+  const key = packToParam(members);
+  // same members saved again → refresh its name and bump it to the front
+  const dup = list.findIndex(en => packToParam(en.m) === key);
+  if (dup >= 0) list.splice(dup, 1);
+  list.unshift({ n: name, m: members });
+  if (list.length > GALLERY_MAX) list.pop();
+  saveGallery(list);
+  closePackNameModal();
   renderGallery();
   showToast('\u{1F4BE} Saved to My Emojis!');
 }
@@ -1521,10 +1555,15 @@ function init() {
   addLongPress(document.getElementById('btn-share'),
                () => shareEmoji(false), () => shareEmoji(true));
   document.getElementById('btn-gallery').addEventListener('click', openGallery);
-  document.getElementById('gallery-save').addEventListener('click', saveCurrentToGallery);
+  document.getElementById('gallery-save').addEventListener('click', openPackNameModal);
   document.getElementById('gallery-close').addEventListener('click', closeGallery);
   document.getElementById('gallery').addEventListener('click', e => {
     if (e.target.id === 'gallery') closeGallery();
+  });
+  document.getElementById('pack-name-form').addEventListener('submit', confirmSavePack);
+  document.getElementById('pack-name-close').addEventListener('click', closePackNameModal);
+  document.getElementById('pack-name').addEventListener('click', e => {
+    if (e.target.id === 'pack-name') closePackNameModal();
   });
 
   document.getElementById('picker-close').addEventListener('click', closePicker);

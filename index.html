@@ -147,10 +147,24 @@
     <div class="picker-panel">
       <div class="picker-head">
         <h2 class="picker-title">&#x1F5BC;&#xFE0F; My Emojis</h2>
-        <button id="gallery-save" class="gallery-save">&#x1F4BE; Save this one</button>
+        <button id="gallery-save" class="gallery-save">&#x1F4BE; Save my pack</button>
         <button id="gallery-close" class="picker-close" aria-label="Close gallery">&times;</button>
       </div>
       <div id="gallery-grid" class="picker-grid"></div>
+    </div>
+  </div>
+
+  <div id="pack-name" class="picker pack-name" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel name-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">&#x1F4E6; Name your pack!</h2>
+        <button id="pack-name-close" class="picker-close" aria-label="Close">&times;</button>
+      </div>
+      <form id="pack-name-form" class="name-form">
+        <input id="pack-name-input" class="scene-search" type="text" maxlength="24"
+               placeholder="My pack" autocomplete="off" aria-label="Pack name">
+        <button type="submit" class="gallery-save">&#x1F4BE; Save</button>
+      </form>
     </div>
   </div>
 

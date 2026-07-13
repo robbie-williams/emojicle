@@ -977,6 +977,26 @@ body {
   border-radius: 10px;
 }
 
+/* pack-naming dialog (issue #27) — small centred sheet over the gallery */
+.pack-name { align-items: center; padding: 24px; }
+.pack-name .name-panel {
+  border-radius: 22px;
+  max-width: 340px;
+  animation: confirm-pop 0.18s ease-out;
+}
+.name-form {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+}
+.name-form .scene-search { flex: 1; min-width: 0; margin: 0; }
+
+/* saved packs reuse the wide starter-pack row inside a .gallery-item wrapper
+   (for the ✕ badge) — the wrapper spans the grid, the row fills the wrapper */
+.gallery-pack { grid-column: 1 / -1; }
+.gallery-pack .preset-pack { width: 100%; }
+
 /* starter packs shelf (issue #25) — one wide button per curated pack */
 .preset-pack {
   grid-column: 1 / -1;
