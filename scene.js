@@ -931,16 +931,40 @@ function sceneChanged() {
   sceneSyncUrl();
 }
 
+// Landing spot for a new item (issue #41): sample candidate positions across
+// the whole canvas and keep the one farthest from every existing item, so
+// drops spread out instead of piling into one small box. Distances are
+// measured in viewBox units (not per-mille), so a tall/narrow phone canvas
+// spreads vertically as it should. The margin keeps the item's default
+// footprint on-canvas, in per-mille of each axis.
+function sceneDropSpot() {
+  const half = SCENE_BASE * Math.min(sceneDims.w, sceneDims.h) / 2;
+  const mx = Math.min(400, Math.round(half / sceneDims.w * 1000) + 20);
+  const my = Math.min(400, Math.round(half / sceneDims.h * 1000) + 20);
+  let best = { x: 500, y: 500 };
+  let bestD = -1;
+  for (let i = 0; i < 16; i++) {
+    const x = mx + Math.round(Math.random() * (1000 - 2 * mx));
+    const y = my + Math.round(Math.random() * (1000 - 2 * my));
+    let d = Infinity;
+    for (const it of scene.items) {
+      const dx = (x - it.x) / 1000 * sceneDims.w;
+      const dy = (y - it.y) / 1000 * sceneDims.h;
+      d = Math.min(d, dx * dx + dy * dy);
+    }
+    if (d > bestD) { bestD = d; best = { x, y }; }
+  }
+  return best;
+}
+
 function placeSceneItem(mi) {
   if (!pack[mi]) return;
   if (scene.items.length >= SCENE_MAX) {
     showToast('\u{1F3DE}\u{FE0F} The scene is full!');
     return;
   }
-  // drop near the middle with a little scatter so repeated taps don't stack
-  const jx = Math.round((Math.random() - 0.5) * 240);
-  const jy = Math.round((Math.random() - 0.5) * 240);
-  scene.items.push({ m: mi, x: 500 + jx, y: 560 + jy, s: 0 });
+  const spot = sceneDropSpot();
+  scene.items.push({ m: mi, x: spot.x, y: spot.y, s: 0 });
   sceneSel = scene.items.length - 1;
   renderSceneItems();
   renderSceneTray();
@@ -961,9 +985,8 @@ function placeStickerItem(id) {
     showToast('\u{1F3DE}\u{FE0F} The scene is full!');
     return;
   }
-  const jx = Math.round((Math.random() - 0.5) * 240);
-  const jy = Math.round((Math.random() - 0.5) * 240);
-  scene.items.push({ st: id, x: 500 + jx, y: 560 + jy, s: 0 });
+  const spot = sceneDropSpot();
+  scene.items.push({ st: id, x: spot.x, y: spot.y, s: 0 });
   sceneSel = scene.items.length - 1;
   renderSceneItems();
   renderSceneTray();   // syncs the "tap an emoji" hint
