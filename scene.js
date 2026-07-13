@@ -714,6 +714,34 @@ function renderSceneItems() {
   renderSceneSel();
 }
 
+// Much of the 72×72 art box is empty padding for many stickers, so the
+// selection box and hit-test hug the art's real bbox instead (issue #31),
+// measured once per art string via a throwaway <g> and cached. getBBox
+// ignores stroke widths, so a couple of art-units of pad go back on.
+const ART_BOUNDS = new Map();
+const ART_PAD = 2;
+
+function sceneArtBounds(it) {
+  const key = it.st ? 's' + it.st : pack[it.m];
+  if (ART_BOUNDS.has(key)) return ART_BOUNDS.get(key);
+  const svg = document.getElementById('scene-svg');
+  const art = sceneItemArt(it, pack);
+  let b = { x: 0, y: 0, w: 72, h: 72 };            // fallback: the full box
+  if (svg && art) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('visibility', 'hidden');
+    g.innerHTML = art;
+    svg.appendChild(g);
+    try {
+      const r = g.getBBox();
+      if (r.width > 0 && r.height > 0) b = { x: r.x, y: r.y, w: r.width, h: r.height };
+    } catch (e) { /* keep the full-box fallback */ }
+    g.remove();
+    ART_BOUNDS.set(key, b);
+  }
+  return b;
+}
+
 function renderSceneSel() {
   const box = document.getElementById('scene-sel');
   if (!box) return;
@@ -721,11 +749,11 @@ function renderSceneSel() {
   if (!it || !sceneItemArt(it, pack)) { box.setAttribute('visibility', 'hidden'); syncSceneTools(); return; }
   const f = itemFactor(it);
   const c = itemCenter(it);
-  const half = 36 * f + 1.5;
-  box.setAttribute('x', c.x - half);
-  box.setAttribute('y', c.y - half);
-  box.setAttribute('width', half * 2);
-  box.setAttribute('height', half * 2);
+  const b = sceneArtBounds(it);
+  box.setAttribute('x', c.x + (b.x - ART_PAD - 36) * f);
+  box.setAttribute('y', c.y + (b.y - ART_PAD - 36) * f);
+  box.setAttribute('width', (b.w + ART_PAD * 2) * f);
+  box.setAttribute('height', (b.h + ART_PAD * 2) * f);
   box.setAttribute('visibility', 'visible');
   syncSceneTools();
 }
@@ -938,9 +966,13 @@ function sceneHit(p) {
   for (let i = scene.items.length - 1; i >= 0; i--) {
     const it = scene.items[i];
     if (!sceneItemArt(it, pack)) continue;
+    const f = itemFactor(it);
     const c = itemCenter(it);
-    const half = 36 * itemFactor(it);
-    if (Math.abs(p.x - c.x) <= half && Math.abs(p.y - c.y) <= half) return i;
+    const b = sceneArtBounds(it);
+    const x0 = c.x + (b.x - ART_PAD - 36) * f;
+    const y0 = c.y + (b.y - ART_PAD - 36) * f;
+    if (p.x >= x0 && p.x <= x0 + (b.w + ART_PAD * 2) * f &&
+        p.y >= y0 && p.y <= y0 + (b.h + ART_PAD * 2) * f) return i;
   }
   return -1;
 }
