@@ -881,6 +881,23 @@ function hitLayer(p) {
 const canvasPtrs = new Map();
 let canvasPinch = null;
 
+// iOS Safari sometimes never delivers a pointerup/pointercancel for one
+// finger of a pinch (issue #40), stranding an entry in canvasPtrs so every
+// later single touch looks like a second finger and selection goes dead.
+// Entries carry a last-seen timestamp; anything not refreshed recently is
+// dropped before a new gesture is evaluated. During a live pinch no new
+// pointerdown fires, so an anchored (motionless) finger is never pruned
+// mid-gesture.
+const PTR_STALE_MS = 1500;
+
+function pruneStalePtrs(excludeId) {
+  const now = Date.now();
+  for (const [id, p] of canvasPtrs) {
+    if (id !== excludeId && now - p.t > PTR_STALE_MS) canvasPtrs.delete(id);
+  }
+  if (canvasPinch && canvasPtrs.size < 2) canvasPinch = null;
+}
+
 function canvasPinchDist() {
   const [a, b] = [...canvasPtrs.values()];
   return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
@@ -900,7 +917,8 @@ function onPointerDown(e) {
   if (dancing) return;
   const svg = document.getElementById('emoji-svg');
   if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
-  canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  pruneStalePtrs(e.pointerId);
+  canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: Date.now() });
   if (canvasPtrs.size === 2) {
     // second finger: this is a pinch-resize, not a drag or a restack hold
     clearTimeout(pressTimer);
@@ -932,7 +950,7 @@ function onPointerDown(e) {
 }
 
 function onPointerMove(e) {
-  if (canvasPtrs.has(e.pointerId)) canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (canvasPtrs.has(e.pointerId)) canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: Date.now() });
   if (canvasPinch && !dancing) {
     if (canvasPtrs.size < 2 || !selectedLayer) return;
     const steps = Math.round(Math.log(canvasPinchDist() / canvasPinch.d0) / Math.log(PART_STEP));
@@ -1024,6 +1042,20 @@ function initDrag() {
     drag = null;
     canvasPinch = null;
   });
+  // Backstop for issue #40: despite setPointerCapture, some browsers hand
+  // the up/cancel of a pinch finger to a different target, so the svg
+  // listeners above never see it. Catch releases at the window (capture
+  // phase, so this runs before the svg handlers — which then find their
+  // deletes are no-ops and the pinch already closed, both harmless).
+  const releasePtr = e => {
+    if (!canvasPtrs.delete(e.pointerId)) return;
+    if (canvasPinch && canvasPtrs.size < 2) {
+      if (canvasPinch.changed) updateUrl();
+      canvasPinch = null;
+    }
+  };
+  window.addEventListener('pointerup', releasePtr, true);
+  window.addEventListener('pointercancel', releasePtr, true);
   // scroll wheel over a part resizes it (issue #39), like the scene designer:
   // one step per ~60 units of spin, selecting the part under the cursor first
   let wheelAcc = 0;
