@@ -1566,9 +1566,19 @@ function initScene() {
     if (scene.items[sceneSel]) sceneChanged();
   });
 
-  window.addEventListener('resize', () => {
+  // The viewBox aspect must always match .scene-stage-wrap's real box —
+  // preserveAspectRatio is "none", so any mismatch renders as stretching.
+  // A window 'resize' listener alone loses that race on iOS rotation: the
+  // wrap's box can keep settling (address bar / safe-areas animate on their
+  // own schedule) after the last resize event fires, leaving a stale viewBox
+  // stretched over the final layout (issue #42). Observing the element's own
+  // box re-measures whenever it truly changes, however late that lands.
+  const relayout = () => {
     if (el.classList.contains('show')) renderScene();
-  });
+  };
+  const wrap = document.querySelector('.scene-stage-wrap');
+  if (window.ResizeObserver && wrap) new ResizeObserver(relayout).observe(wrap);
+  else window.addEventListener('resize', relayout);
 
   // a ?s= link opens straight into the shared scene (the pack came in ?p=);
   // otherwise yesterday's scene quietly waits behind the Scene button
