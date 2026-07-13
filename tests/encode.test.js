@@ -31,8 +31,9 @@ vm.runInContext(read('app.js'), context, { filename: 'app.js' });
 // Top-level let/const in a vm script live in the context's global lexical
 // scope, not on globalThis — grab what the tests need with one eval.
 const api = vm.runInContext(
-  '({ encodeState, decodeState, state, offsets, LAYERS, MOVABLE, ID_ALIASES,' +
-  '   DEFAULT_IDS, PARTS, ID_INDEX, setZOrder: z => { zOrder = z; },' +
+  '({ encodeState, decodeState, state, offsets, scales, LAYERS, MOVABLE, ID_ALIASES,' +
+  '   DEFAULT_IDS, PARTS, ID_INDEX, PART_S_MIN, PART_S_MAX,' +
+  '   setZOrder: z => { zOrder = z; },' +
   '   getZOrder: () => zOrder })',
   context
 );
@@ -46,7 +47,7 @@ const eq = (actual, expected, msg) =>
 // Put the builder globals into a known state before each encode test
 function reset() {
   LAYERS.forEach(l => { api.state[l] = 0; });
-  MOVABLE.forEach(l => { api.offsets[l] = { x: 0, y: 0 }; });
+  MOVABLE.forEach(l => { api.offsets[l] = { x: 0, y: 0 }; api.scales[l] = 0; });
   api.setZOrder(LAYERS.slice());
 }
 
@@ -115,4 +116,22 @@ test('empty and short strings decode to a sane default emoji', () => {
   const d = decodeState('');
   LAYERS.forEach(l => assert.strictEqual(d.state[l], 0));
   MOVABLE.forEach(l => eq(d.offsets[l], { x: 0, y: 0 }));
+});
+
+test('per-part size steps ride as a 4th field and round-trip (#39)', () => {
+  reset();
+  api.state.eyes = 2;
+  api.scales.eyes = 2;                       // resized, not moved
+  api.offsets.mouth = { x: 3, y: -4 };
+  api.scales.mouth = -1;                     // resized AND moved
+  const enc = encodeState();
+  assert.ok(/_0_0_2/.test(enc), 'zero offsets act as placeholders: ' + enc);
+  const d = decodeState(enc);
+  assert.strictEqual(d.scales.eyes, 2);
+  assert.strictEqual(d.scales.mouth, -1);
+  eq(d.offsets.mouth, { x: 3, y: -4 });
+  // out-of-range steps clamp, junk decodes as natural size
+  assert.strictEqual(decodeState('yellow..1F600_0_0_99').scales.eyes,
+    api.PART_S_MAX);
+  assert.strictEqual(decodeState('yellow..1F600_1_2').scales.eyes, 0);
 });

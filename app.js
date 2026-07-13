@@ -59,6 +59,27 @@ const offsets = {};
 MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; });
 let selectedLayer = null;
 
+// per-layer size step (issue #39): the rendered factor is PART_STEP^step,
+// mirroring the scene designer's step model; 0 = natural size
+const PART_STEP = 1.25;
+const PART_S_MIN = -3;
+const PART_S_MAX = 3;
+const scales = {};
+MOVABLE.forEach(l => { scales[l] = 0; });
+
+// one transform string for a layer's offset + size, shared by the live
+// canvas, thumbnails and PNG export. Scaling is about the face centre
+// (36,36) — a fixed anchor keeps this pure string maths everywhere (no
+// bbox measuring), and parts are drawn around the face anyway.
+function layerTransform(o, s) {
+  const t = [];
+  if (o && (o.x || o.y)) t.push(`translate(${o.x} ${o.y})`);
+  if (s) {
+    t.push(`translate(36 36) scale(${Math.pow(PART_STEP, s).toFixed(4)}) translate(-36 -36)`);
+  }
+  return t.join(' ');
+}
+
 // optional layers carry a leading "None" entry (id '')
 const OPTIONAL = new Set(['eyebrows', 'nose', 'extras', 'extras2', 'extras3']);
 
@@ -108,7 +129,7 @@ function randomise() {
   syncExtraSlots();
   resetZOrder();
   // fresh emoji → back to the default layout
-  MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; applyOffset(l); });
+  MOVABLE.forEach(l => { offsets[l] = { x: 0, y: 0 }; scales[l] = 0; applyOffset(l); });
   deselect();
   renderAll();
   updateUrl();
@@ -721,12 +742,13 @@ function layerHasContent(layer) {
 function applyOffset(layer) {
   const g = document.getElementById('layer-' + layer);
   if (!g) return;
-  const { x, y } = offsets[layer];
-  if (x || y) g.setAttribute('transform', `translate(${x} ${y})`);
+  const t = layerTransform(offsets[layer], scales[layer]);
+  if (t) g.setAttribute('transform', t);
   else g.removeAttribute('transform');
 }
 
-// bbox of a layer's art in dance-group space (its own translate added in)
+// bbox of a layer's art in dance-group space (its own transform added in —
+// getBBox is pre-transform, so the scale-about-(36,36) is applied by hand)
 function layerBox(layer) {
   if (!layerHasContent(layer)) return null;
   const g = document.getElementById('layer-' + layer);
@@ -734,7 +756,9 @@ function layerBox(layer) {
   try { bb = g.getBBox(); } catch (e) { return null; }
   if (!bb || bb.width === 0) return null;
   const { x, y } = offsets[layer];
-  return { x: bb.x + x, y: bb.y + y, w: bb.width, h: bb.height };
+  const k = Math.pow(PART_STEP, scales[layer] || 0);
+  return { x: 36 + (bb.x - 36) * k + x, y: 36 + (bb.y - 36) * k + y,
+           w: bb.width * k, h: bb.height * k };
 }
 
 function updateSelectBox() {
@@ -820,6 +844,10 @@ function initCanvasKeys() {
     } else if (e.key === 'Enter' && selectedLayer) {
       openMoveTop(selectedLayer);
       e.preventDefault();
+    } else if ((e.key === '+' || e.key === '=' || e.key === '-') && selectedLayer) {
+      // keyboard mirror of the pinch/wheel resize gesture (issue #39)
+      resizeSelected(e.key === '-' ? -1 : 1);
+      e.preventDefault();
     }
   });
 }
@@ -848,8 +876,41 @@ function hitLayer(p) {
   return hits.reduce((top, c) => zOrder.indexOf(c) > zOrder.indexOf(top) ? c : top, hits[0]);
 }
 
+// two fingers on the canvas pinch-resize the selected part (issue #39),
+// sharing the scene designer's distance-ratio-to-steps mapping
+const canvasPtrs = new Map();
+let canvasPinch = null;
+
+function canvasPinchDist() {
+  const [a, b] = [...canvasPtrs.values()];
+  return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+}
+
+function resizeSelected(steps) {
+  if (!selectedLayer) return;
+  const ns = Math.max(PART_S_MIN, Math.min(PART_S_MAX, (scales[selectedLayer] || 0) + steps));
+  if (ns === scales[selectedLayer]) return;
+  scales[selectedLayer] = ns;
+  applyOffset(selectedLayer);
+  updateSelectBox();
+  updateUrl();
+}
+
 function onPointerDown(e) {
   if (dancing) return;
+  const svg = document.getElementById('emoji-svg');
+  if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+  canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (canvasPtrs.size === 2) {
+    // second finger: this is a pinch-resize, not a drag or a restack hold
+    clearTimeout(pressTimer);
+    drag = null;
+    if (selectedLayer) {
+      canvasPinch = { d0: canvasPinchDist(), s0: scales[selectedLayer] || 0, changed: false };
+    }
+    return;
+  }
+  if (canvasPtrs.size > 2) return;
   const p = toSvg(e);
   if (!p) return;
   const layer = hitLayer(p);
@@ -868,11 +929,23 @@ function onPointerDown(e) {
       }
     }, LONG_PRESS_MS);
   }
-  const svg = document.getElementById('emoji-svg');
-  if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
 }
 
 function onPointerMove(e) {
+  if (canvasPtrs.has(e.pointerId)) canvasPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (canvasPinch && !dancing) {
+    if (canvasPtrs.size < 2 || !selectedLayer) return;
+    const steps = Math.round(Math.log(canvasPinchDist() / canvasPinch.d0) / Math.log(PART_STEP));
+    const ns = Math.max(PART_S_MIN, Math.min(PART_S_MAX, canvasPinch.s0 + steps));
+    if (ns !== scales[selectedLayer]) {
+      scales[selectedLayer] = ns;
+      canvasPinch.changed = true;
+      applyOffset(selectedLayer);
+      updateSelectBox();
+    }
+    e.preventDefault();
+    return;
+  }
   if (!drag || dancing) return;
   const p = toSvg(e);
   if (!p) return;
@@ -909,8 +982,17 @@ function keepInReach(layer) {
   updateSelectBox();
 }
 
-function onPointerUp() {
+function onPointerUp(e) {
+  if (e) canvasPtrs.delete(e.pointerId);
   clearTimeout(pressTimer);
+  if (canvasPinch) {
+    if (canvasPtrs.size < 2) {
+      if (canvasPinch.changed) updateUrl();
+      canvasPinch = null;
+    }
+    drag = null;
+    return;   // a pinch release is never a tap
+  }
   if (!drag || dancing) { drag = null; return; }
   const { layer, moved } = drag;
   drag = null;
@@ -936,7 +1018,27 @@ function initDrag() {
   svg.addEventListener('pointerdown', onPointerDown);
   svg.addEventListener('pointermove', onPointerMove);
   svg.addEventListener('pointerup', onPointerUp);
-  svg.addEventListener('pointercancel', () => { clearTimeout(pressTimer); drag = null; });
+  svg.addEventListener('pointercancel', e => {
+    canvasPtrs.delete(e.pointerId);
+    clearTimeout(pressTimer);
+    drag = null;
+    canvasPinch = null;
+  });
+  // scroll wheel over a part resizes it (issue #39), like the scene designer:
+  // one step per ~60 units of spin, selecting the part under the cursor first
+  let wheelAcc = 0;
+  svg.addEventListener('wheel', e => {
+    if (dancing) return;
+    const p = toSvg(e);
+    if (!p) return;
+    const layer = hitLayer(p);
+    if (!layer) return;
+    e.preventDefault();
+    if (layer !== selectedLayer) { selectLayer(layer); wheelAcc = 0; }
+    wheelAcc += e.deltaY;
+    const steps = -Math.trunc(wheelAcc / 60);
+    if (steps) { wheelAcc += steps * 60; resizeSelected(steps); }
+  }, { passive: false });
   // long-press must reach the restack timer, not the browser's context menu
   svg.addEventListener('contextmenu', e => e.preventDefault());
 }
@@ -977,7 +1079,10 @@ function encodeState() {
     if (seg && MOVABLE.includes(layer)) {
       const o = offsets[layer];
       const x = Math.round(o.x), y = Math.round(o.y);
-      if (x || y) seg += '_' + x + '_' + y;
+      const s = scales[layer] || 0;
+      // size step rides as a 4th field (issue #39); old decoders read only
+      // f[1]/f[2] so resized parts just render natural-size in old apps
+      if (x || y || s) seg += '_' + x + '_' + y + (s ? '_' + s : '');
     }
     return seg;
   });
@@ -994,7 +1099,7 @@ function encodeState() {
 // use it too); applyEncoded() below writes the result into the builder state
 function decodeState(str) {
   const segs = str.split('.');
-  const st = {}, off = {};
+  const st = {}, off = {}, sc = {};
   LAYERS.forEach((layer, i) => {
     let seg = segs[i] || '';
     if (seg.startsWith('~')) seg = '';   // a misplaced control segment, not an id
@@ -1011,6 +1116,9 @@ function decodeState(str) {
     st[layer] = idx;
     if (MOVABLE.includes(layer)) {
       off[layer] = { x: parseFloat(f[1]) || 0, y: parseFloat(f[2]) || 0 };
+      const s = parseInt(f[3], 10);
+      sc[layer] = Number.isInteger(s)
+        ? Math.max(PART_S_MIN, Math.min(PART_S_MAX, s)) : 0;
     }
   });
   // the optional ~z segment restores the stacking order (must be a complete
@@ -1024,13 +1132,16 @@ function decodeState(str) {
       z = idx.map(i => LAYERS[i]);
     }
   }
-  return { state: st, offsets: off, zOrder: z };
+  return { state: st, offsets: off, scales: sc, zOrder: z };
 }
 
 function applyEncoded(str) {
   const d = decodeState(str);
   LAYERS.forEach(layer => { state[layer] = d.state[layer]; });
-  MOVABLE.forEach(layer => { offsets[layer] = d.offsets[layer]; });
+  MOVABLE.forEach(layer => {
+    offsets[layer] = d.offsets[layer];
+    scales[layer] = d.scales[layer];
+  });
   applyZOrder(d.zOrder);
 }
 
@@ -1068,9 +1179,10 @@ function buildExportSvg() {
   zOrder.forEach(layer => {   // current stacking, so the PNG matches the canvas
     const part = PARTS[layer][state[layer]];
     if (!part.svg) return;
-    const o = MOVABLE.includes(layer) ? offsets[layer] : { x: 0, y: 0 };
-    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
-    inner += `<g${t}>${part.svg}</g>`;
+    const movable = MOVABLE.includes(layer);
+    const tr = layerTransform(movable ? offsets[layer] : null,
+                              movable ? scales[layer] : 0);
+    inner += `<g${tr ? ` transform="${tr}"` : ''}>${part.svg}</g>`;
   });
   // 72 box + an 8-unit margin so a part dragged slightly off-centre isn't clipped
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 88 88" ` +
@@ -1178,9 +1290,8 @@ function encodedInnerSvg(encoded) {
   d.zOrder.forEach(layer => {
     const part = PARTS[layer][d.state[layer]];
     if (!part || !part.svg) return;
-    const o = d.offsets[layer] || { x: 0, y: 0 };
-    const t = (o.x || o.y) ? ` transform="translate(${o.x} ${o.y})"` : '';
-    inner += `<g${t}>${part.svg}</g>`;
+    const tr = layerTransform(d.offsets[layer], (d.scales || {})[layer] || 0);
+    inner += `<g${tr ? ` transform="${tr}"` : ''}>${part.svg}</g>`;
   });
   return inner;
 }
