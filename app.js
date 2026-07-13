@@ -188,6 +188,10 @@ function syncOverlayState() {
     else c.removeAttribute('inert');
   });
   document.body.classList.toggle('overlay-open', !!top);
+  // full-screen games have translucent backgrounds (issue #37) — hide the
+  // editor beneath them so only the doodle backdrop shows through
+  const GAME_IDS = ['clinic', 'safari', 'runner', 'jam'];
+  document.body.classList.toggle('game-open', els.some(el => GAME_IDS.includes(el.id)));
 }
 
 document.addEventListener('keydown', e => {
@@ -1621,6 +1625,11 @@ function init() {
                () => shareEmoji(false), () => shareEmoji(true));
   document.getElementById('btn-gallery').addEventListener('click', openGallery);
   document.getElementById('gallery-save').addEventListener('click', openPackNameModal);
+  // 🆕 empty the pack and start fresh (issue #38): replacePack() supplies the
+  // Undo toast, clears the saved-entry link (#34), and leaves the canvas
+  // emoji alone as the standalone starting point
+  document.getElementById('gallery-new').addEventListener('click', () =>
+    replacePack([], '\u{1F195} Fresh pack'));
   document.getElementById('gallery-close').addEventListener('click', closeGallery);
   document.getElementById('gallery').addEventListener('click', e => {
     if (e.target.id === 'gallery') closeGallery();

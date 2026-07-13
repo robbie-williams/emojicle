@@ -38,6 +38,9 @@ a { text-decoration: none; }
   /* translucent card face for the editor panels (issue #28) — lets the
      doodle backdrop show through; blur keeps text readable on top of it */
   --clr-card-glass: rgba(255, 255, 255, 0.5);
+  /* page-coloured wash for full-screen game overlays (issue #37): doodles
+     show through, text keeps enough of the page tone to stay readable */
+  --clr-bg-glass: rgba(255, 247, 239, 0.6);
 }
 
 /* Dark mode — stamped as data-theme on <html> by the head script (saved
@@ -59,6 +62,7 @@ a { text-decoration: none; }
   --clr-toast-fg:   #2B2B2B;
   --clr-link:       #B39CFF;
   --clr-card-glass: rgba(44, 37, 30, 0.5);
+  --clr-bg-glass: rgba(33, 27, 22, 0.6);
 }
 
 *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
@@ -1160,7 +1164,8 @@ body.overlay-open { overflow: hidden; }
   z-index: 300;
   display: none;
   flex-direction: column;
-  background: var(--clr-bg);
+  /* translucent so the doodle backdrop plays on during games (issue #37) */
+  background: var(--clr-bg-glass);
 }
 .clinic.show { display: flex; }
 
@@ -1411,7 +1416,8 @@ body.overlay-open { overflow: hidden; }
   z-index: 300;
   display: none;
   flex-direction: column;
-  background: var(--clr-bg);
+  /* translucent so the doodle backdrop plays on during games (issue #37) */
+  background: var(--clr-bg-glass);
 }
 .safari.show { display: flex; }
 
@@ -1478,7 +1484,8 @@ body.overlay-open { overflow: hidden; }
   z-index: 300;
   display: none;
   flex-direction: column;
-  background: var(--clr-bg);
+  /* translucent so the doodle backdrop plays on during games (issue #37) */
+  background: var(--clr-bg-glass);
 }
 .runner.show { display: flex; }
 
@@ -1584,7 +1591,8 @@ body.overlay-open { overflow: hidden; }
   z-index: 300;
   display: none;
   flex-direction: column;
-  background: var(--clr-bg);
+  /* translucent so the doodle backdrop plays on during games (issue #37) */
+  background: var(--clr-bg-glass);
 }
 .jam.show { display: flex; }
 
@@ -1868,8 +1876,10 @@ body.overlay-open { overflow: hidden; }
 .scene-pick-btn:active { transform: scale(0.92); }
 
 /* two wordier header buttons (Save as scene / Export) share the top bar with
-   the title — slim them down so the title keeps at least its emoji */
-#scene .gallery-save { padding: 8px 10px; font-size: 0.78rem; }
+   the title — slim them down so the title keeps at least its emoji; the
+   gallery header (Save my pack / New pack, issue #38) has the same squeeze */
+#scene .gallery-save,
+#gallery .gallery-save { padding: 8px 10px; font-size: 0.78rem; }
 #scene .clinic-top { gap: 8px; }
 
 .scene-picker { z-index: 350; }
@@ -1925,6 +1935,10 @@ body {
   pointer-events: none;
   opacity: 0.5;
 }
+/* games paint a translucent wash over the whole viewport (issue #37) — hide
+   the editor beneath so what shows through is doodles, not stacked UI */
+body.game-open .app-header,
+body.game-open .app-main { visibility: hidden; }
 :root[data-theme="dark"] #doodle-layer { opacity: 0.16; }
 
 /* two identical stacked copies; sliding up by one copy (-50%) then looping
