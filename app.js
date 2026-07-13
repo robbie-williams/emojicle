@@ -434,10 +434,16 @@ function dance(key) {
 
 // ── Tap vs long-press on action buttons ───────────────────────────────────────
 // Dance and Send both hide a power move behind a hold (issues #32/#33): tap is
-// the ordinary action, holding for a beat fires the alternate one. Pointer
-// events drive the gesture; the click that trails pointerup is swallowed except
-// when it came from the keyboard (e.detail === 0), where it's the only signal
-// and always means "tap".
+// the ordinary action, holding for a beat then releasing fires the alternate
+// one. Pointer events drive the gesture; the click that trails pointerup is
+// swallowed except when it came from the keyboard (e.detail === 0), where it's
+// the only signal and always means "tap".
+//
+// Both actions fire from pointerup, NOT from the hold timer: a setTimeout
+// callback runs outside any trusted event, so gesture-gated browser APIs
+// (navigator.share on iOS Safari, issue #43) silently reject when called from
+// it. The timer only records that the hold registered — and pulses the button
+// so the user knows releasing now fires the power move.
 
 const LONG_PRESS_MS = 500;
 
@@ -450,13 +456,15 @@ function addLongPress(btn, onTap, onHold) {
     tracking = true;
     held = false;
     clearTimeout(timer);
-    timer = setTimeout(() => { held = true; onHold(); }, LONG_PRESS_MS);
+    timer = setTimeout(() => { held = true; pulse(btn.id); }, LONG_PRESS_MS);
   });
   const abandon = () => { tracking = false; clearTimeout(timer); };
   btn.addEventListener('pointerup', () => {
     if (!tracking) return;
+    const wasHeld = held;
     abandon();
-    if (!held) onTap();
+    // synchronous inside the trusted pointerup — keeps user activation alive
+    if (wasHeld) onHold(); else onTap();
   });
   btn.addEventListener('pointerleave', abandon);
   btn.addEventListener('pointercancel', abandon);
@@ -1257,16 +1265,46 @@ function canShareFiles(file) {
 // offers Messages, "Save Image" (→ Photos), and everything else; on desktop
 // (no Web Share for files) we download the PNG and copy the link instead.
 // Tap sends just the picture; holding Send adds the magic link (issue #33).
+//
+// iOS Safari only allows navigator.share() while a trusted gesture's user
+// activation is still fresh (issue #43), so the PNG is rasterised eagerly on
+// the Send button's pointerdown: by the time pointerup calls shareEmoji the
+// blob is (almost always) already resolved, leaving just a microtask between
+// the trusted event and the share() call. The emoji can't change mid-press,
+// so the prewarmed image is always current; it's dropped if the press is
+// abandoned, and each shareEmoji consumes it so it can never go stale.
+let prewarmedRaster = null;
+
+function prewarmShareImage(e) {
+  if (e.button !== 0) return;
+  prewarmedRaster = rasterise().catch(() => null);
+}
+
+function dropPrewarmedShareImage() {
+  prewarmedRaster = null;
+}
+
 async function shareEmoji(withLink) {
   pulse('btn-share');
   if (!withLink) showActionHint('Hold Send to add a magic link ✨');
-  let blob;
-  try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
+  const pending = prewarmedRaster;
+  prewarmedRaster = null;
+  let blob = pending ? await pending : null;
+  if (!blob) {   // no prewarm (keyboard tap) or it failed — rasterise now
+    try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
+  }
   const file = new File([blob], 'emojicle.png', { type: 'image/png' });
   if (canShareFiles(file)) {
     const data = { files: [file] };
     if (withLink) data.text = location.href;   // link only when opted in
-    try { await navigator.share(data); } catch (e) { /* user cancelled — no-op */ }
+    try {
+      await navigator.share(data);
+    } catch (e) {
+      // AbortError is the user closing the sheet — fine. Anything else (e.g.
+      // NotAllowedError from expired user activation, issue #43) is a real
+      // failure and must be surfaced, not silently swallowed.
+      if (!e || e.name !== 'AbortError') showToast('Could not open the share sheet');
+    }
   } else {
     downloadBlob(blob, 'emojicle.png');
     if (withLink) {
@@ -1764,8 +1802,13 @@ function init() {
   initCanvasKeys();
   document.getElementById('btn-random').addEventListener('click', randomise);
   addLongPress(document.getElementById('btn-dance'), onDanceButton, onDanceHold);
-  addLongPress(document.getElementById('btn-share'),
-               () => shareEmoji(false), () => shareEmoji(true));
+  const shareBtn = document.getElementById('btn-share');
+  addLongPress(shareBtn, () => shareEmoji(false), () => shareEmoji(true));
+  // start making the PNG the moment the press begins (issue #43) so the
+  // share sheet can open with fresh user activation on release
+  shareBtn.addEventListener('pointerdown', prewarmShareImage);
+  shareBtn.addEventListener('pointerleave', dropPrewarmedShareImage);
+  shareBtn.addEventListener('pointercancel', dropPrewarmedShareImage);
   document.getElementById('btn-gallery').addEventListener('click', openGallery);
   document.getElementById('gallery-save').addEventListener('click', openPackNameModal);
   // 🆕 empty the pack and start fresh (issue #38): replacePack() supplies the
