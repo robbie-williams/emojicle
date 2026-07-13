@@ -37,7 +37,7 @@ a { text-decoration: none; }
 
   /* translucent card face for the editor panels (issue #28) — lets the
      doodle backdrop show through; blur keeps text readable on top of it */
-  --clr-card-glass: rgba(255, 255, 255, 0.72);
+  --clr-card-glass: rgba(255, 255, 255, 0.5);
 }
 
 /* Dark mode — stamped as data-theme on <html> by the head script (saved
@@ -58,7 +58,7 @@ a { text-decoration: none; }
   --clr-toast-bg:   #F2E7D8;
   --clr-toast-fg:   #2B2B2B;
   --clr-link:       #B39CFF;
-  --clr-card-glass: rgba(44, 37, 30, 0.72);
+  --clr-card-glass: rgba(44, 37, 30, 0.5);
 }
 
 *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
@@ -172,8 +172,8 @@ body {
   /* frosted glass (issue #28): the animated doodle backdrop stays visible
      through the editor panels without costing text contrast */
   background: var(--clr-card-glass);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   border: 2px solid var(--clr-card-edge);
   border-radius: var(--radius-card);
 }
