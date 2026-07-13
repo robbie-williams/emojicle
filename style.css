@@ -296,6 +296,21 @@ body {
 .pt-btn:hover  { background: var(--clr-chip-hover); }
 .pt-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
 
+/* 👻 opacity slider in the scene tools row (issue #30) */
+.sc-opacity-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.sc-opacity-wrap input {
+  width: 76px;
+  accent-color: var(--clr-brand);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
 .controls-card {
   padding: 6px 12px;
   flex: 1;

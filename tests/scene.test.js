@@ -112,6 +112,24 @@ test('sticker items round-trip through the codec (#19)', () => {
   assert.ok(!u.search.includes('%'), 'no percent-escapes: ' + u.search);
 });
 
+test('opacity rides as a 5th field only when see-through (#30)', () => {
+  const sc = {
+    bg: 'space',
+    items: [
+      { m: 0, x: 100, y: 200, s: 0, o: 50 },   // see-through → 5-field
+      { m: 1, x: 300, y: 400, s: 1 },          // opaque → legacy 4-field
+    ],
+  };
+  const enc = api.encodeScene(sc);
+  assert.ok(enc.includes('*0_100_200_0_50'), 'opacity encoded: ' + enc);
+  assert.ok(enc.includes('*1_300_400_1') && !enc.includes('*1_300_400_1_'),
+            'opaque item stays 4-field: ' + enc);
+  eq(api.decodeScene(enc), sc);
+  // o is clamped, and _100 decodes as plain opaque
+  assert.strictEqual(api.decodeScene('space*0_1_2_0_3').items[0].o, 10);
+  assert.strictEqual(api.decodeScene('space*0_1_2_0_100').items[0].o, undefined);
+});
+
 test('unknown sticker ids are skipped on decode; old apps skip sticker segments', () => {
   const d = api.decodeScene('meadow*sNOPE_1_2_0*3_4_5_0');
   eq(d.items, [{ m: 3, x: 4, y: 5, s: 0 }]);

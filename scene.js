@@ -582,13 +582,16 @@ let sceneSel = -1;                                 // selected item index (top =
 const STICKER_BY_ID = {};
 STICKERS.forEach(s => { STICKER_BY_ID[s.id] = s; });
 
-// ?s=<bg>*<m>_<x>_<y>_<s>*…  x/y are per-mille ints, s a size step.
-// Sticker items ride as *s<id>_<x>_<y>_<s> — old apps opening a new link
-// parseInt the "s…" to NaN and skip the segment, so they degrade gracefully
-// to the pack-only scene instead of breaking.
+// ?s=<bg>*<m>_<x>_<y>_<s>[_<o>]*…  x/y are per-mille ints, s a size step,
+// o an opacity percent that rides along only when the item is see-through
+// (issue #30) — fully opaque items keep the old 4-field shape so their links
+// stay readable by old apps. Sticker items ride as *s<id>_… — old apps
+// opening a new link parseInt the "s…" to NaN and skip the segment, so they
+// degrade gracefully to the pack-only scene instead of breaking.
 function encodeScene(sc) {
   return sc.bg + sc.items.map(it =>
-    `*${it.st ? 's' + it.st : it.m}_${it.x}_${it.y}_${it.s}`).join('');
+    `*${it.st ? 's' + it.st : it.m}_${it.x}_${it.y}_${it.s}` +
+    (it.o && it.o < 100 ? `_${it.o}` : '')).join('');
 }
 
 function decodeScene(str) {
@@ -600,12 +603,13 @@ function decodeScene(str) {
     if (items.length >= SCENE_MAX) break;
     const f = seg.split('_');
     const nums = f.slice(1).map(v => parseInt(v, 10));
-    if (f.length !== 4 || nums.some(n => !Number.isInteger(n))) continue;
+    if ((f.length !== 4 && f.length !== 5) || nums.some(n => !Number.isInteger(n))) continue;
     const pos = {
       x: clamp(nums[0], 0, 1000),
       y: clamp(nums[1], 0, 1000),
       s: clamp(nums[2], SCENE_S_MIN, SCENE_S_MAX),
     };
+    if (f.length === 5 && nums[3] < 100) pos.o = clamp(nums[3], 10, 99);
     if (f[0].startsWith('s')) {
       const st = f[0].slice(1);
       if (STICKER_BY_ID[st]) items.push({ st, ...pos });
@@ -643,7 +647,8 @@ function loadStoredScene() {
     const d = JSON.parse(localStorage.getItem(SCENE_KEY));
     if (d && typeof d.bg === 'string' && Array.isArray(d.items)) {
       return decodeScene(encodeScene({ bg: d.bg, items: d.items.filter(
-        it => it && Number.isInteger(it.m)) }));   // sanitise through the codec
+        it => it && (Number.isInteger(it.m) || typeof it.st === 'string'),
+      ) }));   // sanitise through the codec
     }
   } catch (e) {}
   return null;
@@ -692,7 +697,8 @@ function sceneItemMarkupIn(it, art, dims) {
   if (!art) return '';
   const f = SCENE_BASE * Math.min(dims.w, dims.h) / 72 * Math.pow(SCENE_STEP, it.s);
   const c = { x: it.x / 1000 * dims.w, y: it.y / 1000 * dims.h };
-  return `<g transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${art}</g>`;
+  const op = it.o && it.o < 100 ? ` opacity="${(it.o / 100).toFixed(2)}"` : '';
+  return `<g${op} transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${art}</g>`;
 }
 
 function sceneItemMarkup(it) {
@@ -761,6 +767,9 @@ function renderSceneSel() {
 function syncSceneTools() {
   const bar = document.getElementById('scene-tools');
   if (bar) bar.hidden = sceneSel < 0;
+  const slider = document.getElementById('sc-opacity');
+  const it = scene.items[sceneSel];
+  if (slider && it) slider.value = it.o || 100;
 }
 
 function renderSceneTray() {
@@ -977,9 +986,31 @@ function sceneHit(p) {
   return -1;
 }
 
+// Two fingers on the stage pinch-resize the selected item, and a scroll
+// wheel over an item resizes it directly (issue #30) — the +/- chips stay
+// as the accessible fallback. Pinch maps the finger-distance ratio onto
+// whole size steps so it lands on the same sizes the buttons reach.
+const scenePtrs = new Map();
+let scenePinch = null;
+
+function scenePinchDist() {
+  const [a, b] = [...scenePtrs.values()];
+  return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+}
+
 function initSceneDrag() {
   const svg = document.getElementById('scene-svg');
   svg.addEventListener('pointerdown', e => {
+    scenePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    if (scenePtrs.size === 2) {
+      // second finger: switch from dragging to pinch-resizing the selection
+      sceneDrag = null;
+      const it = scene.items[sceneSel];
+      if (it) scenePinch = { d0: scenePinchDist(), s0: it.s, changed: false };
+      return;
+    }
+    if (scenePtrs.size > 2) return;
     const p = sceneToSvg(e);
     if (!p) return;
     const i = sceneHit(p);
@@ -988,9 +1019,19 @@ function initSceneDrag() {
     const it = scene.items[sceneSel];
     const c = itemCenter(it);
     sceneDrag = { dx: c.x - p.x, dy: c.y - p.y, moved: false };
-    if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
   });
   svg.addEventListener('pointermove', e => {
+    if (scenePtrs.has(e.pointerId)) scenePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (scenePinch) {
+      if (scenePtrs.size < 2) return;
+      const it = scene.items[sceneSel];
+      if (!it) return;
+      const steps = Math.round(Math.log(scenePinchDist() / scenePinch.d0) / Math.log(SCENE_STEP));
+      const ns = Math.max(SCENE_S_MIN, Math.min(SCENE_S_MAX, scenePinch.s0 + steps));
+      if (ns !== it.s) { it.s = ns; scenePinch.changed = true; renderSceneItems(); }
+      e.preventDefault();
+      return;
+    }
     if (!sceneDrag || sceneSel < 0) return;
     const p = sceneToSvg(e);
     if (!p) return;
@@ -1001,12 +1042,30 @@ function initSceneDrag() {
     renderSceneItems();
     e.preventDefault();
   });
-  const up = () => {
+  const up = e => {
+    scenePtrs.delete(e.pointerId);
+    if (scenePinch && scenePtrs.size < 2) {
+      if (scenePinch.changed) sceneChanged();
+      scenePinch = null;
+    }
     if (sceneDrag && sceneDrag.moved) sceneChanged();
     sceneDrag = null;
   };
   svg.addEventListener('pointerup', up);
   svg.addEventListener('pointercancel', up);
+  // wheel over an item: select it and resize, one step per ~60 units of spin
+  let wheelAcc = 0;
+  svg.addEventListener('wheel', e => {
+    const p = sceneToSvg(e);
+    if (!p) return;
+    const i = sceneHit(p);
+    if (i < 0) return;
+    e.preventDefault();
+    if (i !== sceneSel) { selectSceneItem(i); wheelAcc = 0; }
+    wheelAcc += e.deltaY;
+    const steps = -Math.trunc(wheelAcc / 60);
+    if (steps) { wheelAcc += steps * 60; resizeSceneItem(steps); }
+  }, { passive: false });
   svg.addEventListener('contextmenu', e => e.preventDefault());
 }
 
@@ -1208,6 +1267,19 @@ function initScene() {
   document.getElementById('sc-smaller').addEventListener('click', () => resizeSceneItem(-1));
   document.getElementById('sc-dup').addEventListener('click', duplicateSceneItem);
   document.getElementById('sc-del').addEventListener('click', removeSceneItem);
+  // opacity slider (issue #30): live preview on input, persist on release;
+  // 100% is stored as "no o field" so fully-opaque items keep short links
+  const opSlider = document.getElementById('sc-opacity');
+  opSlider.addEventListener('input', () => {
+    const it = scene.items[sceneSel];
+    if (!it) return;
+    const v = parseInt(opSlider.value, 10);
+    if (v >= 100) delete it.o; else it.o = v;
+    renderSceneItems();
+  });
+  opSlider.addEventListener('change', () => {
+    if (scene.items[sceneSel]) sceneChanged();
+  });
 
   window.addEventListener('resize', () => {
     if (el.classList.contains('show')) renderScene();
