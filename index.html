@@ -112,16 +112,7 @@
       </button>
     </div>
 
-    <div class="share-opts">
-      <label class="link-toggle dance-toggle">
-        <input type="checkbox" id="opt-random-dance" checked>
-        <span>Random dance</span>
-      </label>
-      <label class="link-toggle">
-        <input type="checkbox" id="opt-link">
-        <span>Send a magic link too</span>
-      </label>
-    </div>
+    <div class="action-hint" id="action-hint" aria-hidden="true"></div>
   </main>
 
   <div id="sr-status" class="visually-hidden" aria-live="polite"></div>
@@ -181,6 +172,7 @@
         <button id="dance-picker-close" class="picker-close" aria-label="Close dance picker">&times;</button>
       </div>
       <div id="dance-grid" class="dance-grid"></div>
+      <p class="picker-hint">Hold the Dance button for a random dance!</p>
     </div>
   </div>
 

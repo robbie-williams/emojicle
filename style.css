@@ -431,17 +431,23 @@ body {
 
 .btn-icon { font-size: 1.2rem; line-height: 1; }
 
-/* Toggles under the action row: a 5-column grid mirrors the five buttons
-   above, so "Random dance" sits under Dance (col 2) and "Send a magic link
-   too" under Send (col 5) at every width — no margin nudging. */
-.share-opts {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  margin-top: 6px;
+/* Transient hint under the action row (issue #33): fades in on a plain Send
+   tap to teach the hold-Send shortcut, then fades away. The row keeps its
+   height so nothing below jumps. */
+.action-hint {
+  min-height: 20px;
+  margin-top: 4px;
   flex-shrink: 0;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--clr-label);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
 }
-.share-opts .dance-toggle { grid-column: 1 / 3; justify-self: center; }
-.share-opts .link-toggle:last-child { grid-column: 4 / 6; justify-self: center; }
+.action-hint.show { opacity: 1; }
+
 .link-toggle {
   display: flex;
   align-items: center;
@@ -459,8 +465,6 @@ body {
   accent-color: #2BB673;
   cursor: pointer;
 }
-.dance-toggle input { accent-color: var(--clr-dance); }
-
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 
 .toast {
@@ -703,7 +707,7 @@ body {
   .part-name     { padding: 7px 14px; }
   .actions       { flex: 1 1 100%; }
   .btn-action    { height: 46px; }
-  .share-opts    { flex: 1 1 100%; margin-top: 4px; }
+  .action-hint   { flex: 1 1 100%; margin-top: 4px; text-align: center; }
 }
 
 /* ── Very narrow / Display-Zoom phones (≈320px) ──────────────────────────────
@@ -1050,6 +1054,17 @@ body {
 }
 .dance-option:hover  { border-color: var(--clr-dance); }
 .dance-option:active { transform: scale(0.95); }
+
+/* footer line in the dance picker teaching the hold-Dance shortcut (#32) */
+.picker-hint {
+  /* the grid above already carries the safe-area bottom padding */
+  margin: -8px 0 0;
+  padding: 0 16px 14px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--clr-label);
+}
 
 .dance-emoji { font-size: 2rem; line-height: 1; }
 .dance-name {

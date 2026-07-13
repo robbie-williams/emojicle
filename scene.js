@@ -1011,18 +1011,11 @@ async function shareScene() {
   let blob;
   try { blob = await rasteriseScene(); } catch (e) { showToast('Could not make image'); return; }
   const file = new File([blob], 'emojicle-scene.png', { type: 'image/png' });
-  const linkOpt = document.getElementById('opt-link');
-  const withLink = !!(linkOpt && linkOpt.checked);
   if (canShareFiles(file)) {
-    const data = { files: [file] };
-    if (withLink) data.text = location.href;
-    try { await navigator.share(data); } catch (e) { /* cancelled */ }
+    try { await navigator.share({ files: [file] }); } catch (e) { /* cancelled */ }
   } else {
     downloadBlob(blob, 'emojicle-scene.png');
-    if (withLink) {
-      try { await navigator.clipboard.writeText(location.href); } catch (e) {}
-    }
-    showToast(withLink ? 'Scene exported · link copied' : 'Scene exported');
+    showToast('Scene exported');
   }
 }
 

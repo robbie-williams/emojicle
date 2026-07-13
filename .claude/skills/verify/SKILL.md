@@ -30,7 +30,8 @@ Useful handles:
   / `start()` calls (tango schedules 17 notes).
 - Modals: `#picker` (parts) and `#dance-picker` (dances) both use
   `.show` + `aria-hidden`; Esc and backdrop click close them.
-- Toggles: `#opt-random-dance` (default checked), `#opt-link`.
+- Long-press: tap Dance opens `#dance-picker`, holding it ~500ms dances; tap
+  Send shares plain (shows `#action-hint`), holding adds the magic link.
 
 ## Worth probing
 

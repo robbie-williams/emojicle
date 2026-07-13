@@ -407,9 +407,42 @@ function dance(key) {
   }, move.duration);
 }
 
+// ── Tap vs long-press on action buttons ───────────────────────────────────────
+// Dance and Send both hide a power move behind a hold (issues #32/#33): tap is
+// the ordinary action, holding for a beat fires the alternate one. Pointer
+// events drive the gesture; the click that trails pointerup is swallowed except
+// when it came from the keyboard (e.detail === 0), where it's the only signal
+// and always means "tap".
+
+const LONG_PRESS_MS = 500;
+
+function addLongPress(btn, onTap, onHold) {
+  let timer = null;
+  let held = false;
+  let tracking = false;
+  btn.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    tracking = true;
+    held = false;
+    clearTimeout(timer);
+    timer = setTimeout(() => { held = true; onHold(); }, LONG_PRESS_MS);
+  });
+  const abandon = () => { tracking = false; clearTimeout(timer); };
+  btn.addEventListener('pointerup', () => {
+    if (!tracking) return;
+    abandon();
+    if (!held) onTap();
+  });
+  btn.addEventListener('pointerleave', abandon);
+  btn.addEventListener('pointercancel', abandon);
+  btn.addEventListener('click', e => { if (e.detail === 0) onTap(); });
+  // the hold must reach our timer, not the browser's context menu
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+}
+
 // ── Dance picker ──────────────────────────────────────────────────────────────
-// "Random dance" (checkbox under the Dance button) is on by default; unticking
-// it makes the Dance button open this modal so the user picks the move instead.
+// Tapping Dance opens this modal to pick a move; holding the button skips it
+// and fires a random dance (the picker's footer hint teaches the shortcut).
 
 function buildDancePicker() {
   const grid = document.getElementById('dance-grid');
@@ -438,8 +471,13 @@ function closeDancePicker() {
 
 function onDanceButton() {
   if (dancing) return;
-  if (document.getElementById('opt-random-dance').checked) dance();
-  else openDancePicker();
+  openDancePicker();
+}
+
+function onDanceHold() {
+  if (dancing) return;
+  pulse('btn-dance');
+  dance();
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -466,6 +504,21 @@ function showToast(msg, actionLabel, onAction) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), actionLabel ? 5000 : 2500);
+}
+
+// ── Action hint ───────────────────────────────────────────────────────────────
+// Transient one-liner in the slot under the action buttons — used to teach the
+// hold-Send shortcut without a modal or a toast fighting the "Image saved" one.
+
+let actionHintTimer = null;
+
+function showActionHint(msg) {
+  const el = document.getElementById('action-hint');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(actionHintTimer);
+  actionHintTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 // ── Button pulse ──────────────────────────────────────────────────────────────
@@ -618,8 +671,8 @@ function applyZOrder(order) {
 // ── Layer-order modal ─────────────────────────────────────────────────────────
 // Long-press (or double-tap / double-click) a part on the canvas to offer
 // moving its layer above everything else or behind everything else.
+// (LONG_PRESS_MS is shared with the action-button hold gesture, declared there.)
 
-const LONG_PRESS_MS = 500;
 let pressTimer = null;
 let lastTap = { layer: null, t: 0 };
 let moveTopLayer = null;
@@ -1052,9 +1105,10 @@ function canShareFiles(file) {
 // One action for both sharing and saving: on a phone the native share sheet
 // offers Messages, "Save Image" (→ Photos), and everything else; on desktop
 // (no Web Share for files) we download the PNG and copy the link instead.
-async function shareEmoji() {
+// Tap sends just the picture; holding Send adds the magic link (issue #33).
+async function shareEmoji(withLink) {
   pulse('btn-share');
-  const withLink = document.getElementById('opt-link').checked;
+  if (!withLink) showActionHint('Hold Send to add a magic link ✨');
   let blob;
   try { blob = await rasterise(); } catch (e) { showToast('Could not make image'); return; }
   const file = new File([blob], 'emojicle.png', { type: 'image/png' });
@@ -1463,8 +1517,9 @@ function init() {
   initSound();
   initCanvasKeys();
   document.getElementById('btn-random').addEventListener('click', randomise);
-  document.getElementById('btn-dance').addEventListener('click', onDanceButton);
-  document.getElementById('btn-share').addEventListener('click', shareEmoji);
+  addLongPress(document.getElementById('btn-dance'), onDanceButton, onDanceHold);
+  addLongPress(document.getElementById('btn-share'),
+               () => shareEmoji(false), () => shareEmoji(true));
   document.getElementById('btn-gallery').addEventListener('click', openGallery);
   document.getElementById('gallery-save').addEventListener('click', saveCurrentToGallery);
   document.getElementById('gallery-close').addEventListener('click', closeGallery);
