@@ -57,16 +57,77 @@ function doodleTile(opacity) {
          `<g opacity="${opacity}">${spots}</g></svg>`;
 }
 
-// Kid-friendly app backdrop (issue #14): the doodle tile behind the whole
-// page, in a light and a dark strength, handed to CSS as custom properties
-// so the theme toggle just works. Cards/overlays are opaque, so contrast of
-// the real UI is untouched; the pattern is static (reduced-motion safe).
+// Kid-friendly app backdrop (issue #14; animated in issue #29): a fixed
+// full-screen layer of doodles behind the UI. Every third doodle carries a
+// slow, mostly-idle jiggle/twirl/sparkle cycle with scattered timing — a few
+// are moving at any moment while the rest hold still — and the whole field
+// drifts slowly downward, looping seamlessly (two stacked copies, -50%).
+// Reduced-motion users get the original static CSS tile instead, and the
+// animated path stays cheap: only transform/opacity animate, two thirds of
+// the doodles have no animation at all.
 function applyDoodleBackdrop() {
-  if (!document.documentElement || !document.documentElement.style) return;
-  const enc = svg => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
-  const root = document.documentElement.style;
-  root.setProperty('--doodle-bg-light', enc(doodleTile(0.5)));
-  root.setProperty('--doodle-bg-dark', enc(doodleTile(0.16)));
+  const reduceMotion = typeof matchMedia === 'function' &&
+    matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion || !document.body) {
+    if (!document.documentElement || !document.documentElement.style) return;
+    const enc = svg => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    const root = document.documentElement.style;
+    root.setProperty('--doodle-bg-light', enc(doodleTile(0.5)));
+    root.setProperty('--doodle-bg-dark', enc(doodleTile(0.16)));
+    return;
+  }
+  buildDoodleLayer();
+  let lastW = innerWidth;
+  window.addEventListener('resize', () => {
+    // mobile URL-bar show/hide jitters innerHeight — only real changes rebuild
+    if (Math.abs(innerWidth - lastW) > 40 || innerHeight > doodleFieldH) {
+      lastW = innerWidth;
+      buildDoodleLayer();
+    }
+  });
+}
+
+let doodleFieldH = 0;
+
+function buildDoodleLayer() {
+  let layer = document.getElementById('doodle-layer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.id = 'doodle-layer';
+    layer.setAttribute('aria-hidden', 'true');
+    document.body.prepend(layer);
+  }
+  const step = innerWidth > 800 ? 150 : 110;
+  const W = innerWidth;
+  // a whole number of grid rows keeps the spacing even across the loop seam
+  const H = Math.ceil(Math.max(innerHeight, 900) / step) * step;
+  doodleFieldH = H;
+  const MOTIONS = ['doodle-jiggle', 'doodle-twirl', 'doodle-sparkle'];
+  let bits = '';
+  let n = 0;
+  for (let gy = step / 2; gy < H; gy += step) {
+    for (let gx = (gy / step % 2 ? step / 2 : step * 0.75); gx < W; gx += step) {
+      const i = n++;
+      const jx = ((i * 7) % 10 - 5) * 2.2;
+      const jy = ((i * 13) % 10 - 5) * 2.2;
+      const rot = ((i * 47) % 40) - 20;
+      const sc = 0.75 + ((i * 11) % 5) * 0.1;
+      let cls = '';
+      let style = '';
+      if (i % 3 === 0) {                       // only a third of them ever move
+        const dur = 7 + (i * 3) % 6;           // 7–12s cycles…
+        const delay = -((i * 1.7) % dur);      // …starting at scattered points
+        cls = ` class="doodle ${MOTIONS[(i / 3) % 3]}"`;
+        style = ` style="animation-duration:${dur}s;animation-delay:${delay.toFixed(1)}s"`;
+      }
+      bits += `<g transform="translate(${(gx + jx).toFixed(1)} ${(gy + jy).toFixed(1)})">` +
+              `<g${cls}${style}><g transform="rotate(${rot}) scale(${sc.toFixed(2)})">` +
+              DOODLES[i % DOODLES.length] + '</g></g></g>';
+    }
+  }
+  const field = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" ` +
+                `viewBox="0 0 ${W} ${H}">${bits}</svg>`;
+  layer.innerHTML = `<div class="doodle-scroll">${field}${field}</div>`;
 }
 
 // ── Background library ────────────────────────────────────────────────────────

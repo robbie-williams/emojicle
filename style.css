@@ -1883,16 +1883,72 @@ body.overlay-open { overflow: hidden; }
 }
 
 /* ── Kid-friendly doodle backdrop ─────────────────────────────────────────────
-   A soft tiled pattern of emoji-esque doodles (pizza, fruit, stars — built
-   and handed over as data-URI custom properties by scene.js) behind the whole
-   app. Cards and overlays are opaque, so UI contrast is unaffected; the
-   pattern is static, so there's nothing for prefers-reduced-motion to pause. */
+   A soft pattern of emoji-esque doodles (pizza, fruit, stars) behind the
+   whole app. scene.js builds it one of two ways (issue #29): an animated
+   fixed layer (#doodle-layer) where a few doodles at a time jiggle, twirl or
+   sparkle while the field drifts slowly downward and loops — or, for
+   prefers-reduced-motion, the original static tile handed over as data-URI
+   custom properties on body. Only one of the two is ever active. */
 body {
   background-image: var(--doodle-bg-light, none);
   background-size: 320px 320px;
 }
 :root[data-theme="dark"] body {
   background-image: var(--doodle-bg-dark, none);
+}
+
+#doodle-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.5;
+}
+:root[data-theme="dark"] #doodle-layer { opacity: 0.16; }
+
+/* two identical stacked copies; sliding up by one copy (-50%) then looping
+   reads as an endless slow downward scroll of the page behind the app */
+.doodle-scroll {
+  will-change: transform;
+  animation: doodle-scroll 150s linear infinite;
+}
+.doodle-scroll svg { display: block; }
+
+.doodle {
+  /* spin/scale around each doodle's own middle, not the SVG origin */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes doodle-scroll {
+  /* start one copy up and slide down to 0 → doodles drift downward */
+  from { transform: translateY(-50%); }
+  to   { transform: translateY(0); }
+}
+/* motion cycles are idle ~80% of the time; with scattered negative delays
+   only a few doodles are mid-move at any moment — no uniform pulse */
+@keyframes doodle-jiggle {
+  0%, 82%, 100% { transform: none; }
+  86% { transform: translate(2px, -3px) rotate(7deg); }
+  90% { transform: translate(-2px, 2px) rotate(-6deg); }
+  94% { transform: translate(1px, -1px) rotate(4deg); }
+}
+@keyframes doodle-twirl {
+  0%, 84% { transform: rotate(0deg); }
+  100%    { transform: rotate(360deg); }
+}
+@keyframes doodle-sparkle {
+  0%, 78%, 100% { transform: scale(1); opacity: 1; }
+  84% { transform: scale(1.3); opacity: 0.5; }
+  90% { transform: scale(0.9); opacity: 1; }
+  95% { transform: scale(1.15); opacity: 0.7; }
+}
+
+/* belt & braces: if the animated layer exists anyway, freeze it */
+@media (prefers-reduced-motion: reduce) {
+  #doodle-layer .doodle-scroll,
+  #doodle-layer .doodle { animation: none !important; }
 }
 
 /* On narrow screens the opaque cards cover almost the whole viewport, so the
