@@ -235,6 +235,11 @@ body {
 }
 .pack-thumb:hover  { border-color: var(--clr-brand); }
 .pack-thumb:active { transform: scale(0.92); }
+/* the member being edited on the canvas stays in the rail, highlighted (#34) */
+.pack-thumb.is-active {
+  border-color: var(--clr-brand);
+  box-shadow: 0 0 0 2px var(--clr-brand);
+}
 .pack-thumb .swatch-svg { width: 100%; height: 100%; }
 .pack-del {
   position: absolute;
@@ -269,6 +274,21 @@ body {
 }
 .pack-add:hover  { border-color: var(--clr-brand); color: var(--clr-brand); }
 .pack-add:active { transform: scale(0.92); }
+/* 💾 chip beside the +: saves/updates the pack in My Emojis (issue #34) */
+.pack-save {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--clr-chip-edge);
+  border-radius: 12px;
+  background: var(--clr-chip);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.pack-save:hover  { border-color: var(--clr-brand); background: var(--clr-chip-hover); }
+.pack-save:active { transform: scale(0.92); }
 
 /* chip-button toolbar (used by the scene designer's resize/dup/delete row) */
 .part-tools[hidden] { display: none; }

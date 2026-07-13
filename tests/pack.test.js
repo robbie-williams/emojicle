@@ -22,7 +22,8 @@ const eq = (actual, expected, msg) =>
 
 const store = new Map();
 const context = vm.createContext({
-  document: { addEventListener() {}, getElementById: () => null },
+  document: { addEventListener() {}, getElementById: () => null,
+              querySelector: () => null, querySelectorAll: () => [] },
   window: {},
   console,
   URL,
@@ -45,6 +46,7 @@ const api = vm.runInContext(
   '   encodeState, decodeState, state, offsets, LAYERS, MOVABLE, PARTS, STICKERS,' +
   '   getPack: () => pack, getActive: () => packActive,' +
   '   setPack: (m, a) => { pack = m; packActive = a; },' +
+  '   getSavedId: () => packSavedId, setSavedId: id => { packSavedId = id; },' +
   '   setZOrder: z => { zOrder = z; } })',
   context
 );
@@ -162,4 +164,18 @@ test('the share URL carries e, p and pi together', () => {
   assert.strictEqual(u2.searchParams.get('pi'), null, 'standalone canvas has no pi');
   assert.strictEqual(u2.searchParams.get('p'), api.packToParam(api.getPack()),
     'the pack still rides along');
+});
+
+test('the saved-gallery link (savedId, #34) persists with the pack', () => {
+  reset();
+  api.addCurrentToPack();
+  api.setSavedId('gtest123');
+  api.persistPack();
+  const d = api.loadStoredPack();
+  assert.strictEqual(d.savedId, 'gtest123');
+  // packs stored before #34 come back with a null savedId, not undefined
+  const raw = JSON.parse(store.get('emojicle-pack'));
+  delete raw.savedId;
+  store.set('emojicle-pack', JSON.stringify(raw));
+  assert.strictEqual(api.loadStoredPack().savedId, null);
 });

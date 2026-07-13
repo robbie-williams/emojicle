@@ -1031,10 +1031,13 @@ function applyEncoded(str) {
 }
 
 function updateUrl() {
-  // editing a pack member → every change flows straight into its slot
+  // editing a pack member → every change flows straight into its slot, and
+  // its (visible, highlighted) rail thumbnail follows along live (issue #34)
   if (packActive >= 0) {
     pack[packActive] = encodeState();
     persistPack();
+    const thumb = document.querySelector('.pack-thumb.is-active');
+    if (thumb) thumb.innerHTML = galleryThumbSvg(pack[packActive]);
   }
   const u = new URL(location.href);
   u.searchParams.set('e', encodeState());
@@ -1140,10 +1143,22 @@ function loadGallery() {
     if (!Array.isArray(raw)) return [];
     // entries from before #27 were bare ?e= strings — carry each forward as
     // a single-member pack (named on next save; '' shows a friendly default)
-    return raw.map(e => (typeof e === 'string' ? { n: '', m: [e] } : e))
+    const list = raw.map(e => (typeof e === 'string' ? { n: '', m: [e] } : e))
       .filter(e => e && typeof e.n === 'string' && Array.isArray(e.m) &&
                    e.m.length && e.m.every(m => typeof m === 'string' && m));
+    // entries need a stable id so the rail's Save button (issue #34) can
+    // find "its" entry again later — stamp any that predate ids, once
+    let stamped = false;
+    list.forEach(e => {
+      if (typeof e.id !== 'string' || !e.id) { e.id = newGalleryId(); stamped = true; }
+    });
+    if (stamped) saveGallery(list);
+    return list;
   } catch (e) { return []; }
+}
+
+function newGalleryId() {
+  return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
 function saveGallery(list) {
@@ -1198,7 +1213,7 @@ function renderGallery() {
     name.textContent = label;   // user text — never innerHTML
     open.appendChild(thumbs);
     open.appendChild(name);
-    open.addEventListener('click', () => replacePack(entry.m, '\u{1F4E6} ' + label));
+    open.addEventListener('click', () => replacePack(entry.m, '\u{1F4E6} ' + label, entry.id));
     const del = document.createElement('button');
     del.className = 'gallery-del';
     del.textContent = '✕';
@@ -1237,11 +1252,13 @@ const PRESET_PACKS = [{
   ],
 }];
 
-// swap the whole pack for another (starter pack or saved pack), with Undo
-function replacePack(members, label) {
-  const prev = { members: pack.slice(), active: packActive };
+// swap the whole pack for another (starter pack or saved pack), with Undo;
+// savedId ties the new pack back to its gallery entry so Save can overwrite it
+function replacePack(members, label, savedId) {
+  const prev = { members: pack.slice(), active: packActive, savedId: packSavedId };
   pack = members.slice(0, PACK_MAX);
   packActive = -1;
+  packSavedId = savedId || null;
   persistPack();
   renderPackRail();
   updateUrl();
@@ -1249,6 +1266,7 @@ function replacePack(members, label) {
   showToast(label + ' loaded!', 'Undo', () => {
     pack = prev.members;
     packActive = prev.active;
+    packSavedId = prev.savedId;
     persistPack();
     renderPackRail();
     updateUrl();
@@ -1298,13 +1316,30 @@ function confirmSavePack(e) {
   const key = packToParam(members);
   // same members saved again → refresh its name and bump it to the front
   const dup = list.findIndex(en => packToParam(en.m) === key);
+  const id = dup >= 0 ? list[dup].id : newGalleryId();
   if (dup >= 0) list.splice(dup, 1);
-  list.unshift({ n: name, m: members });
+  list.unshift({ id, n: name, m: members });
   if (list.length > GALLERY_MAX) list.pop();
   saveGallery(list);
+  if (pack.length) { packSavedId = id; persistPack(); }   // future Saves overwrite this entry
   closePackNameModal();
   renderGallery();
   showToast('\u{1F4BE} Saved to My Emojis!');
+}
+
+// 💾 chip in the pack rail (issue #34): overwrite the gallery entry this pack
+// came from, or fall through to the naming dialog when there isn't one (never
+// saved, entry since deleted, or the pack came from a link/starter pack)
+function onSavePackButton() {
+  if (!pack.length) return;
+  const list = loadGallery();
+  const i = packSavedId ? list.findIndex(en => en.id === packSavedId) : -1;
+  if (i < 0) { openPackNameModal(); return; }
+  const [entry] = list.splice(i, 1);
+  entry.m = pack.slice();
+  list.unshift(entry);
+  saveGallery(list);
+  showToast('\u{1F4BE} ' + (entry.n || 'Your pack') + ' updated!');
 }
 
 function openGallery() {
@@ -1333,6 +1368,12 @@ const PACK_MAX = 7;
 
 let pack = [];        // encoded members, oldest first
 let packActive = -1;
+// which saved-gallery entry this pack came from (issue #34) — lets the rail's
+// Save button overwrite that entry instead of always creating a new one.
+// Survives edits (that's the point of overwriting); cleared when the pack is
+// wholesale replaced by something that isn't a saved entry (?p= link, starter
+// pack, saved scene).
+let packSavedId = null;
 
 const packToParam = members => members.join('*');
 
@@ -1343,7 +1384,8 @@ function packFromParam(str) {
 
 function persistPack() {
   try {
-    localStorage.setItem(PACK_KEY, JSON.stringify({ members: pack, active: packActive }));
+    localStorage.setItem(PACK_KEY, JSON.stringify(
+      { members: pack, active: packActive, savedId: packSavedId }));
   } catch (e) {}
 }
 
@@ -1354,7 +1396,7 @@ function loadStoredPack() {
       const members = d.members.filter(m => typeof m === 'string' && m).slice(0, PACK_MAX);
       const active = Number.isInteger(d.active) && d.active >= 0 && d.active < members.length
         ? d.active : -1;
-      return { members, active };
+      return { members, active, savedId: typeof d.savedId === 'string' ? d.savedId : null };
     }
   } catch (e) {}
   return null;
@@ -1367,16 +1409,18 @@ function renderPackRail() {
   L.innerHTML = '';
   R.innerHTML = '';
 
-  const shown = pack.map((_, i) => i).filter(i => i !== packActive);
-  // balance the two rails (3+3 when full; the odd one goes left)
-  const leftCount = Math.min(Math.max(Math.ceil(shown.length / 2), shown.length - 3), 4);
-  shown.forEach((mi, pos) => {
+  // every member stays visible — the one on the canvas is highlighted, not
+  // hidden (issue #34): the canvas is an editing window, not a pack slot
+  pack.forEach((enc, mi) => {
     const item = document.createElement('div');
     item.className = 'pack-item';
     const thumb = document.createElement('button');
-    thumb.className = 'pack-thumb';
-    thumb.setAttribute('aria-label', 'Switch to pack emoji ' + (mi + 1));
-    thumb.innerHTML = galleryThumbSvg(pack[mi]);
+    thumb.className = 'pack-thumb' + (mi === packActive ? ' is-active' : '');
+    thumb.setAttribute('aria-label', mi === packActive
+      ? 'Pack emoji ' + (mi + 1) + ' — on the canvas now'
+      : 'Switch to pack emoji ' + (mi + 1));
+    if (mi === packActive) thumb.setAttribute('aria-current', 'true');
+    thumb.innerHTML = galleryThumbSvg(enc);
     thumb.addEventListener('click', () => selectPackMember(mi));
     const del = document.createElement('button');
     del.className = 'pack-del';
@@ -1385,10 +1429,27 @@ function renderPackRail() {
     del.addEventListener('click', () => removePackMember(mi));
     item.appendChild(thumb);
     item.appendChild(del);
-    (pos < leftCount ? L : R).appendChild(item);
+    // balance the two rails (4+3 when full; the odd one goes left)
+    (mi < Math.min(Math.max(Math.ceil(pack.length / 2), pack.length - 3), 4)
+      ? L : R).appendChild(item);
   });
 
   if (pack.length < PACK_MAX) R.appendChild(packAddButton());
+  if (pack.length) R.appendChild(packSaveButton());
+}
+
+// 💾 sibling of the + chip — persistent node for the same mid-gesture reason
+let packSaveBtn = null;
+function packSaveButton() {
+  if (!packSaveBtn) {
+    packSaveBtn = document.createElement('button');
+    packSaveBtn.className = 'pack-save';
+    packSaveBtn.id = 'pack-save';
+    packSaveBtn.textContent = '\u{1F4BE}';
+    packSaveBtn.setAttribute('aria-label', 'Save this pack to My Emojis');
+    packSaveBtn.addEventListener('click', onSavePackButton);
+  }
+  return packSaveBtn;
 }
 
 // One persistent "+" node, re-appended on every rail render. Rebuilding it
@@ -1597,11 +1658,15 @@ function init() {
     packActive = Number.isInteger(pi) && pi >= 0 && pi < pack.length ? pi : -1;
     const replaced = stored && stored.members.length &&
       packToParam(stored.members) !== packToParam(linkPack);
+    // a genuinely new link pack isn't one of the saved gallery packs — but a
+    // reload carries our own pack back in via ?p=, and that keeps its link
+    packSavedId = !replaced && stored ? stored.savedId : null;
     persistPack();
     if (replaced) {
       showToast('\u{1F4E6} New pack loaded!', 'Undo', () => {
         pack = stored.members;
         packActive = stored.active;
+        packSavedId = stored.savedId;
         persistPack();
         renderPackRail();
         if (packActive >= 0) restoreEncoded(pack[packActive]);
@@ -1611,6 +1676,7 @@ function init() {
   } else if (stored) {
     pack = stored.members;
     packActive = stored.active;
+    packSavedId = stored.savedId;
   }
 
   const e = q.get('e');

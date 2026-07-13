@@ -1218,9 +1218,10 @@ function sceneThumbSvg(entry) {
 }
 
 function openSavedScene(entry) {
-  const prev = { p: pack.slice(), a: packActive, s: encodeScene(scene) };
+  const prev = { p: pack.slice(), a: packActive, sid: packSavedId, s: encodeScene(scene) };
   pack = entry.p.slice(0, PACK_MAX);
   packActive = -1;
+  packSavedId = null;   // a scene's pack snapshot isn't a saved gallery pack
   persistPack();
   renderPackRail();
   scene = decodeScene(entry.s);
@@ -1230,6 +1231,7 @@ function openSavedScene(entry) {
   showToast('\u{1F3DE}\u{FE0F} Scene loaded!', 'Undo', () => {
     pack = prev.p;
     packActive = prev.a;
+    packSavedId = prev.sid;
     persistPack();
     renderPackRail();
     scene = decodeScene(prev.s);
