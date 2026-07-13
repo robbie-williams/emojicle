@@ -18,8 +18,10 @@ const SCENE_KEY = 'emojicle-scene';
 const SCENE_MAX = 12;          // plenty of chaos, still a short share link
 const SCENE_BASE = 0.35;       // default emoji size: 35% of the short side
 const SCENE_STEP = 1.3;        // grow/shrink factor per size step
-const SCENE_S_MIN = -2;
-const SCENE_S_MAX = 3;
+// widened for issue #36 (was -2..3): both extremes roughly double outward —
+// 1.3^6 ≈ 2.2× the old biggest, 1.3^-5 ≈ 0.45× the old smallest
+const SCENE_S_MIN = -5;
+const SCENE_S_MAX = 6;
 
 // ── Doodle motifs ─────────────────────────────────────────────────────────────
 // Simplified, emoji-esque decorations (pizza, fruit, stars…) drawn around the
@@ -643,16 +645,21 @@ let sceneSel = -1;                                 // selected item index (top =
 const STICKER_BY_ID = {};
 STICKERS.forEach(s => { STICKER_BY_ID[s.id] = s; });
 
-// ?s=<bg>*<m>_<x>_<y>_<s>[_<o>]*…  x/y are per-mille ints, s a size step,
-// o an opacity percent that rides along only when the item is see-through
-// (issue #30) — fully opaque items keep the old 4-field shape so their links
-// stay readable by old apps. Sticker items ride as *s<id>_… — old apps
-// opening a new link parseInt the "s…" to NaN and skip the segment, so they
-// degrade gracefully to the pack-only scene instead of breaking.
+// ?s=<bg>*<m>_<x>_<y>_<s>[_<o>[_<r>[_<f>]]]*…  x/y are per-mille ints, s a
+// size step, then three optional trailing fields (issues #30/#36): o opacity
+// percent, r rotation degrees, f flip bits (1=horizontal, 2=vertical). Any
+// all-default tail is trimmed, so untouched items keep the old 4-field shape
+// and their links stay readable by old apps; items using newer fields are
+// simply skipped by older decoders (same degrade path as stickers, whose
+// "s<id>" head parseInts to NaN in the oldest apps).
 function encodeScene(sc) {
-  return sc.bg + sc.items.map(it =>
-    `*${it.st ? 's' + it.st : it.m}_${it.x}_${it.y}_${it.s}` +
-    (it.o && it.o < 100 ? `_${it.o}` : '')).join('');
+  return sc.bg + sc.items.map(it => {
+    const defs = [100, 0, 0];
+    const vals = [it.o || 100, it.r || 0, it.f || 0];
+    while (vals.length && vals[vals.length - 1] === defs[vals.length - 1]) vals.pop();
+    return `*${it.st ? 's' + it.st : it.m}_${it.x}_${it.y}_${it.s}` +
+           (vals.length ? '_' + vals.join('_') : '');
+  }).join('');
 }
 
 function decodeScene(str) {
@@ -664,13 +671,15 @@ function decodeScene(str) {
     if (items.length >= SCENE_MAX) break;
     const f = seg.split('_');
     const nums = f.slice(1).map(v => parseInt(v, 10));
-    if ((f.length !== 4 && f.length !== 5) || nums.some(n => !Number.isInteger(n))) continue;
+    if (f.length < 4 || f.length > 7 || nums.some(n => !Number.isInteger(n))) continue;
     const pos = {
       x: clamp(nums[0], 0, 1000),
       y: clamp(nums[1], 0, 1000),
       s: clamp(nums[2], SCENE_S_MIN, SCENE_S_MAX),
     };
-    if (f.length === 5 && nums[3] < 100) pos.o = clamp(nums[3], 10, 99);
+    if (nums.length > 3 && nums[3] < 100) pos.o = clamp(nums[3], 10, 99);
+    if (nums.length > 4 && nums[4] % 360) pos.r = ((nums[4] % 360) + 360) % 360;
+    if (nums.length > 5 && nums[5] % 4) pos.f = ((nums[5] % 4) + 4) % 4;
     if (f[0].startsWith('s')) {
       const st = f[0].slice(1);
       if (STICKER_BY_ID[st]) items.push({ st, ...pos });
@@ -759,7 +768,13 @@ function sceneItemMarkupIn(it, art, dims) {
   const f = SCENE_BASE * Math.min(dims.w, dims.h) / 72 * Math.pow(SCENE_STEP, it.s);
   const c = { x: it.x / 1000 * dims.w, y: it.y / 1000 * dims.h };
   const op = it.o && it.o < 100 ? ` opacity="${(it.o / 100).toFixed(2)}"` : '';
-  return `<g${op} transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)}) scale(${f.toFixed(4)}) translate(-36 -36)">${art}</g>`;
+  // rotation and flips (issue #36) happen around the item's centre: rotate
+  // after moving there, mirror by negating the scale per axis
+  const rot = it.r ? ` rotate(${it.r})` : '';
+  const sx = (it.f & 1 ? -f : f).toFixed(4);
+  const sy = (it.f & 2 ? -f : f).toFixed(4);
+  return `<g${op} transform="translate(${c.x.toFixed(2)} ${c.y.toFixed(2)})${rot} ` +
+         `scale(${sx} ${sy}) translate(-36 -36)">${art}</g>`;
 }
 
 function sceneItemMarkup(it) {
@@ -809,18 +824,45 @@ function sceneArtBounds(it) {
   return b;
 }
 
+// scene-space axis-aligned box around the item's (padded) art bounds, with
+// the item's flip and rotation applied — shared by the selection rectangle
+// and the pointer hit-test
+function sceneItemBox(it) {
+  const f = itemFactor(it);
+  const c = itemCenter(it);
+  const b = sceneArtBounds(it);
+  const x0 = b.x - ART_PAD - 36;
+  const y0 = b.y - ART_PAD - 36;
+  const x1 = x0 + b.w + ART_PAD * 2;
+  const y1 = y0 + b.h + ART_PAD * 2;
+  const sx = it.f & 1 ? -f : f;
+  const sy = it.f & 2 ? -f : f;
+  const rad = (it.r || 0) * Math.PI / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const [px, py] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
+    const qx = px * sx, qy = py * sy;
+    const rx = qx * cos - qy * sin;
+    const ry = qx * sin + qy * cos;
+    if (rx < minX) minX = rx;
+    if (rx > maxX) maxX = rx;
+    if (ry < minY) minY = ry;
+    if (ry > maxY) maxY = ry;
+  }
+  return { x: c.x + minX, y: c.y + minY, w: maxX - minX, h: maxY - minY };
+}
+
 function renderSceneSel() {
   const box = document.getElementById('scene-sel');
   if (!box) return;
   const it = scene.items[sceneSel];
   if (!it || !sceneItemArt(it, pack)) { box.setAttribute('visibility', 'hidden'); syncSceneTools(); return; }
-  const f = itemFactor(it);
-  const c = itemCenter(it);
-  const b = sceneArtBounds(it);
-  box.setAttribute('x', c.x + (b.x - ART_PAD - 36) * f);
-  box.setAttribute('y', c.y + (b.y - ART_PAD - 36) * f);
-  box.setAttribute('width', (b.w + ART_PAD * 2) * f);
-  box.setAttribute('height', (b.h + ART_PAD * 2) * f);
+  const r = sceneItemBox(it);
+  box.setAttribute('x', r.x);
+  box.setAttribute('y', r.y);
+  box.setAttribute('width', r.w);
+  box.setAttribute('height', r.h);
   box.setAttribute('visibility', 'visible');
   syncSceneTools();
 }
@@ -1114,39 +1156,72 @@ function sceneHit(p) {
   for (let i = scene.items.length - 1; i >= 0; i--) {
     const it = scene.items[i];
     if (!sceneItemArt(it, pack)) continue;
-    const f = itemFactor(it);
-    const c = itemCenter(it);
-    const b = sceneArtBounds(it);
-    const x0 = c.x + (b.x - ART_PAD - 36) * f;
-    const y0 = c.y + (b.y - ART_PAD - 36) * f;
-    if (p.x >= x0 && p.x <= x0 + (b.w + ART_PAD * 2) * f &&
-        p.y >= y0 && p.y <= y0 + (b.h + ART_PAD * 2) * f) return i;
+    const r = sceneItemBox(it);
+    if (p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h) return i;
   }
   return -1;
 }
 
-// Two fingers on the stage pinch-resize the selected item, and a scroll
-// wheel over an item resizes it directly (issue #30) — the +/- chips stay
-// as the accessible fallback. Pinch maps the finger-distance ratio onto
-// whole size steps so it lands on the same sizes the buttons reach.
+// Two fingers on the stage pinch-resize AND twist-rotate the selected item;
+// a scroll wheel over an item resizes it; long-pressing an item cycles its
+// flips; holding the right mouse button drags a rotation (issues #30/#36).
+// The +/- chips stay as the accessible fallback. Pinch maps the finger-
+// distance ratio onto whole size steps so it lands on the same sizes the
+// buttons reach; rotation is continuous but snaps to right angles.
 const scenePtrs = new Map();
 let scenePinch = null;
+let sceneRotate = null;      // right-button drag: { r0, a0, changed }
+let scenePressTimer = null;  // long-press → flip cycle
+const SCENE_DRAG_SLOP = 6;   // client px a pointer may wander and still hold
 
 function scenePinchDist() {
   const [a, b] = [...scenePtrs.values()];
   return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
 }
 
+function scenePinchAngle() {
+  const [a, b] = [...scenePtrs.values()];
+  return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+}
+
+// continuous rotation, but a nudge near 0/90/180/270 lands exactly there —
+// straightening an item by eye is otherwise fiddly. 0 means "no r field".
+function snapAngle(r) {
+  const n = ((Math.round(r) % 360) + 360) % 360;
+  const k = (Math.round(n / 90) * 90) % 360;
+  return Math.abs(((n - k + 540) % 360) - 180) <= 6 ? k : n;
+}
+
+function setItemRotation(it, deg) {
+  const r = snapAngle(deg);
+  if (r === (it.r || 0)) return false;
+  if (r) it.r = r; else delete it.r;
+  return true;
+}
+
+// long-press on an item cycles plain → flipped ↔ → flipped ↕ → both → plain
+function flipCycle(it) {
+  const f = ((it.f || 0) + 1) % 4;
+  if (f) it.f = f; else delete it.f;
+  renderSceneItems();
+  sceneChanged();
+}
+
 function initSceneDrag() {
   const svg = document.getElementById('scene-svg');
+  const cancelPress = () => { clearTimeout(scenePressTimer); scenePressTimer = null; };
   svg.addEventListener('pointerdown', e => {
     scenePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (err) {}
     if (scenePtrs.size === 2) {
-      // second finger: switch from dragging to pinch-resizing the selection
+      // second finger: switch from dragging to pinch-resize + twist-rotate
       sceneDrag = null;
+      cancelPress();
       const it = scene.items[sceneSel];
-      if (it) scenePinch = { d0: scenePinchDist(), s0: it.s, changed: false };
+      if (it) {
+        scenePinch = { d0: scenePinchDist(), s0: it.s,
+                       a0: scenePinchAngle(), r0: it.r || 0, changed: false };
+      }
       return;
     }
     if (scenePtrs.size > 2) return;
@@ -1157,7 +1232,22 @@ function initSceneDrag() {
     selectSceneItem(i);
     const it = scene.items[sceneSel];
     const c = itemCenter(it);
-    sceneDrag = { dx: c.x - p.x, dy: c.y - p.y, moved: false };
+    if (e.button === 2) {
+      // hold right-click and drag to rotate (contextmenu is suppressed below)
+      sceneRotate = { r0: it.r || 0,
+                      a0: Math.atan2(p.y - c.y, p.x - c.x) * 180 / Math.PI,
+                      changed: false };
+      return;
+    }
+    sceneDrag = { dx: c.x - p.x, dy: c.y - p.y, moved: false,
+                  cx: e.clientX, cy: e.clientY };
+    // holding still on the item for a beat flips it (same timing as the
+    // action buttons' addLongPress helper) — any real drag cancels this
+    scenePressTimer = setTimeout(() => {
+      scenePressTimer = null;
+      sceneDrag = null;
+      flipCycle(it);
+    }, LONG_PRESS_MS);
   });
   svg.addEventListener('pointermove', e => {
     if (scenePtrs.has(e.pointerId)) scenePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1167,11 +1257,32 @@ function initSceneDrag() {
       if (!it) return;
       const steps = Math.round(Math.log(scenePinchDist() / scenePinch.d0) / Math.log(SCENE_STEP));
       const ns = Math.max(SCENE_S_MIN, Math.min(SCENE_S_MAX, scenePinch.s0 + steps));
-      if (ns !== it.s) { it.s = ns; scenePinch.changed = true; renderSceneItems(); }
+      let dirty = false;
+      if (ns !== it.s) { it.s = ns; dirty = true; }
+      const dA = ((scenePinchAngle() - scenePinch.a0 + 540) % 360) - 180;
+      if (setItemRotation(it, scenePinch.r0 + dA)) dirty = true;
+      if (dirty) { scenePinch.changed = true; renderSceneItems(); }
+      e.preventDefault();
+      return;
+    }
+    if (sceneRotate && sceneSel >= 0) {
+      const p = sceneToSvg(e);
+      const it = scene.items[sceneSel];
+      if (!p || !it) return;
+      const c = itemCenter(it);
+      const a = Math.atan2(p.y - c.y, p.x - c.x) * 180 / Math.PI;
+      if (setItemRotation(it, sceneRotate.r0 + a - sceneRotate.a0)) {
+        sceneRotate.changed = true;
+        renderSceneItems();
+      }
       e.preventDefault();
       return;
     }
     if (!sceneDrag || sceneSel < 0) return;
+    // a finger can tremble a little and still be a long-press, not a drag
+    if (!sceneDrag.moved &&
+        Math.hypot(e.clientX - sceneDrag.cx, e.clientY - sceneDrag.cy) < SCENE_DRAG_SLOP) return;
+    cancelPress();
     const p = sceneToSvg(e);
     if (!p) return;
     const it = scene.items[sceneSel];
@@ -1183,9 +1294,14 @@ function initSceneDrag() {
   });
   const up = e => {
     scenePtrs.delete(e.pointerId);
+    cancelPress();
     if (scenePinch && scenePtrs.size < 2) {
       if (scenePinch.changed) sceneChanged();
       scenePinch = null;
+    }
+    if (sceneRotate) {
+      if (sceneRotate.changed) sceneChanged();
+      sceneRotate = null;
     }
     if (sceneDrag && sceneDrag.moved) sceneChanged();
     sceneDrag = null;

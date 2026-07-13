@@ -112,6 +112,34 @@ test('sticker items round-trip through the codec (#19)', () => {
   assert.ok(!u.search.includes('%'), 'no percent-escapes: ' + u.search);
 });
 
+test('rotation and flips ride as trailing fields, defaults trimmed (#36)', () => {
+  const sc = {
+    bg: 'space',
+    items: [
+      { m: 0, x: 1, y: 2, s: 0, r: 45 },              // rotated only
+      { m: 1, x: 3, y: 4, s: 0, f: 3 },               // flipped both ways
+      { m: 2, x: 5, y: 6, s: 0, o: 50, r: 270, f: 1 },// the works
+      { m: 3, x: 7, y: 8, s: 0 },                     // untouched → 4-field
+    ],
+  };
+  const enc = api.encodeScene(sc);
+  assert.ok(enc.includes('*0_1_2_0_100_45'), 'rotation with opacity placeholder: ' + enc);
+  assert.ok(enc.includes('*1_3_4_0_100_0_3'), 'flip with placeholders: ' + enc);
+  assert.ok(enc.includes('*2_5_6_0_50_270_1'), 'all three fields: ' + enc);
+  assert.ok(enc.includes('*3_7_8_0*') || enc.endsWith('*3_7_8_0'),
+            'untouched item stays 4-field: ' + enc);
+  eq(api.decodeScene(enc), sc);
+  // r wraps mod 360 and 0 is "no field"; f wraps mod 4
+  assert.strictEqual(api.decodeScene('space*0_1_2_0_100_405').items[0].r, 45);
+  assert.strictEqual(api.decodeScene('space*0_1_2_0_100_360').items[0].r, undefined);
+  assert.strictEqual(api.decodeScene('space*0_1_2_0_100_0_4').items[0].f, undefined);
+});
+
+test('the size range doubled outward (#36)', () => {
+  assert.ok(api.SCENE_S_MAX >= 6 && api.SCENE_S_MIN <= -5,
+    `range is ${api.SCENE_S_MIN}..${api.SCENE_S_MAX}`);
+});
+
 test('opacity rides as a 5th field only when see-through (#30)', () => {
   const sc = {
     bg: 'space',
