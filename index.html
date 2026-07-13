@@ -451,7 +451,10 @@
       <p id="scene-hint" class="scene-hint">&#x1F447; Tap an emoji to add it to your scene</p>
     </div>
     <div class="scene-bottom">
+      <!-- 🔎 and 📦 live inside the tray cluster: renderSceneTray() adopts
+           them as its first children so they centre with the thumbnails -->
       <button id="scene-pick-btn" class="scene-pick-btn" aria-label="Add a standard emoji to the scene">&#x1F50E;</button>
+      <button id="scene-pack-btn" class="scene-pick-btn" aria-label="Switch to another pack">&#x1F4E6;</button>
       <div id="scene-tray" class="scene-tray" role="group" aria-label="Your pack — tap to place"></div>
       <div id="scene-tools" class="part-tools scene-tools" hidden>
         <button id="sc-smaller" class="pt-btn" aria-label="Make it smaller">&#x2796;</button>
@@ -476,6 +479,16 @@
       <input id="scene-picker-search" class="scene-search" type="search"
              placeholder="Search &mdash; try &ldquo;rocket&rdquo;!" autocomplete="off">
       <div id="scene-picker-grid" class="picker-grid"></div>
+    </div>
+  </div>
+
+  <div id="scene-pack-picker" class="picker scene-picker" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="picker-panel">
+      <div class="picker-head">
+        <h2 class="picker-title">&#x1F4E6; Switch pack</h2>
+        <button id="scene-pack-close" class="picker-close" aria-label="Close pack picker">&times;</button>
+      </div>
+      <div id="scene-pack-grid" class="picker-grid"></div>
     </div>
   </div>
 

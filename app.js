@@ -1253,8 +1253,10 @@ const PRESET_PACKS = [{
 }];
 
 // swap the whole pack for another (starter pack or saved pack), with Undo;
-// savedId ties the new pack back to its gallery entry so Save can overwrite it
-function replacePack(members, label, savedId) {
+// savedId ties the new pack back to its gallery entry so Save can overwrite
+// it, and `after` runs on both apply and undo (the scene designer uses it to
+// refresh its tray/stage — issue #35)
+function replacePack(members, label, savedId, after) {
   const prev = { members: pack.slice(), active: packActive, savedId: packSavedId };
   pack = members.slice(0, PACK_MAX);
   packActive = -1;
@@ -1263,6 +1265,7 @@ function replacePack(members, label, savedId) {
   renderPackRail();
   updateUrl();
   closeGallery();
+  if (after) after();
   showToast(label + ' loaded!', 'Undo', () => {
     pack = prev.members;
     packActive = prev.active;
@@ -1270,6 +1273,7 @@ function replacePack(members, label, savedId) {
     persistPack();
     renderPackRail();
     updateUrl();
+    if (after) after();
   });
 }
 

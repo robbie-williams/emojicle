@@ -833,10 +833,22 @@ function syncSceneTools() {
   if (slider && it) slider.value = it.o || 100;
 }
 
+// tray.innerHTML = '' detaches the adopted 🔎/📦 buttons each render, so they
+// are re-found by reference after the first adoption (getElementById can't
+// see detached nodes)
+let scenePickBtnRef = null;
+let scenePackBtnRef = null;
+
 function renderSceneTray() {
   const tray = document.getElementById('scene-tray');
   if (!tray) return;
   tray.innerHTML = '';
+  // adopt 🔎 and 📦 as the cluster's first children (issue #35) — appendChild
+  // moves the persistent nodes (and their listeners) from wherever they are
+  const pick = document.getElementById('scene-pick-btn') || scenePickBtnRef;
+  const packBtn = document.getElementById('scene-pack-btn') || scenePackBtnRef;
+  if (pick) { scenePickBtnRef = pick; tray.appendChild(pick); }
+  if (packBtn) { scenePackBtnRef = packBtn; tray.appendChild(packBtn); }
   pack.forEach((enc, i) => {
     const b = document.createElement('button');
     b.className = 'pack-thumb scene-tray-thumb';
@@ -965,6 +977,72 @@ function openScenePicker() {
 
 function closeScenePicker() {
   closeOverlay(document.getElementById('scene-picker'));
+}
+
+// ── Pack switcher (issue #35) ─────────────────────────────────────────────────
+// 📦 next to the tray: swap the working pack for a saved pack (My Emojis,
+// issue #27) or a starter pack without leaving the scene. Goes through
+// replacePack() so Undo/persistence/savedId all behave like a gallery load;
+// the `after` hook re-renders the tray and re-skins placed items (they
+// reference pack members by index).
+
+function sceneAfterPackSwap() {
+  renderSceneTray();
+  renderSceneItems();
+}
+
+function scenePackRow(label, members, onPick) {
+  const btn = document.createElement('button');
+  btn.className = 'preset-pack';
+  btn.setAttribute('aria-label', 'Switch to ' + label);
+  const thumbs = document.createElement('span');
+  thumbs.className = 'preset-thumbs';
+  thumbs.innerHTML = members.map(galleryThumbSvg).join('');
+  const name = document.createElement('span');
+  name.className = 'preset-name';
+  name.textContent = label;   // saved-pack names are user text
+  btn.appendChild(thumbs);
+  btn.appendChild(name);
+  btn.addEventListener('click', onPick);
+  return btn;
+}
+
+function renderScenePackPicker() {
+  const grid = document.getElementById('scene-pack-grid');
+  grid.innerHTML = '';
+  const section = txt => {
+    const head = document.createElement('h3');
+    head.className = 'gallery-sect';
+    head.textContent = txt;
+    grid.appendChild(head);
+  };
+  const saved = loadGallery();
+  if (saved.length) {
+    section('\u{1F5BC}\u{FE0F} My Emojis');
+    saved.forEach(entry => {
+      const label = entry.n || '\u{1F49B} Saved emoji';
+      grid.appendChild(scenePackRow(label, entry.m, () => {
+        closeScenePackPicker();
+        replacePack(entry.m, '\u{1F4E6} ' + label, entry.id, sceneAfterPackSwap);
+      }));
+    });
+  }
+  section('✨ Starter packs');
+  PRESET_PACKS.forEach(preset => {
+    grid.appendChild(scenePackRow(preset.name, preset.members, () => {
+      closeScenePackPicker();
+      replacePack(preset.members, preset.emoji + ' ' + preset.name, null, sceneAfterPackSwap);
+    }));
+  });
+}
+
+function openScenePackPicker() {
+  renderScenePackPicker();
+  openOverlay(document.getElementById('scene-pack-picker'), closeScenePackPicker);
+}
+
+function closeScenePackPicker() {
+  closeOverlay(document.getElementById('scene-pack-picker'));
 }
 
 function removeSceneItem() {
@@ -1322,6 +1400,11 @@ function initScene() {
   document.getElementById('scene-picker-close').addEventListener('click', closeScenePicker);
   document.getElementById('scene-picker').addEventListener('click', e => {
     if (e.target.id === 'scene-picker') closeScenePicker();
+  });
+  document.getElementById('scene-pack-btn').addEventListener('click', openScenePackPicker);
+  document.getElementById('scene-pack-close').addEventListener('click', closeScenePackPicker);
+  document.getElementById('scene-pack-picker').addEventListener('click', e => {
+    if (e.target.id === 'scene-pack-picker') closeScenePackPicker();
   });
   document.getElementById('scene-picker-search').addEventListener('input', e =>
     renderScenePicker(e.target.value));
